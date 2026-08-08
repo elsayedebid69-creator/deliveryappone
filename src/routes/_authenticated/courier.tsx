@@ -89,7 +89,7 @@ function CourierPage() {
                       .eq("id", o.id)
                       .is("courier_id", null);
                     if (error) toast.error(error.message);
-                    else toast.success(t("accepted"));
+                    else toast.success(t("accept"));
                     refresh();
                   }}
                 >

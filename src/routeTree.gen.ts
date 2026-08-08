@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedCourierRouteImport } from './routes/_authenticated/courier'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
 import { Route as AuthenticatedVendorRouteImport } from './routes/_authenticated/vendor'
 import { Route as RestaurantIdRouteImport } from './routes/restaurant.$id'
@@ -42,6 +43,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedCourierRoute = AuthenticatedCourierRouteImport.update({
+  id: '/courier',
+  path: '/courier',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   id: '/orders',
   path: '/orders',
@@ -63,6 +69,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/courier': typeof AuthenticatedCourierRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/courier': typeof AuthenticatedCourierRoute
   '/orders': typeof AuthenticatedOrdersRoute
   '/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/courier': typeof AuthenticatedCourierRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
   '/_authenticated/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
@@ -94,6 +103,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/admin'
+    | '/courier'
     | '/orders'
     | '/vendor'
     | '/restaurant/$id'
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/admin'
+    | '/courier'
     | '/orders'
     | '/vendor'
     | '/restaurant/$id'
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/_authenticated/admin'
+    | '/_authenticated/courier'
     | '/_authenticated/orders'
     | '/_authenticated/vendor'
     | '/restaurant/$id'
@@ -163,6 +175,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/courier': {
+      id: '/_authenticated/courier'
+      path: '/courier'
+      fullPath: '/courier'
+      preLoaderRoute: typeof AuthenticatedCourierRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/orders': {
       id: '/_authenticated/orders'
       path: '/orders'
@@ -189,12 +208,14 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedCourierRoute: typeof AuthenticatedCourierRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
   AuthenticatedVendorRoute: typeof AuthenticatedVendorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedCourierRoute: AuthenticatedCourierRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
   AuthenticatedVendorRoute: AuthenticatedVendorRoute,
 }
