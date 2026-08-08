@@ -58,7 +58,7 @@ export const createAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => accountSchema.parse(d))
   .handler(async ({ data, context }) => {
-    await assertAdmin(context as never);
+    await assertAdmin(context as unknown as AuthedContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
@@ -73,7 +73,7 @@ export const createAccount = createServerFn({ method: "POST" })
 export const listAccounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertAdmin(context as never);
+    await assertAdmin(context as unknown as AuthedContext);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: users } = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 200 });
     const { data: roles } = await supabaseAdmin.from("user_roles").select("user_id, role");
