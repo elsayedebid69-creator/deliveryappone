@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
+import { Route as AuthenticatedVendorRouteImport } from './routes/_authenticated/vendor'
 import { Route as RestaurantIdRouteImport } from './routes/restaurant.$id'
 
 const IndexRoute = IndexRouteImport.update({
@@ -46,6 +47,11 @@ const AuthenticatedOrdersRoute = AuthenticatedOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedVendorRoute = AuthenticatedVendorRouteImport.update({
+  id: '/vendor',
+  path: '/vendor',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const RestaurantIdRoute = RestaurantIdRouteImport.update({
   id: '/restaurant/$id',
   path: '/restaurant/$id',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRoutesByTo {
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/orders': typeof AuthenticatedOrdersRoute
+  '/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRoutesById {
@@ -76,13 +84,28 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
+  '/_authenticated/vendor': typeof AuthenticatedVendorRoute
   '/restaurant/$id': typeof RestaurantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/cart' | '/admin' | '/orders' | '/restaurant/$id'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/cart'
+    | '/admin'
+    | '/orders'
+    | '/vendor'
+    | '/restaurant/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/cart' | '/admin' | '/orders' | '/restaurant/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/cart'
+    | '/admin'
+    | '/orders'
+    | '/vendor'
+    | '/restaurant/$id'
   id:
     | '__root__'
     | '/'
@@ -91,6 +114,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/_authenticated/admin'
     | '/_authenticated/orders'
+    | '/_authenticated/vendor'
     | '/restaurant/$id'
   fileRoutesById: FileRoutesById
 }
@@ -146,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOrdersRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vendor': {
+      id: '/_authenticated/vendor'
+      path: '/vendor'
+      fullPath: '/vendor'
+      preLoaderRoute: typeof AuthenticatedVendorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/restaurant/$id': {
       id: '/restaurant/$id'
       path: '/restaurant/$id'
@@ -159,11 +190,13 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedOrdersRoute: typeof AuthenticatedOrdersRoute
+  AuthenticatedVendorRoute: typeof AuthenticatedVendorRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedOrdersRoute: AuthenticatedOrdersRoute,
+  AuthenticatedVendorRoute: AuthenticatedVendorRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
