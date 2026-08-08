@@ -39,10 +39,14 @@ export const bootstrapAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-async function assertAdmin(context: { supabase: ReturnType<typeof Object>; userId: string } & {
-  supabase: any;
+type AuthedContext = {
   userId: string;
-}) {
+  supabase: {
+    rpc: (fn: string, args: Record<string, unknown>) => Promise<{ data: unknown; error: unknown }>;
+  };
+};
+
+async function assertAdmin(context: AuthedContext) {
   const { data, error } = await context.supabase.rpc("has_role", {
     _user_id: context.userId,
     _role: "admin",
