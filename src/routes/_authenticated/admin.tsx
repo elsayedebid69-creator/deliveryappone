@@ -98,12 +98,6 @@ function AdminPage() {
     mutationFn: async (request: any) => {
       return await approveJoinRequest({ data: { id: request.id as string } });
     },
-
-
-      if (updateError) throw updateError;
-
-      return { tempPassword, email: request.data.email };
-    },
     onSuccess: (data) => {
       toast.success(t("approved"));
       toast.info(
