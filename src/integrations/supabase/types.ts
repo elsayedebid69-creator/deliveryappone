@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      join_requests: {
+        Row: {
+          created_at: string
+          data: Json
+          id: string
+          reviewed_at: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           category_ar: string
