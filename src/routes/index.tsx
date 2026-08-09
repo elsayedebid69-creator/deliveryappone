@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Star, Clock, Bike, Filter, SlidersHorizontal } from "lucide-react";
+import { Search, Star, Clock, Bike, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { AppFooter, AppHeader } from "@/components/app-header";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import heroImage from "@/assets/hero.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -88,13 +87,8 @@ function Home() {
       <AppHeader />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <img
-          src={heroImage}
-          alt={lang === "ar" ? "أطباق شهية من مطاعم متنوعة" : "Delicious dishes from local restaurants"}
-          className="absolute inset-0 size-full object-cover"
-        />
-        <div className="hero-gradient absolute inset-0 opacity-90" />
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-orange-600">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyem0wLTR2Mkg4VjI4aDI4em0wLTRWMjBIMnYySDM2ek0zNiAxMHYySDI0VjEwaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30" />
         <div className="relative mx-auto max-w-6xl px-4 py-20 text-white">
           <div className="max-w-2xl">
             <Badge className="mb-4 bg-white/20 text-white hover:bg-white/30">
