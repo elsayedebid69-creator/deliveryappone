@@ -111,7 +111,7 @@ function CartPage() {
           <div className="surface p-10 text-center">
             <p className="text-muted-foreground">{t("emptyCart")}</p>
             <Button asChild className="mt-4">
-              <Link to="/">{t("browseRestaurants")}</Link>
+              <Link to="/">{t("browseMenu")}</Link>
             </Button>
           </div>
         ) : (

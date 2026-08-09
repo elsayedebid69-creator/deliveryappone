@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { FoodHubLogo } from "@/components/food-hub-logo";
 import {
-  Leaf,
   Building2,
   User,
   Phone,
@@ -23,9 +23,9 @@ import {
 export const Route = createFileRoute("/join/restaurant")({
   head: () => ({
     meta: [
-      { title: "طلب انضمام مطعم | Food Hub" },
-      { name: "description", content: "انضم إلى منصة Food Hub كمطعم صحي واعرض أطباقك لآلاف العملاء." },
-      { property: "og:title", content: "طلب انضمام مطعم | Food Hub" },
+      { title: "طلب انضمام | FOOD HUB" },
+      { name: "description", content: "انضم إلى منصة Food Hub كشريك توصيل." },
+      { property: "og:title", content: "طلب انضمام | FOOD HUB" },
     ],
   }),
   component: RestaurantJoinPage,
@@ -74,15 +74,15 @@ function RestaurantJoinPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+      <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
         <AppHeader />
         <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
           <div className="w-full space-y-6 text-center">
-            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-green-100">
-              <CheckCircle2 className="size-10 text-[#2ECC71]" />
+            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#FFC72C]/20">
+              <CheckCircle2 className="size-10 text-[#2B1B12]" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t("requestSubmitted")}</h1>
+              <h1 className="text-2xl font-bold text-[#2B1B12]">{t("requestSubmitted")}</h1>
               <p className="mt-2 text-gray-500">{t("requestPending")}</p>
             </div>
             <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg">
@@ -94,7 +94,7 @@ function RestaurantJoinPage() {
             </div>
             <Link to="/">
               <Button variant="outline" className="w-full">
-                {t("browseRestaurants")}
+                {t("browseMenu")}
               </Button>
             </Link>
           </div>
@@ -104,24 +104,24 @@ function RestaurantJoinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
       <AppHeader />
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg flex-col items-center justify-center px-4 py-12">
         <div className="w-full space-y-6">
           {/* Header */}
           <div className="text-center">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] shadow-lg">
-              <Leaf className="size-8 text-white" />
+            <div className="mx-auto mb-4 flex justify-center">
+              <FoodHubLogo size={64} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{t("joinRequest")}</h1>
+            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("joinRequest")}</h1>
             <p className="mt-1 text-sm text-gray-500">{t("joinRequestSubtitle")}</p>
           </div>
 
           {/* Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-green-500/5">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
             <form onSubmit={handleSubmit} className="space-y-5">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900">
-                <Building2 className="size-5 text-[#2ECC71]" />
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-[#2B1B12]">
+                <Building2 className="size-5 text-[#FFC72C]" />
                 {t("restaurantInfo")}
               </h2>
 
@@ -149,7 +149,7 @@ function RestaurantJoinPage() {
                     maxLength={100}
                     value={form.business_name_en}
                     onChange={(e) => setForm({ ...form, business_name_en: e.target.value })}
-                    placeholder={lang === "ar" ? "مثال: Al Sharq Restaurant" : "e.g. Al Sharq Restaurant"}
+                    placeholder="e.g. Al Sharq Restaurant"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ function RestaurantJoinPage() {
                   maxLength={500}
                   value={form.description}
                   onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder={lang === "ar" ? "نبذة عن مطعمك..." : "About your restaurant..."}
+                  placeholder={lang === "ar" ? "نبذة عن نشاطك..." : "About your business..."}
                   rows={3}
                 />
               </div>
@@ -261,9 +261,9 @@ function RestaurantJoinPage() {
               {/* Photo Upload Placeholder */}
               <div className="space-y-2">
                 <Label className="text-sm font-medium text-gray-700">
-                  {lang === "ar" ? "صور المطعم" : "Restaurant photos"}
+                  {lang === "ar" ? "صور النشاط" : "Business photos"}
                 </Label>
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 transition-colors hover:border-green-300 hover:bg-green-50">
+                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 transition-colors hover:border-[#FFC72C]/50 hover:bg-[#FFC72C]/5">
                   <Upload className="mb-2 size-8 text-gray-400" />
                   <p className="text-sm text-gray-500">{t("uploadHint")}</p>
                   <p className="mt-1 text-xs text-gray-400">
@@ -274,12 +274,12 @@ function RestaurantJoinPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]"
+                className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
                 disabled={busy}
               >
                 {busy ? (
                   <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
                     {lang === "ar" ? "جاري الإرسال..." : "Submitting..."}
                   </span>
                 ) : (
@@ -296,13 +296,13 @@ function RestaurantJoinPage() {
           <div className="space-y-3 text-center">
             <p className="text-sm text-gray-500">
               {lang === "ar" ? "للعودة لتسجيل الدخول" : "Back to"}{" "}
-              <Link to="/auth" className="font-medium text-[#2ECC71] hover:text-[#27AE60]">
+              <Link to="/auth" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
                 {t("login")}
               </Link>
             </p>
             <p className="text-xs text-gray-400">
               {lang === "ar" ? "أو" : "Or"}{" "}
-              <Link to="/join/courier" className="text-[#2ECC71] hover:text-[#27AE60]">
+              <Link to="/join/courier" className="text-[#FFC72C] hover:text-[#E6B800]">
                 {t("joinAsCourier")}
               </Link>
             </p>

@@ -61,7 +61,7 @@ function RestaurantPage() {
         <AppHeader />
         <div className="mx-auto max-w-4xl p-10 text-center">
           <Link to="/" className="underline">
-            {t("browseRestaurants")}
+            {t("browseMenu")}
           </Link>
         </div>
       </div>

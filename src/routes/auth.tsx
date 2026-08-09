@@ -9,14 +9,15 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Leaf, Mail, Lock, ArrowRight, ChefHat, Bike, Shield } from "lucide-react";
+import { FoodHubLogo } from "@/components/food-hub-logo";
+import { Mail, Lock, ArrowRight, ChefHat, Bike, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | Food Hub" },
-      { name: "description", content: "سجّل الدخول إلى حسابك في منصة Food Hub لتوصيل الطعام الصحي." },
-      { property: "og:title", content: "تسجيل الدخول | Food Hub" },
+      { title: "تسجيل الدخول | FOOD HUB" },
+      { name: "description", content: "سجّل الدخول إلى حسابك في منصة Food Hub." },
+      { property: "og:title", content: "تسجيل الدخول | FOOD HUB" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -48,21 +49,21 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
       <AppHeader />
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
         <div className="w-full space-y-6">
           {/* Brand Header */}
           <div className="text-center">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] shadow-lg">
-              <Leaf className="size-8 text-white" />
+            <div className="mx-auto mb-4 flex justify-center">
+              <FoodHubLogo size={64} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{t("login")}</h1>
+            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("login")}</h1>
             <p className="mt-1 text-sm text-gray-500">{t("signInSubtitle")}</p>
           </div>
 
           {/* Login Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-green-500/5">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
             <form onSubmit={signIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
@@ -104,12 +105,12 @@ function AuthPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]"
+                className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
                 disabled={busy}
               >
                 {busy ? (
                   <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
                     {lang === "ar" ? "جاري تسجيل الدخول..." : "Signing in..."}
                   </span>
                 ) : (
@@ -126,7 +127,7 @@ function AuthPage() {
           <div className="text-center">
             <p className="text-sm text-gray-500">
               {t("dontHaveAccount")}{" "}
-              <Link to="/auth/signup" className="font-medium text-[#2ECC71] hover:text-[#27AE60]">
+              <Link to="/auth/signup" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
                 {t("signUp")}
               </Link>
             </p>
@@ -139,7 +140,7 @@ function AuthPage() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-gradient-to-br from-emerald-50 via-white to-green-50 px-2 text-gray-400">
+                <span className="bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1] px-2 text-gray-400">
                   {lang === "ar" ? "أو" : "Or"}
                 </span>
               </div>
@@ -147,13 +148,13 @@ function AuthPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Link to="/join/restaurant">
-                <Button variant="outline" className="w-full border-green-200 hover:bg-green-50 hover:text-[#2ECC71]">
+                <Button variant="outline" className="w-full border-[#FFC72C]/30 hover:bg-[#FFC72C]/10 hover:text-[#2B1B12]">
                   <ChefHat className="mr-2 size-4" />
                   {t("joinAsRestaurant")}
                 </Button>
               </Link>
               <Link to="/join/courier">
-                <Button variant="outline" className="w-full border-red-200 hover:bg-red-50 hover:text-red-600">
+                <Button variant="outline" className="w-full border-[#2B1B12]/20 hover:bg-[#2B1B12]/5 hover:text-[#2B1B12]">
                   <Bike className="mr-2 size-4" />
                   {t("joinAsCourier")}
                 </Button>
@@ -165,9 +166,9 @@ function AuthPage() {
           <div className="text-center">
             <Link
               to="/"
-              className="text-sm text-gray-400 hover:text-gray-600"
+              className="text-sm text-gray-400 hover:text-[#2B1B12]"
             >
-              {t("browseRestaurants")} →
+              {t("browseMenu")} →
             </Link>
           </div>
         </div>
@@ -203,13 +204,13 @@ function BootstrapCard({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="rounded-2xl border-2 border-dashed border-green-200 bg-white p-6 shadow-lg">
+    <div className="rounded-2xl border-2 border-dashed border-[#FFC72C]/50 bg-white p-6 shadow-lg">
       <div className="flex items-center gap-3">
-        <div className="flex size-10 items-center justify-center rounded-xl bg-green-100">
-          <Shield className="size-5 text-[#2ECC71]" />
+        <div className="flex size-10 items-center justify-center rounded-xl bg-[#FFC72C]/20">
+          <Shield className="size-5 text-[#2B1B12]" />
         </div>
         <div>
-          <h2 className="font-bold text-gray-900">{t("setupAdmin")}</h2>
+          <h2 className="font-bold text-[#2B1B12]">{t("setupAdmin")}</h2>
           <p className="text-sm text-gray-500">{t("setupAdminHint")}</p>
         </div>
       </div>

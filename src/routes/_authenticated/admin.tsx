@@ -193,7 +193,7 @@ function AdminPage() {
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">{t("admin")}</h1>
-          <Badge variant="secondary" className="bg-green-100 text-[#2ECC71]">
+          <Badge variant="secondary" className="bg-[#FFC72C]/20 text-[#FFC72C]">
             {pendingRequests.length} {t("pendingRequests")}
           </Badge>
         </div>
@@ -232,7 +232,7 @@ function AdminPage() {
               <ClipboardCheck className="size-4" />
               {t("joinRequests")}
               {pendingRequests.length > 0 && (
-                <Badge className="ml-1 bg-[#2ECC71] text-white">{pendingRequests.length}</Badge>
+                <Badge className="ml-1 bg-[#FFC72C] text-white">{pendingRequests.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="accounts" className="gap-2">
@@ -254,7 +254,7 @@ function AdminPage() {
             {/* Pending Requests */}
             <div>
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Clock className="size-5 text-[#F5A623]" />
+                <Clock className="size-5 text-[#FFC72C]" />
                 {t("pendingRequests")}
                 <Badge variant="secondary">{pendingRequests.length}</Badge>
               </h3>
@@ -285,7 +285,7 @@ function AdminPage() {
             {approvedRequests.length > 0 && (
               <div>
                 <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                  <CheckCircle2 className="size-5 text-green-500" />
+                  <CheckCircle2 className="size-5 text-[#FFC72C]" />
                   {t("approvedRequests")}
                   <Badge variant="secondary">{approvedRequests.length}</Badge>
                 </h3>
@@ -452,7 +452,7 @@ function AdminPage() {
                   {t("reject")}
                 </Button>
                 <Button
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-[#FFC72C] hover:bg-[#E6B800]"
                   onClick={() => approveRequest.mutate(selectedRequest)}
                   disabled={approveRequest.isPending}
                 >
@@ -480,9 +480,9 @@ function StatCard({
 }) {
   const colors: Record<string, string> = {
     blue: "bg-blue-100 text-blue-600",
-    green: "bg-green-100 text-green-600",
+    green: "bg-[#FFC72C]/20 text-[#FFC72C]",
     purple: "bg-purple-100 text-purple-600",
-    orange: "bg-orange-100 text-orange-600",
+    orange: "bg-[#FFC72C]/20 text-[#E6B800]",
   };
   return (
     <div className="surface p-5">
@@ -515,8 +515,8 @@ function RequestCard({
   isProcessing?: boolean;
 }) {
   const statusColors: Record<string, string> = {
-    pending: "bg-green-100 text-[#2ECC71]",
-    approved: "bg-green-100 text-green-700",
+    pending: "bg-[#FFC72C]/20 text-[#FFC72C]",
+    approved: "bg-[#FFC72C]/20 text-[#2B1B12]",
     rejected: "bg-red-100 text-red-700",
   };
 
@@ -527,7 +527,7 @@ function RequestCard({
           <div className="flex items-center gap-3">
             <div
               className={`flex size-10 items-center justify-center rounded-xl ${
-                request.type === "restaurant" ? "bg-green-100 text-[#2ECC71]" : "bg-blue-100 text-blue-600"
+                request.type === "restaurant" ? "bg-[#FFC72C]/20 text-[#FFC72C]" : "bg-blue-100 text-blue-600"
               }`}
             >
               {request.type === "restaurant" ? (
@@ -567,7 +567,7 @@ function RequestCard({
           <>
             <Button
               variant="ghost"
-              className="flex-1 gap-2 rounded-none border-l border-border text-sm text-green-600 hover:bg-green-50 hover:text-green-700"
+              className="flex-1 gap-2 rounded-none border-l border-border text-sm text-[#FFC72C] hover:bg-[#FFC72C]/10 hover:text-[#2B1B12]"
               onClick={onApprove}
               disabled={isProcessing}
             >

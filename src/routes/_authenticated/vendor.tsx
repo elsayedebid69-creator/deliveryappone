@@ -127,8 +127,8 @@ function VendorPage() {
         <AppHeader />
         <main className="mx-auto max-w-4xl px-4 py-16 text-center">
           <div className="surface mx-auto max-w-md p-8">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
-              <Store className="size-8 text-[#2ECC71]" />
+            <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-[#FFC72C]/20">
+              <Store className="size-8 text-[#FFC72C]" />
             </div>
             <h2 className="text-xl font-bold">{t("vendor")}</h2>
             <p className="mt-2 text-gray-500">
@@ -176,7 +176,7 @@ function VendorPage() {
                   .eq("id", restaurantId!);
                 void qc.invalidateQueries({ queryKey: ["my-restaurant", user?.id] });
               }}
-              className="data-[state=checked]:bg-green-500"
+              className="data-[state=checked]:bg-[#FFC72C]"
             />
           </div>
         </div>
@@ -195,7 +195,7 @@ function VendorPage() {
               <TrendingUp className="size-4" />
               {lang === "ar" ? "إيرادات اليوم" : "Today's revenue"}
             </div>
-            <p className="mt-1 text-xl font-bold text-green-600">
+            <p className="mt-1 text-xl font-bold text-[#FFC72C]">
               {todayRevenue.toFixed(0)} {t("sar")}
             </p>
           </div>
@@ -204,14 +204,14 @@ function VendorPage() {
               <Clock className="size-4" />
               {t("pending")}
             </div>
-            <p className="mt-1 text-xl font-bold text-orange-600">{pendingOrders.length}</p>
+            <p className="mt-1 text-xl font-bold text-[#E6B800]">{pendingOrders.length}</p>
           </div>
           <div className="surface p-4">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <CheckCircle2 className="size-4" />
               {lang === "ar" ? "مكتملة" : "Completed"}
             </div>
-            <p className="mt-1 text-xl font-bold text-green-600">{completedOrders.length}</p>
+            <p className="mt-1 text-xl font-bold text-[#FFC72C]">{completedOrders.length}</p>
           </div>
         </div>
 
@@ -221,7 +221,7 @@ function VendorPage() {
               <ClipboardCheck className="size-4" />
               {t("incomingOrders")}
               {pendingOrders.length > 0 && (
-                <Badge className="ml-1 bg-[#F5A623] text-white">{pendingOrders.length}</Badge>
+                <Badge className="ml-1 bg-[#FFC72C] text-white">{pendingOrders.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="menu" className="gap-2">
@@ -250,9 +250,9 @@ function VendorPage() {
                           <div
                             className={`flex size-10 items-center justify-center rounded-full ${
                               o.status === "delivered"
-                                ? "bg-green-100 text-green-600"
+                                ? "bg-[#FFC72C]/20 text-[#FFC72C]"
                                 : o.status === "pending"
-                                  ? "bg-orange-100 text-orange-600"
+                                  ? "bg-[#FFC72C]/20 text-[#E6B800]"
                                   : "bg-blue-100 text-blue-600"
                             }`}
                           >
@@ -316,7 +316,7 @@ function VendorPage() {
             {/* Add Item Form */}
             <div className="surface p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-                <Plus className="size-5 text-[#2ECC71]" />
+                <Plus className="size-5 text-[#FFC72C]" />
                 {t("addItem")}
               </h2>
               <form
@@ -377,7 +377,7 @@ function VendorPage() {
                   />
                 </div>
                 <div className="flex items-end">
-                  <Button type="submit" className="w-full bg-[#2ECC71] hover:bg-[#27AE60]" disabled={addItem.isPending}>
+                  <Button type="submit" className="w-full bg-[#FFC72C] hover:bg-[#E6B800]" disabled={addItem.isPending}>
                     <Plus className="mr-2 size-4" />
                     {t("add")}
                   </Button>
@@ -391,8 +391,8 @@ function VendorPage() {
                 <div key={it.id} className="surface p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-green-100">
-                        <UtensilsCrossed className="size-5 text-[#2ECC71]" />
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-[#FFC72C]/20">
+                        <UtensilsCrossed className="size-5 text-[#FFC72C]" />
                       </div>
                       <div>
                         <p className="font-semibold">{tf(it, "name")}</p>
@@ -416,7 +416,7 @@ function VendorPage() {
                               .eq("id", it.id);
                             void qc.invalidateQueries({ queryKey: ["vendor-items", restaurantId] });
                           }}
-                          className="data-[state=checked]:bg-green-500"
+                          className="data-[state=checked]:bg-[#FFC72C]"
                         />
                       </div>
                       <Button

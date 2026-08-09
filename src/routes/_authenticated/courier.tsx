@@ -118,7 +118,7 @@ function CourierPage() {
             <Switch
               checked={isOnline}
               onCheckedChange={setIsOnline}
-              className="data-[state=checked]:bg-green-500"
+              className="data-[state=checked]:bg-[#FFC72C]"
             />
           </div>
         </div>
@@ -130,7 +130,7 @@ function CourierPage() {
               <DollarSign className="size-4" />
               {t("todayEarnings")}
             </div>
-            <p className="mt-1 text-xl font-bold text-green-600">
+            <p className="mt-1 text-xl font-bold text-[#FFC72C]">
               {earnings.data?.today ?? 0} {t("sar")}
             </p>
           </div>
@@ -154,9 +154,9 @@ function CourierPage() {
 
         {/* Current Delivery */}
         {currentDelivery && (
-          <div className="surface overflow-hidden border-l-4 border-green-500">
-            <div className="bg-green-50 px-5 py-3">
-              <h3 className="flex items-center gap-2 font-semibold text-green-700">
+          <div className="surface overflow-hidden border-l-4 border-[#FFC72C]">
+            <div className="bg-[#FFC72C]/10 px-5 py-3">
+              <h3 className="flex items-center gap-2 font-semibold text-[#2B1B12]">
                 <Navigation className="size-4" />
                 {t("currentOrder")}
               </h3>
@@ -178,14 +178,14 @@ function CourierPage() {
                     {currentDelivery.phone}
                   </p>
                 </div>
-                <Badge className="bg-green-100 text-green-700">
+                <Badge className="bg-[#FFC72C]/20 text-[#2B1B12]">
                   {tStatus(currentDelivery.status)}
                 </Badge>
               </div>
               <div className="mt-4 flex gap-2">
                 {currentDelivery.status !== "delivered" && (
                   <Button
-                    className="flex-1 bg-green-600 hover:bg-green-700"
+                    className="flex-1 bg-[#FFC72C] hover:bg-[#E6B800]"
                     onClick={async () => {
                       await supabase
                         .from("orders")
@@ -207,7 +207,7 @@ function CourierPage() {
         {/* Available Orders */}
         <section>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Clock className="size-5 text-[#F5A623]" />
+            <Clock className="size-5 text-[#FFC72C]" />
             {t("availableOrders")}
             <Badge variant="secondary">{available.data?.length ?? 0}</Badge>
           </h2>
@@ -237,7 +237,7 @@ function CourierPage() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-green-600">
+                        <p className="text-lg font-bold text-[#FFC72C]">
                           {o.delivery_fee} {t("sar")}
                         </p>
                         <p className="text-xs text-gray-400">{t("deliveryFee")}</p>
@@ -246,7 +246,7 @@ function CourierPage() {
                   </div>
                   <div className="border-t border-border p-4">
                     <Button
-                      className="w-full bg-[#2ECC71] hover:bg-[#27AE60]"
+                      className="w-full bg-[#FFC72C] hover:bg-[#E6B800]"
                       onClick={async () => {
                         const { error } = await supabase
                           .from("orders")
@@ -279,7 +279,7 @@ function CourierPage() {
                       <div
                         className={`flex size-10 items-center justify-center rounded-full ${
                           o.status === "delivered"
-                            ? "bg-green-100 text-green-600"
+                            ? "bg-[#FFC72C]/20 text-[#FFC72C]"
                             : o.status === "on_the_way"
                               ? "bg-blue-100 text-blue-600"
                               : "bg-gray-100 text-gray-600"
@@ -303,7 +303,7 @@ function CourierPage() {
                         variant="secondary"
                         className={
                           o.status === "delivered"
-                            ? "bg-green-100 text-green-700"
+                            ? "bg-[#FFC72C]/20 text-[#2B1B12]"
                             : "bg-blue-100 text-blue-700"
                         }
                       >

@@ -7,14 +7,15 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Leaf, User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
+import { FoodHubLogo } from "@/components/food-hub-logo";
+import { User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب | Food Hub" },
-      { name: "description", content: "سجّل حساب جديد في منصة Food Hub لتوصيل الطعام الصحي." },
-      { property: "og:title", content: "إنشاء حساب | Food Hub" },
+      { title: "إنشاء حساب | FOOD HUB" },
+      { name: "description", content: "سجّل حساب جديد في منصة Food Hub." },
+      { property: "og:title", content: "إنشاء حساب | FOOD HUB" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -71,21 +72,21 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
       <AppHeader />
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
         <div className="w-full space-y-6">
           {/* Brand Header */}
           <div className="text-center">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] shadow-lg">
-              <Leaf className="size-8 text-white" />
+            <div className="mx-auto mb-4 flex justify-center">
+              <FoodHubLogo size={64} />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">{t("signUp")}</h1>
+            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("signUp")}</h1>
             <p className="mt-1 text-sm text-gray-500">{t("signUpSubtitle")}</p>
           </div>
 
           {/* Signup Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-green-500/5">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">
@@ -121,7 +122,7 @@ function SignupPage() {
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                     className="pl-10"
-                    placeholder={lang === "ar" ? "example@email.com" : "example@email.com"}
+                    placeholder="example@email.com"
                   />
                 </div>
               </div>
@@ -140,7 +141,7 @@ function SignupPage() {
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className="pl-10"
-                    placeholder={lang === "ar" ? "05XXXXXXXX" : "05XXXXXXXX"}
+                    placeholder="05XXXXXXXX"
                   />
                 </div>
               </div>
@@ -185,10 +186,10 @@ function SignupPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]" disabled={busy}>
+              <Button type="submit" className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]" disabled={busy}>
                 {busy ? (
                   <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
                     {lang === "ar" ? "جاري الإنشاء..." : "Creating..."}
                   </span>
                 ) : (
@@ -205,7 +206,7 @@ function SignupPage() {
           <div className="text-center">
             <p className="text-sm text-gray-500">
               {t("alreadyHaveAccount")}{" "}
-              <Link to="/auth" className="font-medium text-[#2ECC71] hover:text-[#27AE60]">
+              <Link to="/auth" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
                 {t("login")}
               </Link>
             </p>
@@ -218,7 +219,7 @@ function SignupPage() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-gradient-to-br from-emerald-50 via-white to-green-50 px-2 text-gray-400">
+                <span className="bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1] px-2 text-gray-400">
                   {lang === "ar" ? "أو" : "Or"}
                 </span>
               </div>
@@ -226,12 +227,12 @@ function SignupPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Link to="/join/restaurant">
-                <Button variant="outline" className="w-full border-green-200 hover:bg-green-50 hover:text-[#2ECC71]">
+                <Button variant="outline" className="w-full border-[#FFC72C]/30 hover:bg-[#FFC72C]/10 hover:text-[#2B1B12]">
                   {t("joinAsRestaurant")}
                 </Button>
               </Link>
               <Link to="/join/courier">
-                <Button variant="outline" className="w-full border-red-200 hover:bg-red-50 hover:text-red-600">
+                <Button variant="outline" className="w-full border-[#2B1B12]/20 hover:bg-[#2B1B12]/5 hover:text-[#2B1B12]">
                   {t("joinAsCourier")}
                 </Button>
               </Link>
