@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ShoppingBag, Languages, LogOut, LayoutDashboard, UtensilsCrossed, Menu, X } from "lucide-react";
+import { ShoppingBag, Languages, LogOut, LayoutDashboard, Leaf, Menu, X } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useCart } from "@/lib/cart";
 import { dashboardPathFor, useSession } from "@/lib/session";
@@ -25,8 +25,8 @@ export function AppHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-md">
-            <UtensilsCrossed className="size-5" />
+          <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] text-white shadow-md">
+            <Leaf className="size-5" />
           </span>
           <span className="font-display text-lg font-bold tracking-tight text-gray-900">
             {t("brand")}
@@ -66,7 +66,7 @@ export function AppHeader() {
               <ShoppingBag className="size-4" />
               <span className="hidden sm:inline">{t("cart")}</span>
               {count > 0 ? (
-                <span className="absolute -top-1 -end-1 flex size-5 items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-red-500 text-[11px] font-bold text-white">
+                <span className="absolute -top-1 -end-1 flex size-5 items-center justify-center rounded-full bg-[#F5A623] text-[11px] font-bold text-white">
                   {count}
                 </span>
               ) : null}
@@ -79,7 +79,7 @@ export function AppHeader() {
               <span className="hidden sm:inline">{t("logout")}</span>
             </Button>
           ) : (
-            <Button asChild size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+            <Button asChild size="sm" className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]">
               <Link to="/auth">{t("login")}</Link>
             </Button>
           )}
@@ -132,7 +132,9 @@ export function AppHeader() {
                 <ShoppingBag className="size-4" />
                 {t("cart")}
                 {count > 0 ? (
-                  <Badge className="ml-2 bg-orange-500 text-white">{count}</Badge>
+                  <span className="ml-2 flex size-5 items-center justify-center rounded-full bg-[#F5A623] text-[11px] font-bold text-white">
+                    {count}
+                  </span>
                 ) : null}
               </Link>
             </Button>
@@ -143,7 +145,7 @@ export function AppHeader() {
                 {t("logout")}
               </Button>
             ) : (
-              <Button asChild size="sm" className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600">
+              <Button asChild size="sm" className="bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]">
                 <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                   {t("login")}
                 </Link>
@@ -165,8 +167,8 @@ export function AppFooter() {
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-2">
-              <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-500 text-white">
-                <UtensilsCrossed className="size-5" />
+              <span className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] text-white">
+                <Leaf className="size-5" />
               </span>
               <span className="font-display text-lg font-bold text-gray-900">{t("brand")}</span>
             </div>
@@ -182,17 +184,17 @@ export function AppFooter() {
             </h3>
             <ul className="space-y-2 text-sm text-gray-500">
               <li>
-                <Link to="/" className="hover:text-orange-600">
+                <Link to="/" className="hover:text-[#2ECC71]">
                   {t("allRestaurants")}
                 </Link>
               </li>
               <li>
-                <Link to="/cart" className="hover:text-orange-600">
+                <Link to="/cart" className="hover:text-[#2ECC71]">
                   {t("cart")}
                 </Link>
               </li>
               <li>
-                <Link to="/auth" className="hover:text-orange-600">
+                <Link to="/auth" className="hover:text-[#2ECC71]">
                   {t("login")}
                 </Link>
               </li>
@@ -205,12 +207,12 @@ export function AppFooter() {
             </h3>
             <ul className="space-y-2 text-sm text-gray-500">
               <li>
-                <Link to="/join/restaurant" className="hover:text-orange-600">
+                <Link to="/join/restaurant" className="hover:text-[#2ECC71]">
                   {t("joinAsRestaurant")}
                 </Link>
               </li>
               <li>
-                <Link to="/join/courier" className="hover:text-orange-600">
+                <Link to="/join/courier" className="hover:text-[#2ECC71]">
                   {t("joinAsCourier")}
                 </Link>
               </li>
@@ -224,7 +226,7 @@ export function AppFooter() {
             <ul className="space-y-2 text-sm text-gray-500">
               <li>
                 <span className="text-gray-400">{lang === "ar" ? "البريد الإلكتروني" : "Email"}:</span>{" "}
-                support@sufra.com
+                support@foodhub.com
               </li>
               <li>
                 <span className="text-gray-400">{lang === "ar" ? "الجوال" : "Phone"}:</span>{" "}

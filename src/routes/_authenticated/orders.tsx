@@ -10,9 +10,9 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({
     meta: [
-      { title: "طلباتي | سُفرة" },
-      { name: "description", content: "تابع حالة طلباتك الحالية والسابقة على منصة سُفرة." },
-      { property: "og:title", content: "طلباتي | سُفرة" },
+      { title: "طلباتي | Food Hub" },
+      { name: "description", content: "تابع حالة طلباتك الحالية والسابقة على منصة Food Hub." },
+      { property: "og:title", content: "طلباتي | Food Hub" },
       { property: "og:description", content: "تابع حالة طلباتك الحالية والسابقة." },
       { name: "robots", content: "noindex" },
     ],

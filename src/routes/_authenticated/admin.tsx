@@ -42,9 +42,9 @@ import {
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "لوحة الإدارة | سُفرة" },
-      { name: "description", content: "إدارة الحسابات والمطاعم والطلبات في منصة سُفرة." },
-      { property: "og:title", content: "لوحة الإدارة | سُفرة" },
+      { title: "لوحة الإدارة | Food Hub" },
+      { name: "description", content: "إدارة الحسابات والمطاعم والطلبات في منصة Food Hub." },
+      { property: "og:title", content: "لوحة الإدارة | Food Hub" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -193,7 +193,7 @@ function AdminPage() {
       <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">{t("admin")}</h1>
-          <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+          <Badge variant="secondary" className="bg-green-100 text-[#2ECC71]">
             {pendingRequests.length} {t("pendingRequests")}
           </Badge>
         </div>
@@ -232,7 +232,7 @@ function AdminPage() {
               <ClipboardCheck className="size-4" />
               {t("joinRequests")}
               {pendingRequests.length > 0 && (
-                <Badge className="ml-1 bg-orange-500 text-white">{pendingRequests.length}</Badge>
+                <Badge className="ml-1 bg-[#2ECC71] text-white">{pendingRequests.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="accounts" className="gap-2">
@@ -254,7 +254,7 @@ function AdminPage() {
             {/* Pending Requests */}
             <div>
               <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-                <Clock className="size-5 text-orange-500" />
+                <Clock className="size-5 text-[#F5A623]" />
                 {t("pendingRequests")}
                 <Badge variant="secondary">{pendingRequests.length}</Badge>
               </h3>
@@ -515,7 +515,7 @@ function RequestCard({
   isProcessing?: boolean;
 }) {
   const statusColors: Record<string, string> = {
-    pending: "bg-orange-100 text-orange-700",
+    pending: "bg-green-100 text-[#2ECC71]",
     approved: "bg-green-100 text-green-700",
     rejected: "bg-red-100 text-red-700",
   };
@@ -527,7 +527,7 @@ function RequestCard({
           <div className="flex items-center gap-3">
             <div
               className={`flex size-10 items-center justify-center rounded-xl ${
-                request.type === "restaurant" ? "bg-orange-100 text-orange-600" : "bg-blue-100 text-blue-600"
+                request.type === "restaurant" ? "bg-green-100 text-[#2ECC71]" : "bg-blue-100 text-blue-600"
               }`}
             >
               {request.type === "restaurant" ? (

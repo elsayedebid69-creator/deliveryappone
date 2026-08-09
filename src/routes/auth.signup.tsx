@@ -7,14 +7,14 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UtensilsCrossed, User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
+import { Leaf, User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب | سُفرة" },
-      { name: "description", content: "سجّل حساب جديد في منصة سُفرة لتوصيل الطعام." },
-      { property: "og:title", content: "إنشاء حساب | سُفرة" },
+      { title: "إنشاء حساب | Food Hub" },
+      { name: "description", content: "سجّل حساب جديد في منصة Food Hub لتوصيل الطعام الصحي." },
+      { property: "og:title", content: "إنشاء حساب | Food Hub" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -71,21 +71,21 @@ function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-green-50">
       <AppHeader />
       <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
         <div className="w-full space-y-6">
           {/* Brand Header */}
           <div className="text-center">
-            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 shadow-lg">
-              <UtensilsCrossed className="size-8 text-white" />
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-[#2ECC71] to-[#1E8449] shadow-lg">
+              <Leaf className="size-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">{t("signUp")}</h1>
             <p className="mt-1 text-sm text-gray-500">{t("signUpSubtitle")}</p>
           </div>
 
           {/* Signup Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-orange-500/5">
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-green-500/5">
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">
@@ -185,7 +185,7 @@ function SignupPage() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600" disabled={busy}>
+              <Button type="submit" className="w-full bg-gradient-to-r from-[#2ECC71] to-[#27AE60] hover:from-[#27AE60] hover:to-[#1E8449]" disabled={busy}>
                 {busy ? (
                   <span className="flex items-center gap-2">
                     <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -205,7 +205,7 @@ function SignupPage() {
           <div className="text-center">
             <p className="text-sm text-gray-500">
               {t("alreadyHaveAccount")}{" "}
-              <Link to="/auth" className="font-medium text-orange-600 hover:text-orange-700">
+              <Link to="/auth" className="font-medium text-[#2ECC71] hover:text-[#27AE60]">
                 {t("login")}
               </Link>
             </p>
@@ -218,7 +218,7 @@ function SignupPage() {
                 <div className="w-full border-t border-gray-200" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-gradient-to-br from-orange-50 via-white to-red-50 px-2 text-gray-400">
+                <span className="bg-gradient-to-br from-emerald-50 via-white to-green-50 px-2 text-gray-400">
                   {lang === "ar" ? "أو" : "Or"}
                 </span>
               </div>
@@ -226,7 +226,7 @@ function SignupPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <Link to="/join/restaurant">
-                <Button variant="outline" className="w-full border-orange-200 hover:bg-orange-50 hover:text-orange-600">
+                <Button variant="outline" className="w-full border-green-200 hover:bg-green-50 hover:text-[#2ECC71]">
                   {t("joinAsRestaurant")}
                 </Button>
               </Link>

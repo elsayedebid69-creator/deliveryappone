@@ -3,13 +3,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 export type Lang = "ar" | "en";
 
 const dict = {
-  brand: { ar: "سُفرة", en: "Sufra" },
-  tagline: { ar: "أشهى الأطباق تصلك في دقائق", en: "Great food, delivered in minutes" },
+  brand: { ar: "فود هب", en: "Food Hub" },
+  tagline: { ar: "أشهى الأطباق الصحية تصلك في دقائق", en: "Healthy meals, delivered in minutes" },
   heroSub: {
-    ar: "اطلب من أفضل المطاعم حولك وتابع طلبك لحظة بلحظة حتى باب بيتك.",
-    en: "Order from the best restaurants near you and track every step to your door.",
+    ar: "اطلب من أفضل المطاعم الصحية وتابع طلبك لحظة بلحظة حتى باب بيتك",
+    en: "Order from the best healthy restaurants near you and track every step to your door.",
   },
-  searchPlaceholder: { ar: "ابحث عن مطعم أو طبق...", en: "Search restaurants or dishes..." },
+  searchPlaceholder: { ar: "ابحث عن مطعم أو طبق صحي...", en: "Search restaurants or healthy dishes..." },
   restaurants: { ar: "المطاعم", en: "Restaurants" },
   allRestaurants: { ar: "كل المطاعم", en: "All restaurants" },
   orders: { ar: "طلباتي", en: "My orders" },
@@ -35,7 +35,7 @@ const dict = {
   checkout: { ar: "إتمام الطلب", en: "Checkout" },
   menu: { ar: "قائمة الطعام", en: "Menu" },
   unavailable: { ar: "غير متوفر", en: "Unavailable" },
-  admin: { ar: "لوحة الأدمن", en: "Admin" },
+  admin: { ar: "لوحة الإدارة", en: "Admin" },
   vendor: { ar: "لوحة المطعم", en: "Restaurant" },
   courier: { ar: "لوحة المندوب", en: "Courier" },
   createAccount: { ar: "إنشاء حساب", en: "Create account" },
@@ -71,8 +71,8 @@ const dict = {
   markDelivered: { ar: "تم التسليم", en: "Mark delivered" },
   loginRequired: { ar: "سجّل الدخول لإتمام الطلب", en: "Sign in to complete your order" },
   signInSubtitle: {
-    ar: "الحسابات تُنشأ عن طريق إدارة المنصة فقط.",
-    en: "Accounts are created by the platform administration only.",
+    ar: "سجّل الدخول للوصول إلى أشهى الأطباق الصحية",
+    en: "Sign in to access healthy meals",
   },
   stats: { ar: "نظرة عامة", en: "Overview" },
   totalOrders: { ar: "إجمالي الطلبات", en: "Total orders" },
@@ -93,7 +93,7 @@ const dict = {
   fastDelivery: { ar: "توصيل سريع", en: "Fast delivery" },
   minOrderNotMet: { ar: "لم يتم بلوغ الحد الأدنى للطلب", en: "Minimum order not reached" },
   signUp: { ar: "إنشاء حساب جديد", en: "Create account" },
-  signUpSubtitle: { ar: "سجّل الآن وابدأ طلب أشهى الأطباق", en: "Sign up to start ordering delicious food" },
+  signUpSubtitle: { ar: "سجّل الآن وابدأ طلب أشهى الأطباق الصحية", en: "Sign up to start ordering healthy food" },
   alreadyHaveAccount: { ar: "لديك حساب؟", en: "Already have an account?" },
   dontHaveAccount: { ar: "ليس لديك حساب؟", en: "Don't have an account?" },
   joinAsRestaurant: { ar: "انضم كمطعم", en: "Join as Restaurant" },
@@ -161,6 +161,8 @@ const dict = {
   rating: { ar: "التقييم", en: "Rating" },
   deliveryTime: { ar: "وقت التوصيل", en: "Delivery time" },
   distance: { ar: "المسافة", en: "Distance" },
+  featuredMeals: { ar: "أطباق مميزة", en: "Featured meals" },
+  healthyChoices: { ar: "خيارات صحية", en: "Healthy choices" },
 } as const;
 
 export type TKey = keyof typeof dict;

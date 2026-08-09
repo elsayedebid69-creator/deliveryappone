@@ -16,9 +16,9 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
-      { title: "سلة الطلبات | سُفرة" },
-      { name: "description", content: "راجع أصناف سلتك وأكمل طلبك بسهولة عبر منصة سُفرة." },
-      { property: "og:title", content: "سلة الطلبات | سُفرة" },
+      { title: "سلة الطلبات | Food Hub" },
+      { name: "description", content: "راجع أصناف سلتك وأكمل طلبك بسهولة عبر منصة Food Hub." },
+      { property: "og:title", content: "سلة الطلبات | Food Hub" },
       { property: "og:description", content: "راجع أصناف سلتك وأكمل طلبك." },
       { name: "robots", content: "noindex" },
     ],

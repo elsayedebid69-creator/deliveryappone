@@ -24,9 +24,9 @@ import {
 export const Route = createFileRoute("/_authenticated/courier")({
   head: () => ({
     meta: [
-      { title: "لوحة المندوب | سُفرة" },
-      { name: "description", content: "استلم الطلبات الجاهزة وسلّمها للعملاء عبر منصة سُفرة." },
-      { property: "og:title", content: "لوحة المندوب | سُفرة" },
+      { title: "لوحة المندوب | Food Hub" },
+      { name: "description", content: "استلم الطلبات الجاهزة وسلّمها للعملاء عبر منصة Food Hub." },
+      { property: "og:title", content: "لوحة المندوب | Food Hub" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -207,7 +207,7 @@ function CourierPage() {
         {/* Available Orders */}
         <section>
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold">
-            <Clock className="size-5 text-orange-500" />
+            <Clock className="size-5 text-[#F5A623]" />
             {t("availableOrders")}
             <Badge variant="secondary">{available.data?.length ?? 0}</Badge>
           </h2>
@@ -246,7 +246,7 @@ function CourierPage() {
                   </div>
                   <div className="border-t border-border p-4">
                     <Button
-                      className="w-full bg-orange-500 hover:bg-orange-600"
+                      className="w-full bg-[#2ECC71] hover:bg-[#27AE60]"
                       onClick={async () => {
                         const { error } = await supabase
                           .from("orders")

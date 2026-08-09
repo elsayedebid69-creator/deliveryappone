@@ -34,9 +34,9 @@ import {
 export const Route = createFileRoute("/_authenticated/vendor")({
   head: () => ({
     meta: [
-      { title: "لوحة المطعم | سُفرة" },
-      { name: "description", content: "إدارة قائمة الطعام ومتابعة طلبات مطعمك على سُفرة." },
-      { property: "og:title", content: "لوحة المطعم | سُفرة" },
+      { title: "لوحة المطعم | Food Hub" },
+      { name: "description", content: "إدارة قائمة الطعام ومتابعة طلبات مطعمك على Food Hub." },
+      { property: "og:title", content: "لوحة المطعم | Food Hub" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -127,8 +127,8 @@ function VendorPage() {
         <AppHeader />
         <main className="mx-auto max-w-4xl px-4 py-16 text-center">
           <div className="surface mx-auto max-w-md p-8">
-            <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-orange-100">
-              <Store className="size-8 text-orange-600" />
+            <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-green-100">
+              <Store className="size-8 text-[#2ECC71]" />
             </div>
             <h2 className="text-xl font-bold">{t("vendor")}</h2>
             <p className="mt-2 text-gray-500">
@@ -221,7 +221,7 @@ function VendorPage() {
               <ClipboardCheck className="size-4" />
               {t("incomingOrders")}
               {pendingOrders.length > 0 && (
-                <Badge className="ml-1 bg-orange-500 text-white">{pendingOrders.length}</Badge>
+                <Badge className="ml-1 bg-[#F5A623] text-white">{pendingOrders.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="menu" className="gap-2">
@@ -316,7 +316,7 @@ function VendorPage() {
             {/* Add Item Form */}
             <div className="surface p-5">
               <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-                <Plus className="size-5 text-orange-500" />
+                <Plus className="size-5 text-[#2ECC71]" />
                 {t("addItem")}
               </h2>
               <form
@@ -377,7 +377,7 @@ function VendorPage() {
                   />
                 </div>
                 <div className="flex items-end">
-                  <Button type="submit" className="w-full bg-orange-500 hover:bg-orange-600" disabled={addItem.isPending}>
+                  <Button type="submit" className="w-full bg-[#2ECC71] hover:bg-[#27AE60]" disabled={addItem.isPending}>
                     <Plus className="mr-2 size-4" />
                     {t("add")}
                   </Button>
@@ -391,8 +391,8 @@ function VendorPage() {
                 <div key={it.id} className="surface p-4">
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex size-10 items-center justify-center rounded-xl bg-orange-100">
-                        <UtensilsCrossed className="size-5 text-orange-600" />
+                      <div className="flex size-10 items-center justify-center rounded-xl bg-green-100">
+                        <UtensilsCrossed className="size-5 text-[#2ECC71]" />
                       </div>
                       <div>
                         <p className="font-semibold">{tf(it, "name")}</p>
