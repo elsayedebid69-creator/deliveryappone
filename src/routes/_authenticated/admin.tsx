@@ -96,48 +96,9 @@ function AdminPage() {
 
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
-      // Create account for the approved party
-      const tempPassword = Math.random().toString(36).slice(-12) + "A1!";
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: request.data.email,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-          full_name: request.data.full_name || request.data.contact_name,
-          phone: request.data.phone || request.data.contact_phone,
-        },
-      });
+      return await approveJoinRequest({ data: { id: request.id as string } });
+    },
 
-      if (authError) throw authError;
-
-      // Assign role
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: authData.user.id,
-        role: request.type === "restaurant" ? "restaurant" : "courier",
-      });
-
-      if (roleError) throw roleError;
-
-      // If restaurant, create restaurant record
-      if (request.type === "restaurant") {
-        const { error: restError } = await supabase.from("restaurants").insert({
-          name_ar: request.data.business_name_ar,
-          name_en: request.data.business_name_en,
-          cuisine_ar: "",
-          cuisine_en: "",
-          owner_id: authData.user.id,
-          delivery_fee: 10,
-          min_order: 25,
-          eta_minutes: 35,
-        });
-        if (restError) throw restError;
-      }
-
-      // Update request status
-      const { error: updateError } = await supabase
-        .from("join_requests")
-        .update({ status: "approved", reviewed_at: new Date().toISOString() })
-        .eq("id", request.id);
 
       if (updateError) throw updateError;
 
