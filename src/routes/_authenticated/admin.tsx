@@ -19,6 +19,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  ClipboardCheck,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Users,
+  Store,
+  Bike,
+  TrendingUp,
+  Eye,
+} from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
@@ -26,7 +45,6 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { title: "لوحة الإدارة | سُفرة" },
       { name: "description", content: "إدارة الحسابات والمطاعم والطلبات في منصة سُفرة." },
       { property: "og:title", content: "لوحة الإدارة | سُفرة" },
-      { property: "og:description", content: "إدارة الحسابات والمطاعم والطلبات." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -34,7 +52,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 function AdminPage() {
-  const { t, tStatus, tf } = useI18n();
+  const { t, tStatus, tf, lang } = useI18n();
   const { role } = useSession();
   const qc = useQueryClient();
 
@@ -61,52 +79,96 @@ function AdminPage() {
     },
   });
 
-  const [acc, setAcc] = useState({
-    email: "",
-    password: "",
-    full_name: "",
-    phone: "",
-    role: "restaurant" as "admin" | "restaurant" | "courier" | "customer",
-  });
-  const [rest, setRest] = useState({
-    name_ar: "",
-    name_en: "",
-    cuisine_ar: "",
-    cuisine_en: "",
-    owner_id: "none",
-    delivery_fee: "10",
-    min_order: "25",
-    eta_minutes: "35",
+  const joinRequests = useQuery({
+    queryKey: ["join-requests"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("join_requests")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
   });
 
-  const createAcc = useMutation({
-    mutationFn: () => createAccount({ data: acc }),
-    onSuccess: () => {
-      toast.success(t("created"));
-      setAcc({ ...acc, email: "", password: "", full_name: "", phone: "" });
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [showRequestDialog, setShowRequestDialog] = useState(false);
+
+  const approveRequest = useMutation({
+    mutationFn: async (request: any) => {
+      // Create account for the approved party
+      const tempPassword = Math.random().toString(36).slice(-12) + "A1!";
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: request.data.email,
+        password: tempPassword,
+        email_confirm: true,
+        user_metadata: {
+          full_name: request.data.full_name || request.data.contact_name,
+          phone: request.data.phone || request.data.contact_phone,
+        },
+      });
+
+      if (authError) throw authError;
+
+      // Assign role
+      const { error: roleError } = await supabase.from("user_roles").insert({
+        user_id: authData.user.id,
+        role: request.type === "restaurant" ? "restaurant" : "courier",
+      });
+
+      if (roleError) throw roleError;
+
+      // If restaurant, create restaurant record
+      if (request.type === "restaurant") {
+        const { error: restError } = await supabase.from("restaurants").insert({
+          name_ar: request.data.business_name_ar,
+          name_en: request.data.business_name_en,
+          cuisine_ar: "",
+          cuisine_en: "",
+          owner_id: authData.user.id,
+          delivery_fee: 10,
+          min_order: 25,
+          eta_minutes: 35,
+        });
+        if (restError) throw restError;
+      }
+
+      // Update request status
+      const { error: updateError } = await supabase
+        .from("join_requests")
+        .update({ status: "approved", reviewed_at: new Date().toISOString() })
+        .eq("id", request.id);
+
+      if (updateError) throw updateError;
+
+      return { tempPassword, email: request.data.email };
+    },
+    onSuccess: (data) => {
+      toast.success(t("approved"));
+      toast.info(
+        lang === "ar"
+          ? `بيانات الدخول: ${data.email} / ${data.tempPassword}`
+          : `Credentials: ${data.email} / ${data.tempPassword}`
+      );
+      void qc.invalidateQueries({ queryKey: ["join-requests"] });
       void qc.invalidateQueries({ queryKey: ["accounts"] });
+      setShowRequestDialog(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const createRest = useMutation({
-    mutationFn: async () => {
-      const { error } = await supabase.from("restaurants").insert({
-        name_ar: rest.name_ar,
-        name_en: rest.name_en,
-        cuisine_ar: rest.cuisine_ar,
-        cuisine_en: rest.cuisine_en,
-        owner_id: rest.owner_id === "none" ? null : rest.owner_id,
-        delivery_fee: Number(rest.delivery_fee),
-        min_order: Number(rest.min_order),
-        eta_minutes: Number(rest.eta_minutes),
-      });
+  const rejectRequest = useMutation({
+    mutationFn: async (request: any) => {
+      const { error } = await supabase
+        .from("join_requests")
+        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
+        .eq("id", request.id);
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success(t("created"));
-      setRest({ ...rest, name_ar: "", name_en: "", cuisine_ar: "", cuisine_en: "" });
-      void qc.invalidateQueries({ queryKey: ["admin-restaurants"] });
+      toast.success(t("rejected"));
+      void qc.invalidateQueries({ queryKey: ["join-requests"] });
+      setShowRequestDialog(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -121,93 +183,157 @@ function AdminPage() {
   }
 
   const revenue = (orders.data ?? []).reduce((n, o) => n + Number(o.total), 0);
+  const pendingRequests = (joinRequests.data ?? []).filter((r) => r.status === "pending");
+  const approvedRequests = (joinRequests.data ?? []).filter((r) => r.status === "approved");
+  const rejectedRequests = (joinRequests.data ?? []).filter((r) => r.status === "rejected");
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gray-50/50">
       <AppHeader />
-      <main className="mx-auto max-w-5xl space-y-8 px-4 py-10">
-        <h1 className="text-2xl font-bold">{t("admin")}</h1>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Stat label={t("totalOrders")} value={String(orders.data?.length ?? 0)} />
-          <Stat label={t("revenue")} value={`${revenue.toFixed(0)} ${t("sar")}`} />
-          <Stat label={t("users")} value={String(accounts.data?.length ?? 0)} />
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-10">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold">{t("admin")}</h1>
+          <Badge variant="secondary" className="bg-orange-100 text-orange-700">
+            {pendingRequests.length} {t("pendingRequests")}
+          </Badge>
         </div>
 
-        <Tabs defaultValue="accounts">
-          <TabsList>
-            <TabsTrigger value="accounts">{t("accounts")}</TabsTrigger>
-            <TabsTrigger value="restaurants">{t("restaurants")}</TabsTrigger>
-            <TabsTrigger value="orders">{t("incomingOrders")}</TabsTrigger>
+        {/* Stats Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            label={t("totalOrders")}
+            value={String(orders.data?.length ?? 0)}
+            icon={<ClipboardCheck className="size-5" />}
+            color="blue"
+          />
+          <StatCard
+            label={t("revenue")}
+            value={`${revenue.toFixed(0)} ${t("sar")}`}
+            icon={<TrendingUp className="size-5" />}
+            color="green"
+          />
+          <StatCard
+            label={t("users")}
+            value={String(accounts.data?.length ?? 0)}
+            icon={<Users className="size-5" />}
+            color="purple"
+          />
+          <StatCard
+            label={t("restaurants")}
+            value={String(restaurants.data?.length ?? 0)}
+            icon={<Store className="size-5" />}
+            color="orange"
+          />
+        </div>
+
+        <Tabs defaultValue="requests">
+          <TabsList className="bg-white">
+            <TabsTrigger value="requests" className="gap-2">
+              <ClipboardCheck className="size-4" />
+              {t("joinRequests")}
+              {pendingRequests.length > 0 && (
+                <Badge className="ml-1 bg-orange-500 text-white">{pendingRequests.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="accounts" className="gap-2">
+              <Users className="size-4" />
+              {t("accounts")}
+            </TabsTrigger>
+            <TabsTrigger value="restaurants" className="gap-2">
+              <Store className="size-4" />
+              {t("restaurants")}
+            </TabsTrigger>
+            <TabsTrigger value="orders" className="gap-2">
+              <ClipboardCheck className="size-4" />
+              {t("incomingOrders")}
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="accounts" className="space-y-6 pt-6">
-            <form
-              className="surface grid gap-4 p-5 sm:grid-cols-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                createAcc.mutate();
-              }}
-            >
-              <h2 className="text-lg font-bold sm:col-span-2">{t("createAccount")}</h2>
-              <Field label={t("fullName")}>
-                <Input
-                  required
-                  minLength={2}
-                  maxLength={100}
-                  value={acc.full_name}
-                  onChange={(e) => setAcc({ ...acc, full_name: e.target.value })}
-                />
-              </Field>
-              <Field label={t("phone")}>
-                <Input
-                  maxLength={20}
-                  value={acc.phone}
-                  onChange={(e) => setAcc({ ...acc, phone: e.target.value })}
-                />
-              </Field>
-              <Field label={t("email")}>
-                <Input
-                  type="email"
-                  required
-                  maxLength={255}
-                  value={acc.email}
-                  onChange={(e) => setAcc({ ...acc, email: e.target.value })}
-                />
-              </Field>
-              <Field label={t("password")}>
-                <Input
-                  type="password"
-                  required
-                  minLength={8}
-                  maxLength={72}
-                  value={acc.password}
-                  onChange={(e) => setAcc({ ...acc, password: e.target.value })}
-                />
-              </Field>
-              <Field label={t("accountType")}>
-                <Select
-                  value={acc.role}
-                  onValueChange={(v) => setAcc({ ...acc, role: v as typeof acc.role })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="restaurant">{t("restaurantAccount")}</SelectItem>
-                    <SelectItem value="courier">{t("courierAccount")}</SelectItem>
-                    <SelectItem value="customer">{t("customerAccount")}</SelectItem>
-                    <SelectItem value="admin">{t("adminAccount")}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-              <div className="flex items-end">
-                <Button type="submit" className="w-full" disabled={createAcc.isPending}>
-                  {t("createAccount")}
-                </Button>
-              </div>
-            </form>
+          {/* Join Requests Tab */}
+          <TabsContent value="requests" className="space-y-6 pt-6">
+            {/* Pending Requests */}
+            <div>
+              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                <Clock className="size-5 text-orange-500" />
+                {t("pendingRequests")}
+                <Badge variant="secondary">{pendingRequests.length}</Badge>
+              </h3>
+              {pendingRequests.length === 0 ? (
+                <EmptyState message={t("noRequests")} />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {pendingRequests.map((request) => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onView={() => {
+                        setSelectedRequest(request);
+                        setShowRequestDialog(true);
+                      }}
+                      onApprove={() => approveRequest.mutate(request)}
+                      onReject={() => rejectRequest.mutate(request)}
+                      lang={lang}
+                      t={t}
+                      isProcessing={approveRequest.isPending || rejectRequest.isPending}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
 
+            {/* Approved Requests */}
+            {approvedRequests.length > 0 && (
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                  <CheckCircle2 className="size-5 text-green-500" />
+                  {t("approvedRequests")}
+                  <Badge variant="secondary">{approvedRequests.length}</Badge>
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {approvedRequests.map((request) => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onView={() => {
+                        setSelectedRequest(request);
+                        setShowRequestDialog(true);
+                      }}
+                      lang={lang}
+                      t={t}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Rejected Requests */}
+            {rejectedRequests.length > 0 && (
+              <div>
+                <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold">
+                  <XCircle className="size-5 text-red-500" />
+                  {t("rejectedRequests")}
+                  <Badge variant="secondary">{rejectedRequests.length}</Badge>
+                </h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {rejectedRequests.map((request) => (
+                    <RequestCard
+                      key={request.id}
+                      request={request}
+                      onView={() => {
+                        setSelectedRequest(request);
+                        setShowRequestDialog(true);
+                      }}
+                      lang={lang}
+                      t={t}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Accounts Tab */}
+          <TabsContent value="accounts" className="space-y-6 pt-6">
             <div className="surface divide-y divide-border">
               {(accounts.data ?? []).map((u) => (
                 <div key={u.id} className="flex items-center justify-between gap-3 p-4">
@@ -221,88 +347,8 @@ function AdminPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="restaurants" className="space-y-6 pt-6">
-            <form
-              className="surface grid gap-4 p-5 sm:grid-cols-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                createRest.mutate();
-              }}
-            >
-              <h2 className="text-lg font-bold sm:col-span-2">{t("addRestaurant")}</h2>
-              <Field label={t("restaurantNameAr")}>
-                <Input
-                  required
-                  maxLength={80}
-                  value={rest.name_ar}
-                  onChange={(e) => setRest({ ...rest, name_ar: e.target.value })}
-                />
-              </Field>
-              <Field label={t("restaurantNameEn")}>
-                <Input
-                  required
-                  maxLength={80}
-                  value={rest.name_en}
-                  onChange={(e) => setRest({ ...rest, name_en: e.target.value })}
-                />
-              </Field>
-              <Field label={t("cuisineAr")}>
-                <Input
-                  maxLength={60}
-                  value={rest.cuisine_ar}
-                  onChange={(e) => setRest({ ...rest, cuisine_ar: e.target.value })}
-                />
-              </Field>
-              <Field label={t("cuisineEn")}>
-                <Input
-                  maxLength={60}
-                  value={rest.cuisine_en}
-                  onChange={(e) => setRest({ ...rest, cuisine_en: e.target.value })}
-                />
-              </Field>
-              <Field label={t("owner")}>
-                <Select
-                  value={rest.owner_id}
-                  onValueChange={(v) => setRest({ ...rest, owner_id: v })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("none")}</SelectItem>
-                    {(accounts.data ?? [])
-                      .filter((u) => u.role === "restaurant")
-                      .map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.full_name || u.email}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-              <Field label={t("deliveryFee")}>
-                <Input
-                  type="number"
-                  min="0"
-                  value={rest.delivery_fee}
-                  onChange={(e) => setRest({ ...rest, delivery_fee: e.target.value })}
-                />
-              </Field>
-              <Field label={t("minOrder")}>
-                <Input
-                  type="number"
-                  min="0"
-                  value={rest.min_order}
-                  onChange={(e) => setRest({ ...rest, min_order: e.target.value })}
-                />
-              </Field>
-              <div className="flex items-end">
-                <Button type="submit" className="w-full" disabled={createRest.isPending}>
-                  {t("add")}
-                </Button>
-              </div>
-            </form>
-
+          {/* Restaurants Tab */}
+          <TabsContent value="restaurants" className="pt-6">
             <div className="surface divide-y divide-border">
               {(restaurants.data ?? []).map((r) => (
                 <div key={r.id} className="flex items-center justify-between gap-3 p-4">
@@ -328,6 +374,7 @@ function AdminPage() {
             </div>
           </TabsContent>
 
+          {/* Orders Tab */}
           <TabsContent value="orders" className="pt-6">
             <div className="surface divide-y divide-border">
               {(orders.data ?? []).map((o) => (
@@ -347,24 +394,226 @@ function AdminPage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Request Detail Dialog */}
+      <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{t("requestDetails")}</DialogTitle>
+            <DialogDescription>
+              {selectedRequest?.type === "restaurant" ? t("restaurantInfo") : t("agentInfo")}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4">
+              <div className="rounded-xl bg-gray-50 p-4">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {selectedRequest.type === "restaurant" ? (
+                    <>
+                      <InfoRow label={t("businessNameAr")} value={selectedRequest.data.business_name_ar} />
+                      <InfoRow label={t("businessNameEn")} value={selectedRequest.data.business_name_en} />
+                      <InfoRow label={t("contactName")} value={selectedRequest.data.contact_name} />
+                      <InfoRow label={t("contactPhone")} value={selectedRequest.data.contact_phone} />
+                      <InfoRow label={t("email")} value={selectedRequest.data.email} />
+                      <InfoRow label={t("commercialRegister")} value={selectedRequest.data.commercial_register} />
+                      <InfoRow label={t("restaurantAddress")} value={selectedRequest.data.address} className="col-span-2" />
+                      {selectedRequest.data.description && (
+                        <InfoRow label={t("description")} value={selectedRequest.data.description} className="col-span-2" />
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <InfoRow label={t("fullNameLabel")} value={selectedRequest.data.full_name} />
+                      <InfoRow label={t("email")} value={selectedRequest.data.email} />
+                      <InfoRow label={t("phone")} value={selectedRequest.data.phone} />
+                      <InfoRow label={t("idNumber")} value={selectedRequest.data.id_number} />
+                      <InfoRow label={t("vehicleType")} value={t(selectedRequest.data.vehicle_type as any)} />
+                      {selectedRequest.data.vehicle_plate && (
+                        <InfoRow label={t("vehiclePlate")} value={selectedRequest.data.vehicle_plate} />
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {lang === "ar" ? "تاريخ الإرسال:" : "Submitted:"}{" "}
+                {new Date(selectedRequest.created_at).toLocaleString()}
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            {selectedRequest?.status === "pending" && (
+              <>
+                <Button
+                  variant="destructive"
+                  onClick={() => rejectRequest.mutate(selectedRequest)}
+                  disabled={rejectRequest.isPending}
+                >
+                  {t("reject")}
+                </Button>
+                <Button
+                  className="bg-green-600 hover:bg-green-700"
+                  onClick={() => approveRequest.mutate(selectedRequest)}
+                  disabled={approveRequest.isPending}
+                >
+                  {t("approve")}
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function StatCard({
+  label,
+  value,
+  icon,
+  color,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  color: string;
+}) {
+  const colors: Record<string, string> = {
+    blue: "bg-blue-100 text-blue-600",
+    green: "bg-green-100 text-green-600",
+    purple: "bg-purple-100 text-purple-600",
+    orange: "bg-orange-100 text-orange-600",
+  };
   return (
     <div className="surface p-5">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-bold">{value}</p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <div className={`flex size-10 items-center justify-center rounded-xl ${colors[color]}`}>
+          {icon}
+        </div>
+      </div>
+      <p className="mt-2 text-2xl font-bold">{value}</p>
     </div>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function RequestCard({
+  request,
+  onView,
+  onApprove,
+  onReject,
+  lang,
+  t,
+  isProcessing,
+}: {
+  request: any;
+  onView: () => void;
+  onApprove?: () => void;
+  onReject?: () => void;
+  lang: string;
+  t: (key: string) => string;
+  isProcessing?: boolean;
+}) {
+  const statusColors: Record<string, string> = {
+    pending: "bg-orange-100 text-orange-700",
+    approved: "bg-green-100 text-green-700",
+    rejected: "bg-red-100 text-red-700",
+  };
+
   return (
-    <div className="space-y-2">
-      <Label>{label}</Label>
-      {children}
+    <div className="surface overflow-hidden">
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div
+              className={`flex size-10 items-center justify-center rounded-xl ${
+                request.type === "restaurant" ? "bg-orange-100 text-orange-600" : "bg-blue-100 text-blue-600"
+              }`}
+            >
+              {request.type === "restaurant" ? (
+                <Store className="size-5" />
+              ) : (
+                <Bike className="size-5" />
+              )}
+            </div>
+            <div>
+              <p className="font-semibold">
+                {request.data.business_name_ar || request.data.full_name}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {request.type === "restaurant" ? request.data.contact_name : request.data.email}
+              </p>
+            </div>
+          </div>
+          <Badge className={statusColors[request.status]}>
+            {t(request.status === "pending" ? "pendingReview" : request.status)}
+          </Badge>
+        </div>
+        <div className="mt-3 text-xs text-muted-foreground">
+          {lang === "ar" ? "أرسل في:" : "Submitted:"}{" "}
+          {new Date(request.created_at).toLocaleDateString()}
+        </div>
+      </div>
+      <div className="flex border-t border-border">
+        <Button
+          variant="ghost"
+          className="flex-1 gap-2 rounded-none text-sm"
+          onClick={onView}
+        >
+          <Eye className="size-4" />
+          {lang === "ar" ? "عرض" : "View"}
+        </Button>
+        {request.status === "pending" && onApprove && onReject && (
+          <>
+            <Button
+              variant="ghost"
+              className="flex-1 gap-2 rounded-none border-l border-border text-sm text-green-600 hover:bg-green-50 hover:text-green-700"
+              onClick={onApprove}
+              disabled={isProcessing}
+            >
+              <CheckCircle2 className="size-4" />
+              {t("approve")}
+            </Button>
+            <Button
+              variant="ghost"
+              className="flex-1 gap-2 rounded-none border-l border-border text-sm text-red-600 hover:bg-red-50 hover:text-red-700"
+              onClick={onReject}
+              disabled={isProcessing}
+            >
+              <XCircle className="size-4" />
+              {t("reject")}
+            </Button>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({
+  label,
+  value,
+  className,
+}: {
+  label: string;
+  value: string;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <span className="text-muted-foreground">{label}</span>
+      <p className="mt-0.5 font-medium text-foreground">{value || "-"}</p>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="surface flex flex-col items-center justify-center p-12 text-center">
+      <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-gray-100">
+        <ClipboardCheck className="size-8 text-gray-400" />
+      </div>
+      <p className="text-muted-foreground">{message}</p>
     </div>
   );
 }

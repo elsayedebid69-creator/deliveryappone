@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthSignupRouteImport } from './routes/auth.signup'
+import { Route as JoinRestaurantRouteImport } from './routes/join.restaurant'
+import { Route as JoinCourierRouteImport } from './routes/join.courier'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCourierRouteImport } from './routes/_authenticated/courier'
@@ -31,6 +34,21 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthSignupRoute = AuthSignupRouteImport.update({
+  id: '/auth/signup',
+  path: '/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinRestaurantRoute = JoinRestaurantRouteImport.update({
+  id: '/join/restaurant',
+  path: '/join/restaurant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JoinCourierRoute = JoinCourierRouteImport.update({
+  id: '/join/courier',
+  path: '/join/courier',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -67,6 +85,9 @@ const RestaurantIdRoute = RestaurantIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/join/restaurant': typeof JoinRestaurantRoute
+  '/join/courier': typeof JoinCourierRoute
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
@@ -77,6 +98,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/join/restaurant': typeof JoinRestaurantRoute
+  '/join/courier': typeof JoinCourierRoute
   '/cart': typeof CartRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
@@ -89,6 +113,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/auth/signup': typeof AuthSignupRoute
+  '/join/restaurant': typeof JoinRestaurantRoute
+  '/join/courier': typeof JoinCourierRoute
   '/cart': typeof CartRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/courier': typeof AuthenticatedCourierRoute
@@ -101,6 +128,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/auth/signup'
+    | '/join/restaurant'
+    | '/join/courier'
     | '/cart'
     | '/admin'
     | '/courier'
@@ -111,6 +141,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/auth/signup'
+    | '/join/restaurant'
+    | '/join/courier'
     | '/cart'
     | '/admin'
     | '/courier'
@@ -122,6 +155,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/auth/signup'
+    | '/join/restaurant'
+    | '/join/courier'
     | '/cart'
     | '/_authenticated/admin'
     | '/_authenticated/courier'
@@ -134,6 +170,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  AuthSignupRoute: typeof AuthSignupRoute
+  JoinRestaurantRoute: typeof JoinRestaurantRoute
+  JoinCourierRoute: typeof JoinCourierRoute
   CartRoute: typeof CartRoute
   RestaurantIdRoute: typeof RestaurantIdRoute
 }
@@ -159,6 +198,27 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/signup': {
+      id: '/auth/signup'
+      path: '/auth/signup'
+      fullPath: '/auth/signup'
+      preLoaderRoute: typeof AuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join/restaurant': {
+      id: '/join/restaurant'
+      path: '/join/restaurant'
+      fullPath: '/join/restaurant'
+      preLoaderRoute: typeof JoinRestaurantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/join/courier': {
+      id: '/join/courier'
+      path: '/join/courier'
+      fullPath: '/join/courier'
+      preLoaderRoute: typeof JoinCourierRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -227,6 +287,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  AuthSignupRoute: AuthSignupRoute,
+  JoinRestaurantRoute: JoinRestaurantRoute,
+  JoinCourierRoute: JoinCourierRoute,
   CartRoute: CartRoute,
   RestaurantIdRoute: RestaurantIdRoute,
 }

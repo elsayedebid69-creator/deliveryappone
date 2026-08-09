@@ -9,6 +9,7 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { UtensilsCrossed, Mail, Lock, ArrowRight, ChefHat, Bike, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -16,7 +17,6 @@ export const Route = createFileRoute("/auth")({
       { title: "تسجيل الدخول | سُفرة" },
       { name: "description", content: "سجّل الدخول إلى حسابك في منصة سُفرة لتوصيل الطعام." },
       { property: "og:title", content: "تسجيل الدخول | سُفرة" },
-      { property: "og:description", content: "الدخول إلى حسابك في منصة سُفرة." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,54 +48,143 @@ function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
       <AppHeader />
-      <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-16">
-        <div className="surface p-6">
-          <h1 className="text-2xl font-bold">{t("login")}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t("signInSubtitle")}</p>
-
-          <form onSubmit={signIn} className="mt-6 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">{t("email")}</Label>
-              <Input
-                id="email"
-                type="email"
-                required
-                maxLength={255}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
+        <div className="w-full space-y-6">
+          {/* Brand Header */}
+          <div className="text-center">
+            <div className="mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-orange-500 to-red-500 shadow-lg">
+              <UtensilsCrossed className="size-8 text-white" />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">{t("password")}</Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                maxLength={72}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={busy}>
-              {t("login")}
-            </Button>
-          </form>
+            <h1 className="text-2xl font-bold text-gray-900">{t("login")}</h1>
+            <p className="mt-1 text-sm text-gray-500">{t("signInSubtitle")}</p>
+          </div>
 
-          <Link to="/" className="mt-4 block text-center text-sm text-muted-foreground underline">
-            {t("browseRestaurants")}
-          </Link>
+          {/* Login Form */}
+          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-orange-500/5">
+            <form onSubmit={signIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  {t("email")}
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    maxLength={255}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+                  {t("password")}
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    maxLength={72}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10"
+                    placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"}
+                  />
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600"
+                disabled={busy}
+              >
+                {busy ? (
+                  <span className="flex items-center gap-2">
+                    <span className="size-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    {lang === "ar" ? "جاري تسجيل الدخول..." : "Signing in..."}
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    {t("login")}
+                    <ArrowRight className="size-4" />
+                  </span>
+                )}
+              </Button>
+            </form>
+          </div>
+
+          {/* Signup Link */}
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              {t("dontHaveAccount")}{" "}
+              <Link to="/auth/signup" className="font-medium text-orange-600 hover:text-orange-700">
+                {t("signUp")}
+              </Link>
+            </p>
+          </div>
+
+          {/* Role Quick Links */}
+          <div className="space-y-3">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="bg-gradient-to-br from-orange-50 via-white to-red-50 px-2 text-gray-400">
+                  {lang === "ar" ? "أو" : "Or"}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Link to="/join/restaurant">
+                <Button variant="outline" className="w-full border-orange-200 hover:bg-orange-50 hover:text-orange-600">
+                  <ChefHat className="mr-2 size-4" />
+                  {t("joinAsRestaurant")}
+                </Button>
+              </Link>
+              <Link to="/join/courier">
+                <Button variant="outline" className="w-full border-red-200 hover:bg-red-50 hover:text-red-600">
+                  <Bike className="mr-2 size-4" />
+                  {t("joinAsCourier")}
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Browse without login */}
+          <div className="text-center">
+            <Link
+              to="/"
+              className="text-sm text-gray-400 hover:text-gray-600"
+            >
+              {t("browseRestaurants")} →
+            </Link>
+          </div>
         </div>
-
-        {adminState && !adminState.exists ? <BootstrapCard onDone={() => void refetch()} /> : null}
       </main>
+
+      {/* Bootstrap Admin Card */}
+      {adminState && !adminState.exists ? (
+        <div className="mx-auto max-w-md px-4 pb-12">
+          <BootstrapCard onDone={() => void refetch()} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
 function BootstrapCard({ onDone }: { onDone: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [form, setForm] = useState({ email: "", password: "", full_name: "" });
   const [busy, setBusy] = useState(false);
 
@@ -114,9 +203,16 @@ function BootstrapCard({ onDone }: { onDone: () => void }) {
   };
 
   return (
-    <div className="surface border-dashed p-6">
-      <h2 className="text-lg font-bold">{t("setupAdmin")}</h2>
-      <p className="mt-1 text-sm text-muted-foreground">{t("setupAdminHint")}</p>
+    <div className="rounded-2xl border-2 border-dashed border-orange-200 bg-white p-6 shadow-lg">
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 items-center justify-center rounded-xl bg-orange-100">
+          <Shield className="size-5 text-orange-600" />
+        </div>
+        <div>
+          <h2 className="font-bold text-gray-900">{t("setupAdmin")}</h2>
+          <p className="text-sm text-gray-500">{t("setupAdminHint")}</p>
+        </div>
+      </div>
       <form onSubmit={submit} className="mt-4 space-y-3">
         <Input
           placeholder={t("fullName")}
