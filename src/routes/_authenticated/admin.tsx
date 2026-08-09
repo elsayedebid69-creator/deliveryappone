@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { createAccount, listAccounts } from "@/lib/admin.functions";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, type TKey } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
@@ -511,7 +511,7 @@ function RequestCard({
   onApprove?: () => void;
   onReject?: () => void;
   lang: string;
-  t: (key: string) => string;
+  t: (key: TKey) => string;
   isProcessing?: boolean;
 }) {
   const statusColors: Record<string, string> = {
