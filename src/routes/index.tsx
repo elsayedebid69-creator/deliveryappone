@@ -204,7 +204,7 @@ function Home() {
                   className="mt-3 w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
                   onClick={() => {
                     cart.add({
-                      id: meal.id,
+                      id: String(meal.id),
                       restaurant_id: "food-hub",
                       name_ar: meal.nameAr,
                       name_en: meal.nameEn,

@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createAccount, listAccounts } from "@/lib/admin.functions";
-import { useI18n } from "@/lib/i18n";
+import { approveJoinRequest, createAccount, listAccounts } from "@/lib/admin.functions";
+import { useI18n, type TKey } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
@@ -96,52 +96,7 @@ function AdminPage() {
 
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
-      // Create account for the approved party
-      const tempPassword = Math.random().toString(36).slice(-12) + "A1!";
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: request.data.email,
-        password: tempPassword,
-        email_confirm: true,
-        user_metadata: {
-          full_name: request.data.full_name || request.data.contact_name,
-          phone: request.data.phone || request.data.contact_phone,
-        },
-      });
-
-      if (authError) throw authError;
-
-      // Assign role
-      const { error: roleError } = await supabase.from("user_roles").insert({
-        user_id: authData.user.id,
-        role: request.type === "restaurant" ? "restaurant" : "courier",
-      });
-
-      if (roleError) throw roleError;
-
-      // If restaurant, create restaurant record
-      if (request.type === "restaurant") {
-        const { error: restError } = await supabase.from("restaurants").insert({
-          name_ar: request.data.business_name_ar,
-          name_en: request.data.business_name_en,
-          cuisine_ar: "",
-          cuisine_en: "",
-          owner_id: authData.user.id,
-          delivery_fee: 10,
-          min_order: 25,
-          eta_minutes: 35,
-        });
-        if (restError) throw restError;
-      }
-
-      // Update request status
-      const { error: updateError } = await supabase
-        .from("join_requests")
-        .update({ status: "approved", reviewed_at: new Date().toISOString() })
-        .eq("id", request.id);
-
-      if (updateError) throw updateError;
-
-      return { tempPassword, email: request.data.email };
+      return await approveJoinRequest({ data: { id: request.id as string } });
     },
     onSuccess: (data) => {
       toast.success(t("approved"));
@@ -511,7 +466,7 @@ function RequestCard({
   onApprove?: () => void;
   onReject?: () => void;
   lang: string;
-  t: (key: string) => string;
+  t: (key: TKey) => string;
   isProcessing?: boolean;
 }) {
   const statusColors: Record<string, string> = {

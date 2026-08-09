@@ -202,7 +202,7 @@ function VendorPage() {
           <div className="surface p-4">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <Clock className="size-4" />
-              {t("pending")}
+              {tStatus("pending")}
             </div>
             <p className="mt-1 text-xl font-bold text-[#E6B800]">{pendingOrders.length}</p>
           </div>
