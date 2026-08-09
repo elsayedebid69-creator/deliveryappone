@@ -23,9 +23,9 @@ import {
 export const Route = createFileRoute("/join/courier")({
   head: () => ({
     meta: [
-      { title: "طلب انضمام مندوب | FOOD HUB" },
-      { name: "description", content: "انضم إلى منصة Food Hub كمندوب توصيل." },
-      { property: "og:title", content: "طلب انضمام مندوب | FOOD HUB" },
+      { title: "طلب انضمام مندوب | FOODHUB" },
+      { name: "description", content: "انضم إلى منصة FoodHub كمندوب توصيل." },
+      { property: "og:title", content: "طلب انضمام مندوب | FOODHUB" },
     ],
   }),
   component: CourierJoinPage,

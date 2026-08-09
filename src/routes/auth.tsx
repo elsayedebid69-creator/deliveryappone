@@ -15,9 +15,9 @@ import { Mail, Lock, ArrowRight, ChefHat, Bike, Shield } from "lucide-react";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | FOOD HUB" },
-      { name: "description", content: "سجّل الدخول إلى حسابك في منصة Food Hub." },
-      { property: "og:title", content: "تسجيل الدخول | FOOD HUB" },
+      { title: "تسجيل الدخول | FOODHUB" },
+      { name: "description", content: "سجّل الدخول إلى حسابك في منصة FoodHub." },
+      { property: "og:title", content: "تسجيل الدخول | FOODHUB" },
       { name: "robots", content: "noindex" },
     ],
   }),

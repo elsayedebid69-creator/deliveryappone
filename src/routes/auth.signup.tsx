@@ -13,9 +13,9 @@ import { User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
 export const Route = createFileRoute("/auth/signup")({
   head: () => ({
     meta: [
-      { title: "إنشاء حساب | FOOD HUB" },
-      { name: "description", content: "سجّل حساب جديد في منصة Food Hub." },
-      { property: "og:title", content: "إنشاء حساب | FOOD HUB" },
+      { title: "إنشاء حساب | FOODHUB" },
+      { name: "description", content: "سجّل حساب جديد في منصة FoodHub." },
+      { property: "og:title", content: "إنشاء حساب | FOODHUB" },
       { name: "robots", content: "noindex" },
     ],
   }),

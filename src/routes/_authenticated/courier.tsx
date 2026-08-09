@@ -24,9 +24,9 @@ import {
 export const Route = createFileRoute("/_authenticated/courier")({
   head: () => ({
     meta: [
-      { title: "لوحة المندوب | Food Hub" },
-      { name: "description", content: "استلم الطلبات الجاهزة وسلّمها للعملاء عبر منصة Food Hub." },
-      { property: "og:title", content: "لوحة المندوب | Food Hub" },
+      { title: "لوحة المندوب | FoodHub" },
+      { name: "description", content: "استلم الطلبات الجاهزة وسلّمها للعملاء عبر منصة FoodHub." },
+      { property: "og:title", content: "لوحة المندوب | FoodHub" },
       { name: "robots", content: "noindex" },
     ],
   }),

@@ -25,11 +25,8 @@ export function AppHeader() {
     <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/85 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <FoodHubLogo size={36} />
-          <span className="font-display text-lg font-extrabold tracking-tight text-[#2B1B12]">
-            {t("brand")}
-          </span>
+        <Link to="/" className="flex items-center gap-1">
+          <FoodHubLogo size={44} showText />
         </Link>
 
         {/* Desktop Navigation */}
@@ -165,9 +162,8 @@ export function AppFooter() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2">
-              <FoodHubLogo size={36} />
-              <span className="font-display text-lg font-extrabold text-[#2B1B12]">{t("brand")}</span>
+            <div className="flex items-center gap-1">
+              <FoodHubLogo size={40} showText />
             </div>
             <p className="mt-3 text-sm text-gray-500">
               {t("heroSub")}

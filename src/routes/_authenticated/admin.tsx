@@ -42,9 +42,9 @@ import {
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "لوحة الإدارة | Food Hub" },
-      { name: "description", content: "إدارة الحسابات والمطاعم والطلبات في منصة Food Hub." },
-      { property: "og:title", content: "لوحة الإدارة | Food Hub" },
+      { title: "لوحة الإدارة | FoodHub" },
+      { name: "description", content: "إدارة الحسابات والمطاعم والطلبات في منصة FoodHub." },
+      { property: "og:title", content: "لوحة الإدارة | FoodHub" },
       { name: "robots", content: "noindex" },
     ],
   }),

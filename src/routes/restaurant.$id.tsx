@@ -12,9 +12,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 export const Route = createFileRoute("/restaurant/$id")({
   head: () => ({
     meta: [
-      { title: "قائمة المطعم | Food Hub" },
-      { name: "description", content: "تصفح قائمة الطعام واطلب أطباقك المفضلة عبر Food Hub." },
-      { property: "og:title", content: "قائمة المطعم | Food Hub" },
+      { title: "قائمة المطعم | FoodHub" },
+      { name: "description", content: "تصفح قائمة الطعام واطلب أطباقك المفضلة عبر FoodHub." },
+      { property: "og:title", content: "قائمة المطعم | FoodHub" },
       { property: "og:description", content: "تصفح قائمة الطعام واطلب أطباقك المفضلة." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

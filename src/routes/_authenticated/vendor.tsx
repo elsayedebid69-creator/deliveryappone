@@ -34,9 +34,9 @@ import {
 export const Route = createFileRoute("/_authenticated/vendor")({
   head: () => ({
     meta: [
-      { title: "لوحة المطعم | Food Hub" },
-      { name: "description", content: "إدارة قائمة الطعام ومتابعة طلبات مطعمك على Food Hub." },
-      { property: "og:title", content: "لوحة المطعم | Food Hub" },
+      { title: "لوحة المطعم | FoodHub" },
+      { name: "description", content: "إدارة قائمة الطعام ومتابعة طلبات مطعمك على FoodHub." },
+      { property: "og:title", content: "لوحة المطعم | FoodHub" },
       { name: "robots", content: "noindex" },
     ],
   }),

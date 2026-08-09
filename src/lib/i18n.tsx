@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 export type Lang = "ar" | "en";
 
 const dict = {
-  brand: { ar: "فود هب", en: "FOOD HUB" },
+  brand: { ar: "FOODHUB", en: "FOODHUB" },
   tagline: { ar: "سريع. طازج. يوصلك.", en: "FAST. FRESH. DELIVERED." },
   heroSub: {
     ar: "أشهى الأطباق الصحية توصلك لحظة بلحظة — اطلب الآن واستمتع بتجربة طعام صحية فريدة",

@@ -4,9 +4,9 @@ interface FoodHubLogoProps {
   showText?: boolean;
 }
 
-export function FoodHubLogo({ size = 36, className = "", showText = false }: FoodHubLogoProps) {
+export function FoodHubLogo({ size = 40, className = "", showText = false }: FoodHubLogoProps) {
   return (
-    <span className={`inline-flex items-center gap-2 ${className}`}>
+    <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <svg
         width={size}
         height={size}
@@ -14,6 +14,7 @@ export function FoodHubLogo({ size = 36, className = "", showText = false }: Foo
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="shrink-0"
+        style={{ imageRendering: "crisp-edges" }}
       >
         {/* Map pin shape */}
         <path
@@ -41,10 +42,8 @@ export function FoodHubLogo({ size = 36, className = "", showText = false }: Foo
         <line x1="11" y1="38" x2="18" y2="38" stroke="#2B1B12" strokeWidth="2.5" strokeLinecap="round" />
       </svg>
       {showText && (
-        <span className="flex flex-col leading-none">
-          <span className="font-display text-lg font-extrabold tracking-tight text-[#2B1B12]">
-            FOOD HUB
-          </span>
+        <span className="font-display text-xl font-extrabold tracking-tight text-[#2B1B12]">
+          FOODHUB
         </span>
       )}
     </span>

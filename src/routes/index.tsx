@@ -12,12 +12,12 @@ import { Badge } from "@/components/ui/badge";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Food Hub | FAST. FRESH. DELIVERED." },
+      { title: "FoodHub | FAST. FRESH. DELIVERED." },
       {
         name: "description",
-        content: "Fresh healthy meals delivered to your door — order now from Food Hub.",
+        content: "Fresh healthy meals delivered to your door — order now from FoodHub.",
       },
-      { property: "og:title", content: "Food Hub | FAST. FRESH. DELIVERED." },
+      { property: "og:title", content: "FoodHub | FAST. FRESH. DELIVERED." },
       {
         property: "og:description",
         content: "Fresh healthy meals delivered to your door.",

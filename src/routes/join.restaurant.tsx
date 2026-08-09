@@ -23,9 +23,9 @@ import {
 export const Route = createFileRoute("/join/restaurant")({
   head: () => ({
     meta: [
-      { title: "طلب انضمام | FOOD HUB" },
-      { name: "description", content: "انضم إلى منصة Food Hub كشريك توصيل." },
-      { property: "og:title", content: "طلب انضمام | FOOD HUB" },
+      { title: "طلب انضمام | FOODHUB" },
+      { name: "description", content: "انضم إلى منصة FoodHub كشريك توصيل." },
+      { property: "og:title", content: "طلب انضمام | FOODHUB" },
     ],
   }),
   component: RestaurantJoinPage,
