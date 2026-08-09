@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createAccount, listAccounts } from "@/lib/admin.functions";
+import { approveJoinRequest, createAccount, listAccounts } from "@/lib/admin.functions";
 import { useI18n, type TKey } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
