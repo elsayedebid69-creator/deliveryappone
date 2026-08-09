@@ -26,6 +26,7 @@ function SignupPage() {
   const { t, lang } = useI18n();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
     email: "",
@@ -33,6 +34,25 @@ function SignupPage() {
     password: "",
     confirmPassword: "",
   });
+
+  const humanizeError = (message: string) => {
+    const m = message.toLowerCase();
+    if (m.includes("weak") || m.includes("pwned")) {
+      return lang === "ar"
+        ? "كلمة المرور ضعيفة أو مسربة سابقاً، اختر كلمة مرور أقوى (أحرف وأرقام ورموز)."
+        : "This password is too weak or has been leaked before. Choose a stronger one.";
+    }
+    if (m.includes("already registered") || m.includes("already been registered")) {
+      return lang === "ar" ? "هذا البريد مسجل بالفعل، سجّل الدخول بدلاً من ذلك." : "This email is already registered. Try logging in.";
+    }
+    if (m.includes("invalid email")) {
+      return lang === "ar" ? "صيغة البريد الإلكتروني غير صحيحة." : "Invalid email address.";
+    }
+    if (m.includes("rate limit") || m.includes("429")) {
+      return lang === "ar" ? "تم إرسال عدد كبير من الطلبات، حاول بعد قليل." : "Too many attempts, please try again shortly.";
+    }
+    return message;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,10 +69,11 @@ function SignupPage() {
 
     setBusy(true);
     try {
-      const { error } = await supabase.auth.signUp({
-        email: form.email,
+      const { data, error } = await supabase.auth.signUp({
+        email: form.email.trim(),
         password: form.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/auth`,
           data: {
             full_name: form.full_name,
             phone: form.phone,
@@ -62,14 +83,51 @@ function SignupPage() {
 
       if (error) throw error;
 
-      toast.success(t("created"));
-      void navigate({ to: "/auth", replace: true });
+      if (data.session) {
+        toast.success(t("created"));
+        void navigate({ to: "/", replace: true });
+        return;
+      }
+
+      setSent(true);
+      toast.success(
+        lang === "ar"
+          ? "تم إنشاء الحساب! تفقد بريدك الإلكتروني لتفعيل الحساب."
+          : "Account created! Check your email to confirm it.",
+      );
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      toast.error(humanizeError(err instanceof Error ? err.message : "Error"));
     } finally {
       setBusy(false);
     }
   };
+
+  if (sent) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+        <AppHeader />
+        <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
+          <div className="w-full space-y-6 rounded-2xl border border-gray-100 bg-white p-8 text-center shadow-xl shadow-[#FFC72C]/5">
+            <div className="mx-auto flex justify-center">
+              <FoodHubLogo size={56} />
+            </div>
+            <h1 className="text-xl font-bold text-[#2B1B12]">
+              {lang === "ar" ? "فعّل حسابك" : "Confirm your account"}
+            </h1>
+            <p className="text-sm text-gray-500">
+              {lang === "ar"
+                ? `أرسلنا رابط تفعيل إلى ${form.email}. افتح الرابط ثم سجّل الدخول.`
+                : `We sent a confirmation link to ${form.email}. Open it, then log in.`}
+            </p>
+            <Link to="/auth">
+              <Button className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]">{t("login")}</Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
