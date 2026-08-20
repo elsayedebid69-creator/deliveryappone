@@ -39,14 +39,33 @@ function AuthPage() {
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setBusy(false);
     if (error) {
+      const m = error.message.toLowerCase();
+      if (m.includes("not confirmed")) {
+        toast.error(
+          lang === "ar"
+            ? "لم يتم تفعيل البريد بعد. افتح رابط التفعيل المرسل إلى بريدك."
+            : "Email not confirmed yet. Open the confirmation link we emailed you.",
+        );
+        void supabase.auth.resend({
+          type: "signup",
+          email: email.trim(),
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
+        });
+        return;
+      }
+      if (m.includes("invalid login credentials")) {
+        toast.error(lang === "ar" ? "البريد الإلكتروني أو كلمة المرور غير صحيحة." : "Invalid email or password.");
+        return;
+      }
       toast.error(error.message);
       return;
     }
     void navigate({ to: "/", replace: true });
   };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
