@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import { User, Phone, Mail, Lock, ArrowRight } from "lucide-react";
 
-export const Route = createFileRoute("/auth/signup")({
+export const Route = createFileRoute("/auth_/signup")({
   head: () => ({
     meta: [
       { title: "إنشاء حساب | FOODHUB" },
