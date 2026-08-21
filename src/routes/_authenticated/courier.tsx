@@ -5,7 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useI18n } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
-import { AppHeader } from "@/components/app-header";
+import { DashboardShell } from "@/components/dashboard-shell";
+import { useRealtime } from "@/lib/realtime";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -38,11 +39,16 @@ function CourierPage() {
   const { user } = useSession();
   const qc = useQueryClient();
 
-  const [isOnline, setIsOnline] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
+
+  useRealtime(
+    ["orders"],
+    ["courier-available", "courier-mine", "courier-earnings"],
+    "courier",
+  );
 
   const available = useQuery({
     queryKey: ["courier-available"],
-    refetchInterval: 8000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -58,7 +64,6 @@ function CourierPage() {
   const mine = useQuery({
     queryKey: ["courier-mine", user?.id],
     enabled: !!user,
-    refetchInterval: 8000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
@@ -100,31 +105,26 @@ function CourierPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <AppHeader />
-      <main className="mx-auto max-w-4xl space-y-6 px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">{t("courier")}</h1>
-            <p className="text-sm text-gray-500">
-              {lang === "ar" ? "مرحباً بك" : "Welcome back"}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-500">
-              {isOnline ? t("online") : t("offline")}
-            </span>
-            <Switch
-              checked={isOnline}
-              onCheckedChange={setIsOnline}
-              className="data-[state=checked]:bg-[#FFC72C]"
-            />
-          </div>
+    <DashboardShell
+      role="courier"
+      title={t("courier")}
+      subtitle={lang === "ar" ? "مرحباً بك" : "Welcome back"}
+      actions={
+        <div className="flex items-center gap-2">
+          <span className="hidden text-xs text-gray-500 sm:inline">
+            {isOnline ? t("online") : t("offline")}
+          </span>
+          <Switch
+            checked={isOnline}
+            onCheckedChange={setIsOnline}
+            className="data-[state=checked]:bg-[#FFC72C]"
+          />
         </div>
-
+      }
+    >
+      <div className="space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="surface p-4">
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <DollarSign className="size-4" />
@@ -319,7 +319,7 @@ function CourierPage() {
             </div>
           </section>
         )}
-      </main>
-    </div>
+      </div>
+    </DashboardShell>
   );
 }
