@@ -14,8 +14,7 @@ export function useRealtime(tables: string[], keys: string[], channelName: strin
 
     for (const table of tables) {
       channel.on(
-        // @ts-expect-error - supabase-js typing for postgres_changes is loose
-        "postgres_changes",
+        "postgres_changes" as never,
         { event: "*", schema: "public", table },
         () => {
           for (const key of keys) {

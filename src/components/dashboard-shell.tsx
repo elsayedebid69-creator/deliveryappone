@@ -64,11 +64,11 @@ export function DashboardShell({
 }: {
   role: AppRole;
   title: string;
-  subtitle?: string;
-  actions?: ReactNode;
+  subtitle?: string | undefined;
+  actions?: ReactNode | undefined;
   /** current section id, matches NavItem.hash (undefined = first item) */
-  active?: string;
-  onNavigate?: (section?: string) => void;
+  active?: string | undefined;
+  onNavigate?: ((section?: string) => void) | undefined;
   children: ReactNode;
 }) {
   const { lang, setLang } = useI18n();
