@@ -41,6 +41,7 @@ const NAV: Record<Exclude<AppRole, never>, NavItem[]> = {
     { to: "/vendor", icon: LayoutDashboard, ar: "نظرة عامة", en: "Overview" },
     { to: "/vendor", hash: "orders", icon: ClipboardList, ar: "الطلبات", en: "Orders" },
     { to: "/vendor", hash: "menu", icon: UtensilsCrossed, ar: "المنيو", en: "Menu" },
+    { to: "/vendor", hash: "reports", icon: BarChart3, ar: "التقارير", en: "Reports" },
   ],
   courier: [
     { to: "/courier", icon: LayoutDashboard, ar: "نظرة عامة", en: "Overview" },

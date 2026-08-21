@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +24,13 @@ import {
   ChefHat,
   PackageCheck,
   Bike,
+  Phone,
+  Search,
+  Pencil,
+  Check,
+  X,
+  BarChart3,
+  Star,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
@@ -107,6 +114,8 @@ function VendorPage() {
     category_en: "",
     price: "",
   });
+  const [menuSearch, setMenuSearch] = useState("");
+  const [editing, setEditing] = useState<{ id: string; price: string } | null>(null);
 
   const addItem = useMutation({
     mutationFn: async () => {
@@ -134,13 +143,75 @@ function VendorPage() {
     else void qc.invalidateQueries({ queryKey: ["vendor-orders", restaurantId] });
   };
 
-  const list = orders.data ?? [];
+  const savePrice = async () => {
+    if (!editing) return;
+    const price = Number(editing.price);
+    if (!Number.isFinite(price) || price < 0) return;
+    const { error } = await supabase.from("menu_items").update({ price }).eq("id", editing.id);
+    if (error) toast.error(error.message);
+    else {
+      setEditing(null);
+      void qc.invalidateQueries({ queryKey: ["vendor-items", restaurantId] });
+    }
+  };
+
+  const list = useMemo(() => orders.data ?? [], [orders.data]);
   const todayOrders = list.filter(
     (o) => new Date(o.created_at).toDateString() === new Date().toDateString(),
   );
   const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total), 0);
   const pendingOrders = list.filter((o) => o.status === "pending");
   const completedOrders = list.filter((o) => o.status === "delivered");
+
+  /* ---- reports ---- */
+  const days = useMemo(() => {
+    const out: { label: string; total: number; count: number }[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toDateString();
+      const dayOrders = list.filter(
+        (o) => new Date(o.created_at).toDateString() === key && o.status !== "cancelled",
+      );
+      out.push({
+        label: d.toLocaleDateString(lang === "ar" ? "ar" : "en", { weekday: "short" }),
+        total: dayOrders.reduce((s, o) => s + Number(o.total), 0),
+        count: dayOrders.length,
+      });
+    }
+    return out;
+  }, [list, lang]);
+
+  const maxDay = Math.max(1, ...days.map((d) => d.total));
+
+  const topItems = useMemo(() => {
+    const map = new Map<string, { name_ar: string; name_en: string; qty: number; total: number }>();
+    for (const o of list) {
+      if (o.status === "cancelled") continue;
+      for (const it of o.order_items) {
+        const cur = map.get(it.name_en) ?? {
+          name_ar: it.name_ar,
+          name_en: it.name_en,
+          qty: 0,
+          total: 0,
+        };
+        cur.qty += it.quantity;
+        cur.total += Number(it.price) * it.quantity;
+        map.set(it.name_en, cur);
+      }
+    }
+    return [...map.values()].sort((a, b) => b.qty - a.qty).slice(0, 5);
+  }, [list]);
+
+  const avgTicket = completedOrders.length
+    ? completedOrders.reduce((s, o) => s + Number(o.total), 0) / completedOrders.length
+    : 0;
+
+  const filteredItems = (items.data ?? []).filter((it) => {
+    const q = menuSearch.trim().toLowerCase();
+    if (!q) return true;
+    return `${it.name_ar} ${it.name_en} ${it.category_ar} ${it.category_en}`.toLowerCase().includes(q);
+  });
 
   if (!restaurant.isLoading && !restaurant.data) {
     return (
@@ -183,7 +254,7 @@ function VendorPage() {
         </div>
       }
     >
-      {/* Overview */}
+      {/* Overview stats */}
       {(!section || section === "orders") && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <StatCard
@@ -283,8 +354,18 @@ function VendorPage() {
             </form>
           </div>
 
+          <div className="relative">
+            <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-gray-400 ltr:left-3 rtl:right-3" />
+            <Input
+              value={menuSearch}
+              onChange={(e) => setMenuSearch(e.target.value)}
+              placeholder={lang === "ar" ? "ابحث في المنيو…" : "Search menu…"}
+              className="ps-9"
+            />
+          </div>
+
           <div className="space-y-3">
-            {items.data?.map((it) => (
+            {filteredItems.map((it) => (
               <div key={it.id} className="surface p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
@@ -293,10 +374,33 @@ function VendorPage() {
                     </div>
                     <div>
                       <p className="font-semibold">{tf(it, "name")}</p>
-                      <p className="text-sm text-gray-500">
-                        {it.price} {t("sar")}
-                        {it.category_ar ? ` · ${tf(it, "category")}` : ""}
-                      </p>
+                      {editing?.id === it.id ? (
+                        <div className="mt-1 flex items-center gap-1">
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.5"
+                            value={editing.price}
+                            onChange={(e) => setEditing({ id: it.id, price: e.target.value })}
+                            className="h-8 w-24"
+                          />
+                          <Button size="sm" variant="ghost" onClick={savePrice}>
+                            <Check className="size-4 text-green-600" />
+                          </Button>
+                          <Button size="sm" variant="ghost" onClick={() => setEditing(null)}>
+                            <X className="size-4 text-gray-400" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <button
+                          className="mt-0.5 flex items-center gap-1 text-sm text-gray-500 hover:text-[#2B1B12]"
+                          onClick={() => setEditing({ id: it.id, price: String(it.price) })}
+                        >
+                          {it.price} {t("sar")}
+                          {it.category_ar ? ` · ${tf(it, "category")}` : ""}
+                          <Pencil className="size-3" />
+                        </button>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -326,11 +430,87 @@ function VendorPage() {
                 </div>
               </div>
             ))}
-            {items.data?.length === 0 ? (
+            {filteredItems.length === 0 ? (
               <div className="surface p-10 text-center text-gray-500">
-                {lang === "ar" ? "لا توجد أصناف بعد" : "No menu items yet"}
+                {lang === "ar" ? "لا توجد أصناف" : "No menu items"}
               </div>
             ) : null}
+          </div>
+        </div>
+      ) : section === "reports" ? (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+            <StatCard
+              icon={TrendingUp}
+              label={lang === "ar" ? "إيرادات الأسبوع" : "Weekly revenue"}
+              value={`${days.reduce((s, d) => s + d.total, 0).toFixed(0)} ${t("sar")}`}
+              accent
+            />
+            <StatCard
+              icon={ClipboardCheck}
+              label={lang === "ar" ? "طلبات الأسبوع" : "Weekly orders"}
+              value={String(days.reduce((s, d) => s + d.count, 0))}
+            />
+            <StatCard
+              icon={BarChart3}
+              label={lang === "ar" ? "متوسط الطلب" : "Avg. order"}
+              value={`${avgTicket.toFixed(0)} ${t("sar")}`}
+            />
+            <StatCard
+              icon={UtensilsCrossed}
+              label={lang === "ar" ? "عدد الأصناف" : "Menu items"}
+              value={String(items.data?.length ?? 0)}
+            />
+          </div>
+
+          <div className="surface p-5">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+              <BarChart3 className="size-5 text-[#FFC72C]" />
+              {lang === "ar" ? "مبيعات آخر 7 أيام" : "Last 7 days"}
+            </h2>
+            <div className="flex h-40 items-end gap-2">
+              {days.map((d, i) => (
+                <div key={i} className="flex flex-1 flex-col items-center gap-2">
+                  <span className="text-[10px] text-gray-400">{d.total.toFixed(0)}</span>
+                  <div
+                    className="w-full rounded-t-lg bg-[#FFC72C]"
+                    style={{ height: `${Math.max(4, (d.total / maxDay) * 110)}px` }}
+                  />
+                  <span className="text-[11px] text-gray-500">{d.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="surface p-5">
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
+              <Star className="size-5 text-[#FFC72C]" />
+              {lang === "ar" ? "الأصناف الأكثر مبيعاً" : "Best sellers"}
+            </h2>
+            {topItems.length === 0 ? (
+              <p className="py-6 text-center text-sm text-gray-400">
+                {lang === "ar" ? "لا توجد مبيعات بعد" : "No sales yet"}
+              </p>
+            ) : (
+              <ul className="divide-y divide-gray-100">
+                {topItems.map((it, i) => (
+                  <li key={it.name_en} className="flex items-center justify-between py-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex size-7 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold">
+                        {i + 1}
+                      </span>
+                      <span className="font-medium">{lang === "ar" ? it.name_ar : it.name_en}</span>
+                    </div>
+                    <div className="text-end">
+                      <p className="text-sm font-bold text-[#2B1B12]">
+                        {it.total.toFixed(0)} {t("sar")}
+                      </p>
+                      <p className="text-xs text-gray-400">×{it.qty}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
         </div>
       ) : (
@@ -375,6 +555,18 @@ function VendorPage() {
                             </li>
                           ))}
                         </ul>
+                        {o.notes ? (
+                          <p className="mt-2 rounded-lg bg-amber-50 px-2 py-1 text-[11px] text-amber-700">
+                            {o.notes}
+                          </p>
+                        ) : null}
+                        <a
+                          href={`tel:${o.phone}`}
+                          className="mt-2 flex items-center gap-1 text-xs font-medium text-[#E6B800]"
+                        >
+                          <Phone className="size-3" />
+                          {o.phone}
+                        </a>
                         {col.next ? (
                           <Button
                             size="sm"
