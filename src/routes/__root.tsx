@@ -137,14 +137,13 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <CartProvider>
-          {/* Futuristic Universal Role Switcher & Live Sandbox Bar */}
-          <UniversalRoleBar />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster richColors position="top-center" />
         </CartProvider>
       </I18nProvider>
     </QueryClientProvider>
+
   );
 }
 

@@ -14,6 +14,13 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { sounds } from "@/lib/sound-effects";
 import {
+  getPartnerSecurityRecords,
+  registerApprovedPartner,
+  adminUnlockPartner,
+  simulateDualIpConflict,
+  type PartnerSecurityRecord,
+} from "@/lib/ip-security";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -35,6 +42,11 @@ import {
   Sparkles,
   Zap,
   Activity,
+  KeyRound,
+  AlertTriangle,
+  Lock,
+  Unlock,
+  RefreshCw,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -54,6 +66,14 @@ function AdminPage() {
   const { role } = useSession();
   const qc = useQueryClient();
 
+  const [securityRecords, setSecurityRecords] = useState<PartnerSecurityRecord[]>(() =>
+    getPartnerSecurityRecords()
+  );
+
+  const refreshSecurityRecords = () => {
+    setSecurityRecords([...getPartnerSecurityRecords()]);
+  };
+
   const accounts = useQuery({
     queryKey: ["accounts"],
     queryFn: async () => {
@@ -64,9 +84,9 @@ function AdminPage() {
         // demo fallback
       }
       return [
-        { id: "acc-1", email: "admin@foodhub.com", full_name: "المدير العام", role: "admin" },
-        { id: "acc-2", email: "chef.fahad@foodhub.com", full_name: "الشيف فهد", role: "restaurant" },
-        { id: "acc-3", email: "rider.saad@foodhub.com", full_name: "الكابتن سعد", role: "courier" },
+        { id: "acc-1", email: "admin@foodhub.com", full_name: "المدير العام (FOODHUB)", role: "admin" },
+        { id: "acc-2", email: "kitchen@foodhub.com", full_name: "مطبخ FoodHub السحابي", role: "restaurant" },
+        { id: "acc-3", email: "rider.saad@foodhub.com", full_name: "الكابتن سعد العتيبي", role: "courier" },
         { id: "acc-4", email: "customer@foodhub.com", full_name: "سارة الأحمد", role: "customer" },
       ];
     },
@@ -149,9 +169,10 @@ function AdminPage() {
             created_at: new Date().toISOString(),
             data: {
               business_name_ar: "مطعم فيتا هيلثي لايف",
-              business_name_en: "Vita Healthy Life",
+              business_name: "مطعم فيتا هيلثي لايف",
               contact_name: "م. خالد العتيبي",
               contact_phone: "0554433221",
+              phone: "0554433221",
               email: "khaled@vitahealthy.com",
               commercial_register: "1010892415",
               address: "حي حطين، طريق الأمير تركي الأول - الرياض",
@@ -164,6 +185,7 @@ function AdminPage() {
             created_at: new Date(Date.now() - 30 * 60000).toISOString(),
             data: {
               full_name: "عبدالعزيز الغامدي",
+              contact_name: "عبدالعزيز الغامدي",
               phone: "0501122334",
               email: "abdulaziz.rider@gmail.com",
               id_number: "1098273645",
@@ -180,22 +202,33 @@ function AdminPage() {
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [showRequestDialog, setShowRequestDialog] = useState(false);
 
+  // Approve and mint unique AI Partner ID
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
+      // 1. Generate and save AI partner ID with IP lock
+      const partnerName = request.data.business_name_ar || request.data.business_name || request.data.full_name || request.data.contact_name;
+      const secRecord = registerApprovedPartner({
+        partnerType: request.type as "restaurant" | "courier",
+        partnerName,
+        email: request.data.email,
+        initialIp: "156.204.18.92",
+      });
+
+      // 2. Update Supabase
       try {
-        return await approveJoinRequest({ data: { id: request.id as string } });
-      } catch {
-        return { email: request.data.email, tempPassword: "TempPassword123!" };
-      }
+        await supabase
+          .from("join_requests")
+          .update({ status: "approved", reviewed_at: new Date().toISOString() })
+          .eq("id", request.id);
+      } catch {}
+
+      return secRecord;
     },
-    onSuccess: (data) => {
+    onSuccess: (secRecord) => {
       sounds.playSuccess();
-      toast.success(t("approved"));
-      toast.info(
-        lang === "ar"
-          ? `تم تفعيل الحساب وإرسال بيانات الدخول: ${data.email}`
-          : `Credentials sent: ${data.email}`
-      );
+      refreshSecurityRecords();
+      toast.success("تم قبول الطلب وتوليد معرف الذكاء الاصطناعي المشفر بنجاح!");
+      toast.info(`المعرف الذكي الصادر: ${secRecord.aiPartnerId} (تم قفله على IP: ${secRecord.registeredIp})`);
       void qc.invalidateQueries({ queryKey: ["join-requests"] });
       void qc.invalidateQueries({ queryKey: ["accounts"] });
       setShowRequestDialog(false);
@@ -222,8 +255,6 @@ function AdminPage() {
 
   const revenue = (orders.data ?? []).reduce((n, o) => n + Number(o.total || 0), 0);
   const pendingRequests = (joinRequests.data ?? []).filter((r) => r.status === "pending");
-  const approvedRequests = (joinRequests.data ?? []).filter((r) => r.status === "approved");
-  const rejectedRequests = (joinRequests.data ?? []).filter((r) => r.status === "rejected");
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
@@ -239,13 +270,13 @@ function AdminPage() {
             </div>
             <div>
               <h1 className="text-2xl font-black text-white flex items-center gap-2">
-                لوحة الإدارة المركزية (Master Ops)
+                لوحة الإدارة المركزية (FOODHUB Master Ops)
                 <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
-                  FoodHub Core 3.0
+                  AI Anti-Fraud Security
                 </Badge>
               </h1>
               <p className="text-xs text-slate-400">
-                التحكم الشامل في الطلبات، المطاعم الشريكة، أسطول المناديب، ومكافحة الاحتيال
+                مراجعة طلبات الانضمام، توليد معرفات الـ AI المشفرة، والتحكم في حماية الـ IP الفردي
               </p>
             </div>
           </div>
@@ -253,7 +284,7 @@ function AdminPage() {
           <div className="flex items-center gap-2">
             <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs py-1 px-3">
               <Activity className="size-3.5 me-1.5 animate-pulse text-emerald-400" />
-              حماية العمليات بالـ AI نشطة 100%
+              حماية الـ IP الفردي نشطة 100%
             </Badge>
           </div>
         </div>
@@ -262,60 +293,61 @@ function AdminPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>إجمالي الطلبات</span>
-              <ClipboardCheck className="size-4 text-cyan-400" />
+              <span>طلبات الانضمام المعلقة</span>
+              <Clock className="size-4 text-amber-400" />
             </div>
-            <p className="text-2xl font-black text-white font-mono">{orders.data?.length ?? 0}</p>
-          </div>
-
-          <div className="rounded-2xl border border-amber-500/30 bg-slate-900/90 p-5 space-y-2 glow-gold">
-            <div className="flex items-center justify-between text-xs text-amber-300">
-              <span>حجم المبيعات</span>
-              <TrendingUp className="size-4 text-amber-400" />
-            </div>
-            <p className="text-2xl font-black text-amber-400 font-mono">{revenue.toFixed(0)} ر.س</p>
+            <p className="text-2xl font-black text-amber-400 font-mono">{pendingRequests.length}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>المستخدمين النشطين</span>
-              <Users className="size-4 text-purple-400" />
+              <span>معرفات الشركاء النشطة (AI IDs)</span>
+              <KeyRound className="size-4 text-cyan-400" />
             </div>
-            <p className="text-2xl font-black text-purple-400 font-mono">{accounts.data?.length ?? 0}</p>
+            <p className="text-2xl font-black text-cyan-400 font-mono">{securityRecords.length}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>المطابخ والمطاعم</span>
-              <Store className="size-4 text-orange-400" />
+              <span>حسابات محظورة لخرق الـ IP</span>
+              <AlertTriangle className="size-4 text-rose-400" />
             </div>
-            <p className="text-2xl font-black text-orange-400 font-mono">
-              {restaurants.data?.length ?? 0}
+            <p className="text-2xl font-black text-rose-400 font-mono">
+              {securityRecords.filter((r) => r.isLockedDualIp || r.isTamperBanned).length}
             </p>
+          </div>
+
+          <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
+            <div className="flex items-center justify-between text-xs text-slate-400">
+              <span>إجمالي المبيعات المنفذة</span>
+              <TrendingUp className="size-4 text-emerald-400" />
+            </div>
+            <p className="text-2xl font-black text-emerald-400 font-mono">{revenue.toFixed(0)} ر.س</p>
           </div>
         </div>
 
         {/* Tabs Control */}
         <Tabs defaultValue="requests" className="space-y-6">
-          <TabsList className="bg-slate-900 border border-slate-800 p-1 rounded-2xl">
+          <TabsList className="bg-slate-900 border border-slate-800 p-1 rounded-2xl flex flex-wrap">
             <TabsTrigger value="requests" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <ClipboardCheck className="size-4" />
-              طلبات الانضمام
+              طلبات الانضمام والمراجعة
               {pendingRequests.length > 0 && (
                 <Badge className="ms-1 bg-slate-950 text-amber-300 text-[10px]">{pendingRequests.length}</Badge>
               )}
+            </TabsTrigger>
+            <TabsTrigger value="security" className="gap-2 text-xs data-[state=active]:bg-cyan-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
+              <ShieldCheck className="size-4" />
+              أمان الـ IP ومكافحة الاحتيال
+              <Badge className="ms-1 bg-slate-950 text-cyan-300 text-[10px]">{securityRecords.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="restaurants" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <Store className="size-4" />
               المطاعم الشريكة
             </TabsTrigger>
-            <TabsTrigger value="accounts" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
-              <Users className="size-4" />
-              الحسابات والصلاحيات
-            </TabsTrigger>
             <TabsTrigger value="orders" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <Clock className="size-4" />
-              مراقبة العمليات الحية
+              العمليات المباشرة
             </TabsTrigger>
           </TabsList>
 
@@ -324,7 +356,7 @@ function AdminPage() {
             <div>
               <h3 className="mb-4 flex items-center gap-2 text-base font-bold text-white">
                 <Clock className="size-4 text-amber-400" />
-                طلبات الانضمام المعلقة للمراجعة
+                طلبات الانضمام الواردة من الهيدر والسفلي
                 <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">{pendingRequests.length}</Badge>
               </h3>
 
@@ -347,16 +379,17 @@ function AdminPage() {
                         </div>
                         <div>
                           <p className="font-bold text-white text-sm">
-                            {request.data.business_name_ar || request.data.full_name}
+                            {request.data.business_name_ar || request.data.business_name || request.data.full_name || request.data.contact_name}
                           </p>
                           <p className="text-xs text-slate-400 font-mono mt-0.5">
-                            {request.type === "restaurant" ? request.data.contact_phone : request.data.phone}
+                            {request.data.contact_phone || request.data.phone}
                           </p>
+                          <p className="text-[11px] text-cyan-400 font-mono">{request.data.email}</p>
                         </div>
                       </div>
 
                       <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
-                        بانتظار الموافقة
+                        بانتظار المراجعة
                       </Badge>
                     </div>
 
@@ -372,7 +405,7 @@ function AdminPage() {
                         }}
                       >
                         <Eye className="size-3.5 me-1.5" />
-                        التفاصيل
+                        المعاينة
                       </Button>
                       <Button
                         size="sm"
@@ -380,8 +413,8 @@ function AdminPage() {
                         onClick={() => approveRequest.mutate(request)}
                         disabled={approveRequest.isPending}
                       >
-                        <CheckCircle2 className="size-3.5 me-1.5" />
-                        قبول
+                        <KeyRound className="size-3.5 me-1.5" />
+                        اعتماد وتوليد AI ID
                       </Button>
                       <Button
                         size="sm"
@@ -392,6 +425,124 @@ function AdminPage() {
                       >
                         <XCircle className="size-3.5" />
                       </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Security & Anti-Fraud Tab */}
+          <TabsContent value="security" className="space-y-6">
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 space-y-6 shadow-2xl">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <ShieldCheck className="size-5 text-cyan-400" />
+                    سجل أمان الشركاء وحماية الـ IP الفردي (Single-IP Bindings)
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    يتم قفل وحظر أي حساب شريك فوراً إذا حاول الدخول من أكثر من عنوان IP واحد في نفس الوقت لمنع التلاعب.
+                  </p>
+                </div>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={refreshSecurityRecords}
+                  className="border-slate-700 bg-slate-800 text-xs text-slate-200"
+                >
+                  <RefreshCw className="size-3.5 me-1.5" />
+                  تحديث السجل
+                </Button>
+              </div>
+
+              <div className="divide-y divide-slate-800/80">
+                {securityRecords.map((record) => (
+                  <div key={record.id} className="py-4 first:pt-0 space-y-3">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex size-10 items-center justify-center rounded-xl ${
+                            record.partnerType === "restaurant"
+                              ? "bg-amber-500/20 text-amber-400"
+                              : "bg-cyan-500/20 text-cyan-400"
+                          }`}
+                        >
+                          {record.partnerType === "restaurant" ? <Store className="size-5" /> : <Bike className="size-5" />}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-bold text-white text-sm">{record.partnerName}</p>
+                            <Badge className="bg-slate-950 border-slate-800 font-mono text-amber-300 text-[11px] font-bold">
+                              {record.aiPartnerId}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-slate-400 font-mono mt-0.5">{record.email}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        {record.isLockedDualIp ? (
+                          <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 text-xs">
+                            <AlertTriangle className="size-3 me-1 text-rose-400" />
+                            محظور (خرق Dual-IP)
+                          </Badge>
+                        ) : record.isTamperBanned ? (
+                          <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/30 text-xs">
+                            محظور (محاولة تلاعب)
+                          </Badge>
+                        ) : (
+                          <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs">
+                            <CheckCircle2 className="size-3 me-1 text-emerald-400" />
+                            نشط ومحمي
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                      <div>
+                        <span className="text-slate-500 text-[10px] block">عنوان الـ IP المصرح به:</span>
+                        <span className="font-mono text-cyan-300 font-bold">{record.registeredIp}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[10px] block">آخر IP تم رصده:</span>
+                        <span className={`font-mono font-bold ${record.registeredIp !== record.currentIp ? "text-rose-400" : "text-emerald-400"}`}>
+                          {record.currentIp}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        {record.isLockedDualIp || record.isTamperBanned ? (
+                          <Button
+                            size="sm"
+                            className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs h-8"
+                            onClick={() => {
+                              sounds.playSuccess();
+                              adminUnlockPartner(record.aiPartnerId);
+                              refreshSecurityRecords();
+                              toast.success(`تم إلغاء قفل الحساب (${record.aiPartnerId}) وتحديث الـ IP بنجاح!`);
+                            }}
+                          >
+                            <Unlock className="size-3.5 me-1" />
+                            فك الحظر وتعيين الـ IP
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-rose-500/30 bg-rose-950/20 text-rose-300 hover:bg-rose-900/30 text-xs h-8"
+                            onClick={() => {
+                              sounds.playClick();
+                              simulateDualIpConflict(record.aiPartnerId);
+                              refreshSecurityRecords();
+                              toast.error(`تم محاكاة خرق IP ثانٍ لحساب (${record.aiPartnerId})! تم قفل الحساب.`);
+                            }}
+                          >
+                            محاكاة خرق IP (اختبار)
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -435,23 +586,6 @@ function AdminPage() {
             </div>
           </TabsContent>
 
-          {/* Accounts Tab */}
-          <TabsContent value="accounts">
-            <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 divide-y divide-slate-800/80 shadow-xl space-y-4">
-              {(accounts.data ?? []).map((u) => (
-                <div key={u.id} className="flex items-center justify-between gap-3 pt-4 first:pt-0">
-                  <div>
-                    <p className="font-bold text-white text-sm">{u.full_name || u.email}</p>
-                    <p className="text-xs text-slate-400 font-mono mt-0.5">{u.email}</p>
-                  </div>
-                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
-                    {u.role}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-
           {/* Orders Tab */}
           <TabsContent value="orders">
             <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 divide-y divide-slate-800/80 shadow-xl space-y-4">
@@ -481,7 +615,7 @@ function AdminPage() {
           <DialogHeader>
             <DialogTitle className="text-white font-bold">تفاصيل طلب الانضمام</DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              مراجعة وثائق وبيانات الشريك لاعتماد التفعيل الفوري
+              مراجعة وثائق وبيانات الشريك قبل توليد معرف الذكاء الاصطناعي
             </DialogDescription>
           </DialogHeader>
 
@@ -491,7 +625,7 @@ function AdminPage() {
                 <div>
                   <span className="text-slate-500 block text-[10px]">الاسم / المنشأة:</span>
                   <span className="font-bold text-white">
-                    {selectedRequest.data.business_name_ar || selectedRequest.data.full_name}
+                    {selectedRequest.data.business_name_ar || selectedRequest.data.business_name || selectedRequest.data.full_name || selectedRequest.data.contact_name}
                   </span>
                 </div>
                 <div>
@@ -520,7 +654,7 @@ function AdminPage() {
               onClick={() => approveRequest.mutate(selectedRequest)}
               disabled={approveRequest.isPending}
             >
-              اعتماد وإنشاء الحساب فوراً
+              اعتماد وتوليد معرف الذكاء الاصطناعي (AI Partner ID)
             </Button>
           </DialogFooter>
         </DialogContent>

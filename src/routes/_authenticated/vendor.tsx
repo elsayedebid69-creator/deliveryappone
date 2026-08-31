@@ -287,7 +287,15 @@ function VendorPage() {
       active={section}
       onNavigate={setSection}
       actions={
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-mono py-1 px-2.5">
+            <KeyRound className="size-3.5 me-1 text-amber-400" />
+            AI Partner ID: FH-AI-REST-9482X7
+          </Badge>
+          <Badge className="hidden md:inline-flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[11px] py-1 px-2.5 font-mono">
+            <Lock className="size-3 me-1 text-emerald-400" />
+            Single-IP Bound: 156.204.18.92
+          </Badge>
           <AiDishCreator onDishCreated={handleAiDishAdded} />
           <div className="hidden sm:flex items-center gap-2 border-s border-slate-700 ps-3">
             <span className="text-xs text-slate-400">
@@ -305,6 +313,7 @@ function VendorPage() {
         </div>
       }
     >
+
       {/* Overview stats HUD */}
       {(!section || section === "orders") && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
