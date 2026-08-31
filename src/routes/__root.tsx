@@ -15,6 +15,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { CartProvider } from "@/lib/cart";
 import { Toaster } from "@/components/ui/sonner";
 import { registerServiceWorker } from "@/lib/pwa";
+import { UniversalRoleBar } from "@/components/universal-role-bar";
 
 function NotFoundComponent() {
   return (
@@ -136,6 +137,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <I18nProvider>
         <CartProvider>
+          {/* Futuristic Universal Role Switcher & Live Sandbox Bar */}
+          <UniversalRoleBar />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <Toaster richColors position="top-center" />
@@ -144,3 +147,4 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
+
