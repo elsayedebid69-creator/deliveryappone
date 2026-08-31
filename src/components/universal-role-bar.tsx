@@ -19,7 +19,7 @@ const ROLES = [
     id: "vendor",
     nameAr: "شاشة المطبخ والمطعم",
     nameEn: "Kitchen & KDS",
-    path: "/_authenticated/vendor",
+    path: "/vendor",
     icon: Store,
     color: "from-orange-500 to-amber-500 text-white",
     badge: "KDS + منيو AI",
@@ -28,7 +28,7 @@ const ROLES = [
     id: "courier",
     nameAr: "تطبيق المندوب الذكي",
     nameEn: "Courier HUD",
-    path: "/_authenticated/courier",
+    path: "/courier",
     icon: Bike,
     color: "from-cyan-500 to-blue-600 text-white",
     badge: "ملاحة + إثبات AI",
@@ -37,12 +37,13 @@ const ROLES = [
     id: "admin",
     nameAr: "لوحة الإدارة الشاملة",
     nameEn: "Master Admin",
-    path: "/_authenticated/admin",
+    path: "/admin",
     icon: ShieldCheck,
     color: "from-purple-600 to-indigo-600 text-white",
     badge: "تحكم مركزي",
   },
 ];
+
 
 export function UniversalRoleBar() {
   const routerState = useRouterState();

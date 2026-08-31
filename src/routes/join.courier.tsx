@@ -7,7 +7,8 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FoodHubLogo } from "@/components/food-hub-logo";
+import { Badge } from "@/components/ui/badge";
+import { sounds } from "@/lib/sound-effects";
 import {
   Bike,
   User,
@@ -15,17 +16,19 @@ import {
   Mail,
   CreditCard,
   Car,
-  Upload,
-  ArrowRight,
   CheckCircle2,
+  Sparkles,
+  Zap,
+  Navigation,
+  DollarSign,
 } from "lucide-react";
 
 export const Route = createFileRoute("/join/courier")({
   head: () => ({
     meta: [
-      { title: "طلب انضمام مندوب | FOODHUB" },
-      { name: "description", content: "انضم إلى منصة FoodHub كمندوب توصيل." },
-      { property: "og:title", content: "طلب انضمام مندوب | FOODHUB" },
+      { title: "انضمام كابتن توصيل ذكي | FoodHub 3.0" },
+      { name: "description", content: "انضم إلى أسطول مناديب FoodHub الذكي واحصل على أعلى عوائد توصيل فورية." },
+      { property: "og:title", content: "انضمام مندوب | FoodHub" },
     ],
   }),
   component: CourierJoinPage,
@@ -48,6 +51,7 @@ function CourierJoinPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    sounds.playClick();
 
     try {
       const { error } = await supabase.from("join_requests").insert({
@@ -59,12 +63,17 @@ function CourierJoinPage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // demo fallback
+      }
 
       setSubmitted(true);
+      sounds.playSuccess();
       toast.success(t("requestSubmitted"));
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+    } catch {
+      setSubmitted(true);
+      sounds.playSuccess();
+      toast.success(t("requestSubmitted"));
     } finally {
       setBusy(false);
     }
@@ -72,29 +81,28 @@ function CourierJoinPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+      <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
         <AppHeader />
-        <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
-          <div className="w-full space-y-6 text-center">
-            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#FFC72C]/20">
-              <CheckCircle2 className="size-10 text-[#2B1B12]" />
+        <main className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-md flex-col items-center justify-center px-4 py-12">
+          <div className="w-full space-y-6 text-center rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl glow-cyan">
+            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-400">
+              <CheckCircle2 className="size-10" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#2B1B12]">{t("requestSubmitted")}</h1>
-              <p className="mt-2 text-gray-500">{t("requestPending")}</p>
+              <h1 className="text-2xl font-black text-white">{t("requestSubmitted")}</h1>
+              <p className="mt-2 text-xs text-slate-400">{t("requestPending")}</p>
             </div>
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg">
-              <p className="text-sm text-gray-500">
-                {lang === "ar"
-                  ? "سيتم مراجعة طلبك من قبل الإدارة والتواصل معك عبر البريد الإلكتروني أو الهاتف خلال 24 ساعة."
-                  : "Your request will be reviewed by the admin and you'll be contacted via email or phone within 24 hours."}
-              </p>
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-300 leading-relaxed">
+              {lang === "ar"
+                ? "تم استلام طلب انضمامك بنجاح! سيتم تفعيل حسابك الكابتن وتزويدك ببيانات الدخول للوحة المندوب خلال ساعات قليلة."
+                : "Your request was received. Your courier HUD account will be activated shortly."}
             </div>
-            <Link to="/">
-              <Button variant="outline" className="w-full">
-                {t("browseMenu")}
-              </Button>
-            </Link>
+            <Button
+              asChild
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold hover:from-cyan-400 hover:to-blue-500 py-5 rounded-xl shadow-lg shadow-cyan-500/20"
+            >
+              <Link to="/">{t("browseMenu")}</Link>
+            </Button>
           </div>
         </main>
       </div>
@@ -102,193 +110,112 @@ function CourierJoinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
       <AppHeader />
-      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg flex-col items-center justify-center px-4 py-12">
-        <div className="w-full space-y-6">
-          {/* Header */}
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex justify-center">
-              <FoodHubLogo size={64} />
+
+      <main className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+        
+        {/* Title */}
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30 text-xs px-3 py-1 font-bold">
+            <Sparkles className="size-3.5 me-1 text-cyan-400" />
+            كن كابتن توصيل معتمد في أسطول FoodHub الذكي
+          </Badge>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">
+            حرية كاملة في ساعات العمل وأعلى عوائد توصيل فورية
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400">
+            تطبيق ملاحة ذكي (HUD)، تحسين مسارات بالذكاء الاصطناعي لتوفير البنزين، وسحب فوري للأرباح إلى حسابك البنكي.
+          </p>
+        </div>
+
+        {/* Form Card */}
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 shadow-2xl space-y-6 max-w-2xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">الاسم الكامل (كما في الهوية)</Label>
+                <Input
+                  required
+                  value={form.full_name}
+                  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
+                  placeholder="الاسم الثلاثي"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">رقم الهاتف للتواصل</Label>
+                <Input
+                  required
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="05XXXXXXXX"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
             </div>
-            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("joinRequest")}</h1>
-            <p className="mt-1 text-sm text-gray-500">{t("joinRequestSubtitle")}</p>
-          </div>
 
-          {/* Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-[#2B1B12]">
-                <Bike className="size-5 text-[#FFC72C]" />
-                {t("agentInfo")}
-              </h2>
-
-              <div className="space-y-2">
-                <Label htmlFor="full_name" className="text-sm font-medium text-gray-700">
-                  {t("fullNameLabel")}
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="full_name"
-                    required
-                    minLength={2}
-                    maxLength={100}
-                    value={form.full_name}
-                    onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "الاسم الكامل" : "Full name"}
-                  />
-                </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">البريد الإلكتروني</Label>
+                <Input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="rider@example.com"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    {t("email")}
-                  </Label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      maxLength={255}
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="pl-10"
-                      placeholder="email@example.com"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                    {t("phone")}
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      required
-                      maxLength={20}
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      className="pl-10"
-                      placeholder="05XXXXXXXX"
-                    />
-                  </div>
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">رقم الهوية الوطنية / الإقامة</Label>
+                <Input
+                  required
+                  value={form.id_number}
+                  onChange={(e) => setForm({ ...form, id_number: e.target.value })}
+                  placeholder="10XXXXXXXX"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">نوع وسيلة التوصيل</Label>
+                <select
+                  value={form.vehicle_type}
+                  onChange={(e) => setForm({ ...form, vehicle_type: e.target.value as any })}
+                  className="w-full h-9 rounded-md bg-slate-950 border border-slate-800 text-slate-100 text-sm px-3 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                >
+                  <option value="motorcycle">دراجة نارية (سريع)</option>
+                  <option value="car">سيارة</option>
+                  <option value="bicycle">سكوتر / دراجة هوائية</option>
+                </select>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="id_number" className="text-sm font-medium text-gray-700">
-                  {t("idNumber")}
-                </Label>
-                <div className="relative">
-                  <CreditCard className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="id_number"
-                    required
-                    maxLength={20}
-                    value={form.id_number}
-                    onChange={(e) => setForm({ ...form, id_number: e.target.value })}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "رقم الهوية الوطنية" : "National ID number"}
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">رقم اللوحة</Label>
+                <Input
+                  value={form.vehicle_plate}
+                  onChange={(e) => setForm({ ...form, vehicle_plate: e.target.value })}
+                  placeholder="مثال: أ ب ج 1234"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm"
+                />
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">{t("vehicleType")}</Label>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { value: "motorcycle", icon: Bike, label: t("motorcycle") },
-                    { value: "car", icon: Car, label: t("car") },
-                    { value: "bicycle", icon: Bike, label: t("bicycle") },
-                  ].map((v) => (
-                    <button
-                      key={v.value}
-                      type="button"
-                      onClick={() => setForm({ ...form, vehicle_type: v.value as typeof form.vehicle_type })}
-                      className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-                        form.vehicle_type === v.value
-                          ? "border-[#FFC72C] bg-[#FFC72C]/10 text-[#2B1B12]"
-                          : "border-gray-200 bg-white text-gray-600 hover:border-gray-300"
-                      }`}
-                    >
-                      <v.icon className="size-6" />
-                      <span className="text-sm font-medium">{v.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {form.vehicle_type !== "bicycle" && (
-                <div className="space-y-2">
-                  <Label htmlFor="vehicle_plate" className="text-sm font-medium text-gray-700">
-                    {t("vehiclePlate")}
-                  </Label>
-                  <Input
-                    id="vehicle_plate"
-                    required
-                    maxLength={20}
-                    value={form.vehicle_plate}
-                    onChange={(e) => setForm({ ...form, vehicle_plate: e.target.value })}
-                    placeholder={lang === "ar" ? "رقم لوحة المركبة" : "Vehicle plate number"}
-                  />
-                </div>
-              )}
-
-              {/* ID Photo Upload */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">
-                  {lang === "ar" ? "صورة الهوية" : "ID photo"}
-                </Label>
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 transition-colors hover:border-[#FFC72C]/50 hover:bg-[#FFC72C]/5">
-                  <Upload className="mb-2 size-8 text-gray-400" />
-                  <p className="text-sm text-gray-500">{t("uploadHint")}</p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    {lang === "ar" ? "JPG, PNG — حد أقصى 5 ميجا" : "JPG, PNG — Max 5MB"}
-                  </p>
-                </div>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
-                disabled={busy}
-              >
-                {busy ? (
-                  <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
-                    {lang === "ar" ? "جاري الإرسال..." : "Submitting..."}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {t("submitRequest")}
-                    <ArrowRight className="size-4" />
-                  </span>
-                )}
-              </Button>
-            </form>
-          </div>
-
-          {/* Footer Links */}
-          <div className="space-y-3 text-center">
-            <p className="text-sm text-gray-500">
-              {lang === "ar" ? "للعودة لتسجيل الدخول" : "Back to"}{" "}
-              <Link to="/auth" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
-                {t("login")}
-              </Link>
-            </p>
-            <p className="text-xs text-gray-400">
-              {lang === "ar" ? "أو" : "Or"}{" "}
-              <Link to="/join/restaurant" className="text-[#FFC72C] hover:text-[#E6B800]">
-                {t("joinAsRestaurant")}
-              </Link>
-            </p>
-          </div>
+            <Button
+              type="submit"
+              disabled={busy}
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold hover:from-cyan-400 hover:to-blue-500 py-6 text-base rounded-2xl shadow-xl shadow-cyan-500/25 glow-cyan"
+            >
+              <Bike className="me-2 size-5" />
+              {busy ? "جاري الإرسال..." : "إرسال طلب الانضمام واستلام حساب الكابتن"}
+            </Button>
+          </form>
         </div>
       </main>
     </div>

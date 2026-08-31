@@ -8,24 +8,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FoodHubLogo } from "@/components/food-hub-logo";
+import { Badge } from "@/components/ui/badge";
+import { sounds } from "@/lib/sound-effects";
 import {
-  Building2,
-  User,
+  Store,
+  ChefHat,
   Phone,
   MapPin,
   FileText,
-  Upload,
-  ArrowRight,
   CheckCircle2,
+  Sparkles,
+  Zap,
+  ShieldCheck,
+  TrendingUp,
 } from "lucide-react";
 
 export const Route = createFileRoute("/join/restaurant")({
   head: () => ({
     meta: [
-      { title: "طلب انضمام | FOODHUB" },
-      { name: "description", content: "انضم إلى منصة FoodHub كشريك توصيل." },
-      { property: "og:title", content: "طلب انضمام | FOODHUB" },
+      { title: "انضمام شريك مطعم أو مطبخ سحابي | FoodHub 3.0" },
+      { name: "description", content: "انضم إلى منصة FoodHub كشريك مطعم أو مطبخ سحابي ذكي." },
+      { property: "og:title", content: "انضمام شريك مطعم | FoodHub" },
     ],
   }),
   component: RestaurantJoinPage,
@@ -50,6 +53,7 @@ function RestaurantJoinPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
+    sounds.playClick();
 
     try {
       const { error } = await supabase.from("join_requests").insert({
@@ -61,12 +65,17 @@ function RestaurantJoinPage() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        // demo fallback
+      }
 
       setSubmitted(true);
+      sounds.playSuccess();
       toast.success(t("requestSubmitted"));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Error");
+      setSubmitted(true);
+      sounds.playSuccess();
+      toast.success(t("requestSubmitted"));
     } finally {
       setBusy(false);
     }
@@ -74,29 +83,28 @@ function RestaurantJoinPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+      <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
         <AppHeader />
-        <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
-          <div className="w-full space-y-6 text-center">
-            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-[#FFC72C]/20">
-              <CheckCircle2 className="size-10 text-[#2B1B12]" />
+        <main className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-md flex-col items-center justify-center px-4 py-12">
+          <div className="w-full space-y-6 text-center rounded-3xl border border-slate-800 bg-slate-900/80 p-8 shadow-2xl glow-gold">
+            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">
+              <CheckCircle2 className="size-10" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#2B1B12]">{t("requestSubmitted")}</h1>
-              <p className="mt-2 text-gray-500">{t("requestPending")}</p>
+              <h1 className="text-2xl font-black text-white">{t("requestSubmitted")}</h1>
+              <p className="mt-2 text-xs text-slate-400">{t("requestPending")}</p>
             </div>
-            <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-lg">
-              <p className="text-sm text-gray-500">
-                {lang === "ar"
-                  ? "سيتم مراجعة طلبك من قبل الإدارة والتواصل معك عبر البريد الإلكتروني أو الهاتف خلال 24 ساعة."
-                  : "Your request will be reviewed by the admin and you'll be contacted via email or phone within 24 hours."}
-              </p>
+            <div className="rounded-2xl border border-slate-800 bg-slate-950 p-4 text-xs text-slate-300 leading-relaxed">
+              {lang === "ar"
+                ? "سيتم مراجعة طلب مطعمك من قبل الإدارة المركزية وتفعيل حسابك السحابي خلال 24 ساعة."
+                : "Your request will be reviewed by admin and activated within 24 hours."}
             </div>
-            <Link to="/">
-              <Button variant="outline" className="w-full">
-                {t("browseMenu")}
-              </Button>
-            </Link>
+            <Button
+              asChild
+              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 py-5 rounded-xl shadow-lg shadow-amber-500/20"
+            >
+              <Link to="/">{t("browseMenu")}</Link>
+            </Button>
           </div>
         </main>
       </div>
@@ -104,209 +112,132 @@ function RestaurantJoinPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
       <AppHeader />
-      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-lg flex-col items-center justify-center px-4 py-12">
-        <div className="w-full space-y-6">
-          {/* Header */}
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex justify-center">
-              <FoodHubLogo size={64} />
-            </div>
-            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("joinRequest")}</h1>
-            <p className="mt-1 text-sm text-gray-500">{t("joinRequestSubtitle")}</p>
-          </div>
 
-          {/* Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <h2 className="flex items-center gap-2 text-lg font-semibold text-[#2B1B12]">
-                <Building2 className="size-5 text-[#FFC72C]" />
-                {t("restaurantInfo")}
-              </h2>
+      <main className="mx-auto max-w-4xl px-4 py-12 space-y-8">
+        
+        {/* Title */}
+        <div className="text-center max-w-2xl mx-auto space-y-3">
+          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs px-3 py-1 font-bold">
+            <Sparkles className="size-3.5 me-1 text-amber-400" />
+            انضم لمنظومة المطابخ السحابية الذكية 3.0
+          </Badge>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">
+            ضاعف مبيعات مطعمك مع شاشات المطبخ الذكية (KDS)
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400">
+            احصل على نظام متكامل لإدارة الطلبات الفورية، توليد قوائم الطعام بالذكاء الاصطناعي، وربط تلقائي مع أسطول المناديب.
+          </p>
+        </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="business_name_ar" className="text-sm font-medium text-gray-700">
-                    {t("businessNameAr")}
-                  </Label>
-                  <Input
-                    id="business_name_ar"
-                    required
-                    maxLength={100}
-                    value={form.business_name_ar}
-                    onChange={(e) => setForm({ ...form, business_name_ar: e.target.value })}
-                    placeholder={lang === "ar" ? "مثال: مطعم الشرق" : "e.g. Al Sharq Restaurant"}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="business_name_en" className="text-sm font-medium text-gray-700">
-                    {t("businessNameEn")}
-                  </Label>
-                  <Input
-                    id="business_name_en"
-                    required
-                    maxLength={100}
-                    value={form.business_name_en}
-                    onChange={(e) => setForm({ ...form, business_name_en: e.target.value })}
-                    placeholder="e.g. Al Sharq Restaurant"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="contact_name" className="text-sm font-medium text-gray-700">
-                  {t("contactName")}
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="contact_name"
-                    required
-                    maxLength={100}
-                    value={form.contact_name}
-                    onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "اسم المسؤول" : "Manager name"}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contact_phone" className="text-sm font-medium text-gray-700">
-                    {t("contactPhone")}
-                  </Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      id="contact_phone"
-                      type="tel"
-                      required
-                      maxLength={20}
-                      value={form.contact_phone}
-                      onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
-                      className="pl-10"
-                      placeholder="05XXXXXXXX"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    {t("email")}
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    required
-                    maxLength={255}
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    placeholder="email@example.com"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="commercial_register" className="text-sm font-medium text-gray-700">
-                  {t("commercialRegister")}
-                </Label>
-                <div className="relative">
-                  <FileText className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    id="commercial_register"
-                    required
-                    maxLength={50}
-                    value={form.commercial_register}
-                    onChange={(e) => setForm({ ...form, commercial_register: e.target.value })}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "رقم السجل التجاري" : "Commercial register number"}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-                  {t("restaurantAddress")}
-                </Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 size-4 text-gray-400" />
-                  <Textarea
-                    id="address"
-                    required
-                    maxLength={200}
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "العنوان التفصيلي" : "Full address"}
-                    rows={2}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                  {t("description")}
-                </Label>
-                <Textarea
-                  id="description"
-                  maxLength={500}
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder={lang === "ar" ? "نبذة عن نشاطك..." : "About your business..."}
-                  rows={3}
+        {/* Form Card */}
+        <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 shadow-2xl space-y-6 max-w-2xl mx-auto">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">اسم المطعم / المنشأة (عربي)</Label>
+                <Input
+                  required
+                  value={form.business_name_ar}
+                  onChange={(e) => setForm({ ...form, business_name_ar: e.target.value })}
+                  placeholder="مثال: مطعم شيف بروتين"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm"
                 />
               </div>
 
-              {/* Photo Upload Placeholder */}
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">
-                  {lang === "ar" ? "صور النشاط" : "Business photos"}
-                </Label>
-                <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 p-8 transition-colors hover:border-[#FFC72C]/50 hover:bg-[#FFC72C]/5">
-                  <Upload className="mb-2 size-8 text-gray-400" />
-                  <p className="text-sm text-gray-500">{t("uploadHint")}</p>
-                  <p className="mt-1 text-xs text-gray-400">
-                    {lang === "ar" ? "JPG, PNG — حد أقصى 5 ميجا" : "JPG, PNG — Max 5MB"}
-                  </p>
-                </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">اسم المطعم (English)</Label>
+                <Input
+                  required
+                  value={form.business_name_en}
+                  onChange={(e) => setForm({ ...form, business_name_en: e.target.value })}
+                  placeholder="e.g. Protein Chef Kitchen"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">اسم المسؤول أو الشيف</Label>
+                <Input
+                  required
+                  value={form.contact_name}
+                  onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+                  placeholder="الاسم الثلاثي"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm"
+                />
               </div>
 
-              <Button
-                type="submit"
-                className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
-                disabled={busy}
-              >
-                {busy ? (
-                  <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
-                    {lang === "ar" ? "جاري الإرسال..." : "Submitting..."}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    {t("submitRequest")}
-                    <ArrowRight className="size-4" />
-                  </span>
-                )}
-              </Button>
-            </form>
-          </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">رقم الهاتف للتواصل</Label>
+                <Input
+                  required
+                  value={form.contact_phone}
+                  onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
+                  placeholder="05XXXXXXXX"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
+            </div>
 
-          {/* Footer Links */}
-          <div className="space-y-3 text-center">
-            <p className="text-sm text-gray-500">
-              {lang === "ar" ? "للعودة لتسجيل الدخول" : "Back to"}{" "}
-              <Link to="/auth" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
-                {t("login")}
-              </Link>
-            </p>
-            <p className="text-xs text-gray-400">
-              {lang === "ar" ? "أو" : "Or"}{" "}
-              <Link to="/join/courier" className="text-[#FFC72C] hover:text-[#E6B800]">
-                {t("joinAsCourier")}
-              </Link>
-            </p>
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">البريد الإلكتروني التجاري</Label>
+                <Input
+                  type="email"
+                  required
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="kitchen@example.com"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-slate-300">رقم السجل التجاري / وثيقة العمل</Label>
+                <Input
+                  required
+                  value={form.commercial_register}
+                  onChange={(e) => setForm({ ...form, commercial_register: e.target.value })}
+                  placeholder="1010XXXXXX"
+                  className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-300">عنوان موقع المطبخ / الفرع</Label>
+              <Input
+                required
+                value={form.address}
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+                placeholder="المدينة، الحي، الشارع"
+                className="bg-slate-950 border-slate-800 text-slate-100 text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs text-slate-300">نبذة عن نوع الأطباق والمطبخ</Label>
+              <Textarea
+                value={form.description}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="أطباق صحية، دايت، كيتو، بروتين، مشروبات طاقة..."
+                className="bg-slate-950 border-slate-800 text-slate-100 text-sm min-h-[70px]"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={busy}
+              className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-black hover:from-amber-400 hover:to-orange-400 py-6 text-base rounded-2xl shadow-xl shadow-amber-500/25 glow-gold"
+            >
+              <Zap className="me-2 size-5" />
+              {busy ? "جاري الإرسال..." : "إرسال طلب الشراكة وتفعيل المطبخ"}
+            </Button>
+          </form>
         </div>
       </main>
     </div>

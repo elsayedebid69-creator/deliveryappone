@@ -68,28 +68,28 @@ function AuthPage() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1]">
+    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
       <AppHeader />
-      <main className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md flex-col items-center justify-center px-4 py-12">
+      <main className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-md flex-col items-center justify-center px-4 py-12">
         <div className="w-full space-y-6">
           {/* Brand Header */}
-          <div className="text-center">
-            <div className="mx-auto mb-4 flex justify-center">
+          <div className="text-center space-y-2">
+            <div className="mx-auto flex justify-center">
               <FoodHubLogo size={64} />
             </div>
-            <h1 className="text-2xl font-bold text-[#2B1B12]">{t("login")}</h1>
-            <p className="mt-1 text-sm text-gray-500">{t("signInSubtitle")}</p>
+            <h1 className="text-2xl font-black text-white">{t("login")}</h1>
+            <p className="text-xs text-slate-400">{t("signInSubtitle")}</p>
           </div>
 
           {/* Login Form */}
-          <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-xl shadow-[#FFC72C]/5">
+          <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 sm:p-8 shadow-2xl space-y-4">
             <form onSubmit={signIn} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs font-bold text-slate-300">
                   {t("email")}
                 </Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                  <Mail className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
                   <Input
                     id="email"
                     type="email"
@@ -97,18 +97,18 @@ function AuthPage() {
                     maxLength={255}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "أدخل بريدك الإلكتروني" : "Enter your email"}
+                    className="ps-10 bg-slate-950 border-slate-800 text-slate-100 font-mono text-sm"
+                    placeholder="email@example.com"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
+              <div className="space-y-1.5">
+                <Label htmlFor="password" className="text-xs font-bold text-slate-300">
                   {t("password")}
                 </Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400" />
+                  <Lock className="absolute start-3 top-1/2 size-4 -translate-y-1/2 text-slate-500" />
                   <Input
                     id="password"
                     type="password"
@@ -116,20 +116,20 @@ function AuthPage() {
                     maxLength={72}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    placeholder={lang === "ar" ? "أدخل كلمة المرور" : "Enter your password"}
+                    className="ps-10 bg-slate-950 border-slate-800 text-slate-100 font-mono text-sm"
+                    placeholder="••••••••"
                   />
                 </div>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-[#FFC72C] text-[#2B1B12] hover:bg-[#E6B800]"
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black hover:from-amber-400 hover:to-yellow-300 py-6 text-sm rounded-xl shadow-lg shadow-amber-500/20"
                 disabled={busy}
               >
                 {busy ? (
                   <span className="flex items-center gap-2">
-                    <span className="size-4 animate-spin rounded-full border-2 border-[#2B1B12] border-t-transparent" />
+                    <span className="size-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
                     {lang === "ar" ? "جاري تسجيل الدخول..." : "Signing in..."}
                   </span>
                 ) : (
@@ -144,54 +144,34 @@ function AuthPage() {
 
           {/* Signup Link */}
           <div className="text-center">
-            <p className="text-sm text-gray-500">
+            <p className="text-xs text-slate-400">
               {t("dontHaveAccount")}{" "}
-              <Link to="/auth/signup" className="font-medium text-[#FFC72C] hover:text-[#E6B800]">
+              <Link to="/auth/signup" className="font-bold text-amber-400 hover:text-amber-300 underline ms-1">
                 {t("signUp")}
               </Link>
             </p>
           </div>
 
           {/* Role Quick Links */}
-          <div className="space-y-3">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="bg-gradient-to-br from-[#FFFDF7] via-white to-[#FFF8E1] px-2 text-gray-400">
-                  {lang === "ar" ? "أو" : "Or"}
-                </span>
-              </div>
-            </div>
-
+          <div className="space-y-3 pt-2">
             <div className="grid grid-cols-2 gap-3">
               <Link to="/join/restaurant">
-                <Button variant="outline" className="w-full border-[#FFC72C]/30 hover:bg-[#FFC72C]/10 hover:text-[#2B1B12]">
-                  <ChefHat className="mr-2 size-4" />
+                <Button variant="outline" className="w-full border-slate-800 bg-slate-900/80 text-xs text-slate-300 hover:bg-slate-800 hover:text-amber-400">
+                  <ChefHat className="me-2 size-4 text-orange-400" />
                   {t("joinAsRestaurant")}
                 </Button>
               </Link>
               <Link to="/join/courier">
-                <Button variant="outline" className="w-full border-[#2B1B12]/20 hover:bg-[#2B1B12]/5 hover:text-[#2B1B12]">
-                  <Bike className="mr-2 size-4" />
+                <Button variant="outline" className="w-full border-slate-800 bg-slate-900/80 text-xs text-slate-300 hover:bg-slate-800 hover:text-cyan-400">
+                  <Bike className="me-2 size-4 text-cyan-400" />
                   {t("joinAsCourier")}
                 </Button>
               </Link>
             </div>
           </div>
-
-          {/* Browse without login */}
-          <div className="text-center">
-            <Link
-              to="/"
-              className="text-sm text-gray-400 hover:text-[#2B1B12]"
-            >
-              {t("browseMenu")} →
-            </Link>
-          </div>
         </div>
       </main>
+
 
       {/* Bootstrap Admin Card */}
       {adminState && !adminState.exists ? (
