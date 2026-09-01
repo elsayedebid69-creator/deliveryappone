@@ -215,15 +215,16 @@ function Home() {
               </div>
 
               <h1 className="text-4xl font-black leading-tight sm:text-6xl tracking-tight text-white">
-                طعام صحي طازج، <br />
+                طعام صحي وطازج، <br />
                 <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                  محسوب بالذكاء الاصطناعي.
+                  بأعلى معايير الجودة والمذاق.
                 </span>
               </h1>
 
               <p className="text-base text-slate-300 sm:text-lg max-w-xl leading-relaxed">
-                اطلب وجباتك الصحية المعدة بأعلى معايير الجودة مع حساب دقيق للسعرات والماكروز، وتتبع لحظي لمندوب التوصيل عبر الرادار الفضائي.
+                اطلب أشهى الوجبات الصحية المحضرة بعناية من أفضل المطابخ، مع توصيل سريع وتتبع مباشر ولحظي حتى باب منزلك.
               </p>
+
             </div>
 
             {/* AI Assistant Quick Pitch Card */}
