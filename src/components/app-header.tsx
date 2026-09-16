@@ -64,6 +64,14 @@ export function AppHeader() {
               {lang === "ar" ? "EN" : "عربي"}
             </Button>
 
+            {/* Link to Store / Customer App */}
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
+              <Link to="/store" onClick={() => sounds.playClick()}>
+                <Store className="size-4 text-amber-400" />
+                <span>{lang === "ar" ? "المتجر" : "Store"}</span>
+              </Link>
+            </Button>
+
             {/* If logged in with special role, direct to their dashboard */}
             {user && role && role !== "customer" ? (
               <Button asChild variant="ghost" size="sm" className="gap-1.5 text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/30">
@@ -155,6 +163,20 @@ export function AppHeader() {
               >
                 <Languages className="size-4 text-amber-400" />
                 {lang === "ar" ? "English" : "العربية"}
+              </Button>
+
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
+                <Link to="/store" onClick={() => setMobileMenuOpen(false)}>
+                  <Store className="size-4 text-amber-400" />
+                  {lang === "ar" ? "المتجر والطلبات" : "Store & Delivery"}
+                </Link>
+              </Button>
+
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
+                <Link to="/" onClick={() => setMobileMenuOpen(false)}>
+                  <Sparkles className="size-4 text-amber-400" />
+                  {lang === "ar" ? "لوحة محاكاة وتطوير المنظومة" : "Dev & Simulator Studio"}
+                </Link>
               </Button>
 
               <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
