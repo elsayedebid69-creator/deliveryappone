@@ -38,6 +38,8 @@ import {
   Zap,
   Activity,
   AlertCircle,
+  KeyRound,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor")({

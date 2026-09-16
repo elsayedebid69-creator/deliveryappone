@@ -72,7 +72,7 @@ export function UniversalRoleBar() {
         "حي الياسمين، فيلا 23، مخرج 5 - الرياض",
         "حي الملقا، طريق أنس بن مالك، برج النخبة - الرياض",
       ];
-      const randomAddress = sampleAddresses[Math.floor(Math.random() * sampleAddresses.length)];
+      const randomAddress = sampleAddresses[Math.floor(Math.random() * sampleAddresses.length)] ?? sampleAddresses[0]!;
       const randomSubtotal = Math.floor(Math.random() * 80) + 45;
       const deliveryFee = 12;
 
@@ -101,7 +101,7 @@ export function UniversalRoleBar() {
           {
             order_id: newOrder.id,
             name_ar: "سلطة الكينوا والأفوكادو بالبروتين",
-            nameEn: "Super Protein Quinoa Avocado Bowl",
+            name_en: "Super Protein Quinoa Avocado Bowl",
             price: randomSubtotal,
             quantity: 1,
           },

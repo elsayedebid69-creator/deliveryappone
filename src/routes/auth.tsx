@@ -112,8 +112,8 @@ function AuthPage() {
           setIpLockError({
             locked: true,
             reason: "dual_ip",
-            registeredIp: verification.record?.registeredIp,
-            currentIp: verification.record?.currentIp,
+            registeredIp: verification.record?.registeredIp ?? "",
+            currentIp: verification.record?.currentIp ?? "",
           });
           toast.error("⚠️ تنبيه أمني: تم اكتشاف محاولة فتح من عنوان IP ثانٍ! تم قفل الحساب.");
           return;

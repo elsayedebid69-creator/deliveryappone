@@ -16,6 +16,7 @@ const dict = {
   logout: { ar: "تسجيل الخروج", en: "Sign out" },
   email: { ar: "البريد الإلكتروني", en: "Email" },
   password: { ar: "كلمة المرور", en: "Password" },
+  confirmPassword: { ar: "تأكيد كلمة المرور", en: "Confirm password" },
   fullName: { ar: "الاسم الكامل", en: "Full name" },
   phone: { ar: "رقم الجوال", en: "Phone number" },
   address: { ar: "عنوان التوصيل", en: "Delivery address" },
