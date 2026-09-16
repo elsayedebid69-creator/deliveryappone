@@ -69,7 +69,7 @@ export function AppHeader() {
               <Button asChild variant="ghost" size="sm" className="gap-1.5 text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/30">
                 <Link to={dashboardPathFor(role)} onClick={() => sounds.playClick()}>
                   <LayoutDashboard className="size-4 text-amber-400" />
-                  <span>لوحة التحكم الخاصة بي ({role})</span>
+                  <span>{lang === "ar" ? "لوحة التحكم" : "Dashboard"} ({role})</span>
                 </Link>
               </Button>
             ) : null}
@@ -78,7 +78,7 @@ export function AppHeader() {
               <Link to="/orders" onClick={() => sounds.playClick()}>
                 <span className="flex items-center gap-1.5">
                   <Sparkles className="size-3.5 text-amber-400" />
-                  تتبع طلباتي
+                  {lang === "ar" ? "تتبع طلباتي" : "Track Orders"}
                 </span>
               </Link>
             </Button>
@@ -106,7 +106,7 @@ export function AppHeader() {
               className="gap-1.5 border-slate-800 bg-slate-900/90 text-xs text-slate-300 hover:border-amber-500/40 hover:text-amber-300"
             >
               <UserCheck className="size-3.5 text-amber-400" />
-              انضمام شريك (مطعم / كابتن)
+              {lang === "ar" ? "انضمام شريك (مطعم / كابتن)" : "Join Partner"}
             </Button>
 
             {user ? (
@@ -160,7 +160,7 @@ export function AppHeader() {
               <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
                 <Link to="/orders" onClick={() => setMobileMenuOpen(false)}>
                   <Sparkles className="size-4 text-amber-400" />
-                  تتبع طلباتي
+                  {lang === "ar" ? "تتبع طلباتي" : "Track Orders"}
                 </Link>
               </Button>
 
@@ -186,7 +186,7 @@ export function AppHeader() {
                 className="justify-start gap-2 border-slate-800 bg-slate-900 text-amber-400"
               >
                 <UserCheck className="size-4" />
-                انضم كشريك (مطعم / كابتن)
+                {lang === "ar" ? "انضم كشريك (مطعم / كابتن)" : "Join as Partner"}
               </Button>
 
               {user ? (
@@ -234,7 +234,9 @@ export function AppFooter() {
                 <FoodHubLogo size={40} showText />
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                منظومة توصيل طعام متكاملة تجمع بين أفضل المطابخ السحابية والمطاعم مع أسرع خدمة توصيل وأعلى معايير الجودة والأمان.
+                {lang === "ar"
+                  ? "منظومة توصيل طعام متكاملة تجمع بين أفضل المطابخ السحابية والمطاعم مع أسرع خدمة توصيل وأعلى معايير الجودة والأمان."
+                  : "All-in-one smart food delivery platform connecting premier cloud kitchens and restaurants with ultra-fast delivery and top security."}
               </p>
 
             </div>
@@ -247,17 +249,17 @@ export function AppFooter() {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <Link to="/" className="hover:text-amber-400">
-                    🍽️ تصفح قائمة الأطباق الصحية
+                    {lang === "ar" ? "🍽️ تصفح قائمة الأطباق الصحية" : "🍽️ Browse Healthy Menu"}
                   </Link>
                 </li>
                 <li>
                   <Link to="/orders" className="hover:text-amber-400">
-                    🛰️ رادار تتبع الطلبات المباشر
+                    {lang === "ar" ? "🛰️ رادار تتبع الطلبات المباشر" : "🛰️ Live Order Radar"}
                   </Link>
                 </li>
                 <li>
                   <Link to="/cart" className="hover:text-amber-400">
-                    🛒 السلة وإتمام الطلب الفوري
+                    {lang === "ar" ? "🛒 السلة وإتمام الطلب الفوري" : "🛒 Cart & Instant Checkout"}
                   </Link>
                 </li>
               </ul>
@@ -275,7 +277,7 @@ export function AppFooter() {
                     className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
                     <Store className="size-3.5 text-amber-400" />
-                    طلب انضمام مطبخ سحابي / مطعم
+                    {lang === "ar" ? "طلب انضمام مطبخ سحابي / مطعم" : "Join as Cloud Kitchen / Restaurant"}
                   </button>
                 </li>
                 <li>
@@ -284,13 +286,13 @@ export function AppFooter() {
                     className="flex items-center gap-1.5 text-start hover:text-cyan-400 transition-colors"
                   >
                     <Bike className="size-3.5 text-cyan-400" />
-                    طلب انضمام كابتن مندوب توصيل
+                    {lang === "ar" ? "طلب انضمام كابتن مندوب توصيل" : "Join as Delivery Courier"}
                   </button>
                 </li>
                 <li>
                   <Link to="/auth" className="flex items-center gap-1.5 hover:text-slate-200 pt-1">
                     <Lock className="size-3.5 text-slate-400" />
-                    تسجيل دخول الشركاء المعتمدين (AI ID)
+                    {lang === "ar" ? "تسجيل دخول الشركاء (AI ID)" : "Partner Portal (AI ID Login)"}
                   </Link>
                 </li>
               </ul>
@@ -299,20 +301,23 @@ export function AppFooter() {
             {/* Admin and Security */}
             <div>
               <h3 className="mb-3 font-bold text-white text-sm">
-                {lang === "ar" ? "الإدارة والأمان المتقدم" : "Administration & Security"}
+                {lang === "ar" ? "الإدارة والأمان المتقدم" : "Admin & Security"}
               </h3>
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <Link to="/admin" className="flex items-center gap-1.5 hover:text-purple-400">
                     <ShieldCheck className="size-3.5 text-purple-400" />
-                    بوابة إدارة شركة FOODHUB
+                    {lang === "ar" ? "بوابة إدارة شركة FOODHUB" : "FOODHUB Admin Portal"}
                   </Link>
                 </li>
                 <li className="text-[11px] text-slate-500 pt-1 leading-relaxed">
-                  🛡️ نظام حماية الـ IP الفردي: يتم حظر أي حساب شريك يحاول الفتح من أكثر من IP واحد تلقائياً لمنع النزاعات والاختراق.
+                  {lang === "ar"
+                    ? "🛡️ نظام حماية الـ IP الفردي: يتم قفل أي حساب شريك يحاول الفتح من أكثر من IP واحد تلقائياً لمنع الاختراق."
+                    : "🛡️ Single-IP Protection: Partner accounts are strictly locked upon concurrent multi-IP access to prevent fraud."}
                 </li>
                 <li className="text-[11px] text-slate-500">
-                  📧 للدعم والاستفسارات: <span className="text-slate-300 font-mono">support@foodhub.com</span>
+                  {lang === "ar" ? "📧 للدعم والاستفسارات: " : "📧 Support & Inquiries: "}
+                  <span className="text-slate-300 font-mono">support@foodhub.com</span>
                 </li>
               </ul>
             </div>
@@ -322,7 +327,9 @@ export function AppFooter() {
             <p>© {new Date().getFullYear()} FoodHub Core 3.0 — FAST. FRESH. INTELLIGENT.</p>
             <div className="flex items-center gap-2">
               <span className="flex size-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-[11px] text-slate-400">نظام حماية الـ IP الفردي نشط 100%</span>
+              <span className="text-[11px] text-slate-400">
+                {lang === "ar" ? "نظام حماية الـ IP الفردي نشط 100%" : "Single-IP Anti-Fraud Active 100%"}
+              </span>
             </div>
           </div>
         </div>

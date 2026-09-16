@@ -186,7 +186,11 @@ function Home() {
       price: meal.price,
     });
     sounds.playClick();
-    toast.success(`✨ تمت إضافة "${meal.nameAr}" إلى سلتك!`);
+    toast.success(
+      lang === "ar"
+        ? `✨ تمت إضافة "${meal.nameAr}" إلى سلتك!`
+        : `✨ Added "${meal.nameEn}" to your cart!`
+    );
   };
 
   return (
@@ -206,23 +210,40 @@ function Home() {
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs px-3 py-1 font-bold">
                   <Sparkles className="size-3.5 me-1 text-amber-400" />
-                  الجيل الثالث 3.0 • FoodHub Intelligent Delivery
+                  {lang === "ar"
+                    ? "الجيل الثالث 3.0 • توصيل ذكي فائق"
+                    : "Gen 3.0 • FoodHub Intelligent Delivery"}
                 </Badge>
                 <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/40 text-xs px-3 py-1 font-bold">
                   <Zap className="size-3.5 me-1 text-cyan-400" />
-                  توصيل فائق السرعة &lt; 20 دقيقة
+                  {lang === "ar"
+                    ? "توصيل فائق السرعة < 20 دقيقة"
+                    : "Ultra Fast Delivery < 20 min"}
                 </Badge>
               </div>
 
               <h1 className="text-4xl font-black leading-tight sm:text-6xl tracking-tight text-white">
-                طعام صحي وطازج، <br />
-                <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-                  بأعلى معايير الجودة والمذاق.
-                </span>
+                {lang === "ar" ? (
+                  <>
+                    طعام صحي وطازج، <br />
+                    <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
+                      بأعلى معايير الجودة والمذاق.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Fresh & Healthy Food, <br />
+                    <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 bg-clip-text text-transparent">
+                      Crafted with Excellence.
+                    </span>
+                  </>
+                )}
               </h1>
 
               <p className="text-base text-slate-300 sm:text-lg max-w-xl leading-relaxed">
-                اطلب أشهى الوجبات الصحية المحضرة بعناية من أفضل المطابخ، مع توصيل سريع وتتبع مباشر ولحظي حتى باب منزلك.
+                {lang === "ar"
+                  ? "اطلب أشهى الوجبات الصحية المحضرة بعناية من أفضل المطابخ، مع توصيل سريع وتتبع مباشر ولحظي حتى باب منزلك."
+                  : "Order delicious, nutritious meals crafted by top chefs, delivered fast with live real-time GPS tracking straight to your door."}
               </p>
 
             </div>
@@ -234,17 +255,25 @@ function Home() {
                   <Bot className="size-5" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-white text-sm">مساعد الذكاء الاصطناعي</h4>
-                  <p className="text-[11px] text-slate-400">يقترح وجبتك حسب سعراتك وميزانيتك</p>
+                  <h4 className="font-bold text-white text-sm">
+                    {lang === "ar" ? "مساعد الذكاء الاصطناعي" : "AI Meal Assistant"}
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {lang === "ar"
+                      ? "يقترح وجبتك حسب سعراتك وميزانيتك"
+                      : "Suggests meals by calories & budget"}
+                  </p>
                 </div>
               </div>
 
               <p className="text-xs text-slate-300 bg-slate-950 p-2.5 rounded-xl border border-slate-800 leading-relaxed">
-                "أريد وجبة غداء فيها أكثر من 40g بروتين وسعرها أقل من 50 ريال 🥩"
+                {lang === "ar"
+                  ? '"أريد وجبة غداء فيها أكثر من 40g بروتين وسعرها أقل من 50 ريال 🥩"'
+                  : '"I want a high-protein lunch with 40g+ protein under 50 SAR 🥩"'}
               </p>
 
               <div className="flex items-center justify-between text-xs text-amber-400 font-bold">
-                <span>توصية فورية بنقرة واحدة</span>
+                <span>{lang === "ar" ? "توصية فورية بنقرة واحدة" : "Instant 1-click advice"}</span>
                 <Sparkles className="size-4 animate-spin" />
               </div>
             </div>
@@ -257,7 +286,11 @@ function Home() {
             <Input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="ابحث عن وجبة، سعرات، بروتين، كيتو، أو مكونات..."
+              placeholder={
+                lang === "ar"
+                  ? "ابحث عن وجبة، سعرات، بروتين، كيتو، أو مكونات..."
+                  : "Search meals, calories, protein, keto, or ingredients..."
+              }
               maxLength={80}
               className="border-0 bg-transparent text-slate-100 placeholder:text-slate-500 shadow-none focus-visible:ring-0 text-sm"
             />
@@ -265,7 +298,7 @@ function Home() {
               size="sm"
               className="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 px-5 shadow-lg shadow-amber-500/20"
             >
-              بحث ذكي
+              {lang === "ar" ? "بحث ذكي" : "Smart Search"}
             </Button>
           </div>
 
@@ -301,13 +334,19 @@ function Home() {
               <Flame className="size-5" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-white">قائمة الأطباق المميزة</h2>
-              <p className="text-xs text-slate-400">محضرة طازجة من خامات عضوية ومحسوبة الماكروز</p>
+              <h2 className="text-2xl font-black text-white">
+                {lang === "ar" ? "قائمة الأطباق المميزة" : "Featured Gourmet Meals"}
+              </h2>
+              <p className="text-xs text-slate-400">
+                {lang === "ar"
+                  ? "محضرة طازجة من خامات عضوية ومحسوبة الماكروز"
+                  : "Freshly crafted organic meals with measured macros"}
+              </p>
             </div>
           </div>
 
           <Badge className="hidden sm:flex bg-slate-900 border-slate-800 text-slate-300 text-xs">
-            {filtered.length} وجبة متاحة
+            {filtered.length} {lang === "ar" ? "وجبة متاحة" : "meals available"}
           </Badge>
         </div>
 
@@ -359,13 +398,17 @@ function Home() {
                 {/* Macro Telemetry HUD */}
                 <div className="grid grid-cols-2 gap-2 text-center text-xs pt-1">
                   <div className="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
-                    <span className="text-slate-500 block text-[10px]">السعرات الحرارية</span>
+                    <span className="text-slate-500 block text-[10px]">
+                      {lang === "ar" ? "السعرات الحرارية" : "Calories"}
+                    </span>
                     <span className="font-bold text-amber-400 flex items-center justify-center gap-1">
                       <Flame className="size-3" /> {meal.calories} kcal
                     </span>
                   </div>
                   <div className="bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
-                    <span className="text-slate-500 block text-[10px]">البروتين الصافي</span>
+                    <span className="text-slate-500 block text-[10px]">
+                      {lang === "ar" ? "البروتين الصافي" : "Net Protein"}
+                    </span>
                     <span className="font-bold text-cyan-400 flex items-center justify-center gap-1">
                       <Zap className="size-3" /> {meal.protein}g
                     </span>

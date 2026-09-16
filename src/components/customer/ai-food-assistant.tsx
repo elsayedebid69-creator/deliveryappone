@@ -80,25 +80,29 @@ const PROMPT_SUGGESTIONS = [
 ];
 
 export function AiFoodAssistant() {
+  const { lang, t } = useI18n();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [messages, setMessages] = useState<
     Array<{ role: "user" | "assistant"; text: string; recommendation?: AiRecommendation }>
-  >([
-    {
-      role: "assistant",
-      text: "مرحباً بك! أنا مساعد FoodHub الذكي 🤖. كيف تشعر اليوم وما هي مواصفات وجبتك المفضلة (السعرات، الميزانية، أو البروتين)؟",
-    },
-  ]);
+  >([]);
   const cart = useCart();
+
+  const welcomeText =
+    lang === "ar"
+      ? "مرحباً بك! أنا مساعد FoodHub الذكي 🤖. كيف تشعر اليوم وما هي مواصفات وجبتك المفضلة (السعرات، الميزانية، أو البروتين)؟"
+      : "Welcome! I'm your FoodHub AI Assistant 🤖. What kind of meal are you looking for today (calories, budget, or protein)?";
+
+  const effectiveMessages =
+    messages.length === 0 ? [{ role: "assistant" as const, text: welcomeText }] : messages;
 
   const handleAsk = (queryText?: string) => {
     const textToAsk = queryText || input.trim();
     if (!textToAsk) return;
 
     sounds.playClick();
-    const newMsgs = [...messages, { role: "user" as const, text: textToAsk }];
+    const newMsgs = [...effectiveMessages, { role: "user" as const, text: textToAsk }];
     setMessages(newMsgs);
     setInput("");
     setIsThinking(true);
@@ -108,19 +112,41 @@ export function AiFoodAssistant() {
       let matchedMeal = PRESET_MEALS[0];
       const lower = textToAsk.toLowerCase();
 
-      if (lower.includes("نباتي") || lower.includes("سلطة") || lower.includes("خفيف")) {
+      if (
+        lower.includes("نباتي") ||
+        lower.includes("سلطة") ||
+        lower.includes("vegan") ||
+        lower.includes("salad")
+      ) {
         matchedMeal = PRESET_MEALS[2];
-      } else if (lower.includes("عصير") || lower.includes("سموذي") || lower.includes("تمرين") || lower.includes("مشروب")) {
+      } else if (
+        lower.includes("عصير") ||
+        lower.includes("سموذي") ||
+        lower.includes("تمرين") ||
+        lower.includes("smoothie") ||
+        lower.includes("shake")
+      ) {
         matchedMeal = PRESET_MEALS[3];
-      } else if (lower.includes("دجاج") || lower.includes("45") || lower.includes("كينوا")) {
+      } else if (
+        lower.includes("دجاج") ||
+        lower.includes("chicken") ||
+        lower.includes("45") ||
+        lower.includes("كينوا")
+      ) {
         matchedMeal = PRESET_MEALS[1];
       }
 
+      const responseText =
+        lang === "ar"
+          ? `بناءً على طلبك ("${textToAsk}")، قمت بتحليل القائمة واخترت لك هذه الوجبة المتطابقة بدقة مع قيمك الغذائية:`
+          : `Based on your request ("${textToAsk}"), here is the best matched nutritious meal for your goals:`;
+
       setMessages((prev) => [
-        ...prev,
+        ...(prev.length === 0 ? [{ role: "assistant" as const, text: welcomeText }] : prev),
+        { role: "user" as const, text: textToAsk },
         {
           role: "assistant",
-          text: `بناءً على طلبك ("${textToAsk}")، قمت بتحليل قائمة الطعام واخترت لك هذه الوجبة المتطابقة بدقة مع قيمك الغذائية:`,
+          text: responseText,
           recommendation: matchedMeal,
         },
       ]);
@@ -138,7 +164,11 @@ export function AiFoodAssistant() {
       price: meal.price,
     });
     sounds.playClick();
-    toast.success(`✨ تمت إضافة "${meal.nameAr}" إلى سلتك بنجاح!`);
+    toast.success(
+      lang === "ar"
+        ? `✨ تمت إضافة "${meal.nameAr}" إلى سلتك بنجاح!`
+        : `✨ Added "${meal.nameEn}" to your cart!`
+    );
   };
 
   return (
@@ -158,7 +188,7 @@ export function AiFoodAssistant() {
                 <Sparkles className="size-5 text-slate-950 animate-pulse" />
               </div>
               <span className="hidden sm:inline text-sm font-extrabold pe-2 text-slate-950">
-                مساعد الوجبات الذكي AI
+                {lang === "ar" ? "مساعد الوجبات الذكي AI" : "AI Meal Assistant"}
               </span>
               <span className="absolute -top-1 -start-1 flex size-4 items-center justify-center rounded-full bg-emerald-400 text-[10px] text-slate-950 font-black animate-ping" />
             </button>
@@ -175,11 +205,13 @@ export function AiFoodAssistant() {
                   <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
                     FoodHub AI Dietician & Meal Matcher
                     <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
-                      نظام الذكاء الاصطناعي 3.0
+                      {lang === "ar" ? "نظام الذكاء الاصطناعي 3.0" : "AI Core 3.0"}
                     </Badge>
                   </DialogTitle>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    يقترح لك أنسب الوجبات المحسوبة حسب السعرات، البروتين وميزانيتك
+                    {lang === "ar"
+                      ? "يقترح لك أنسب الوجبات المحسوبة حسب السعرات، البروتين وميزانيتك"
+                      : "Personalized recommendations calibrated by calories, protein & budget"}
                   </p>
                 </div>
               </div>
@@ -187,7 +219,7 @@ export function AiFoodAssistant() {
 
             {/* Chat Body */}
             <div className="p-4 max-h-[380px] overflow-y-auto space-y-4">
-              {messages.map((m, idx) => (
+              {effectiveMessages.map((m, idx) => (
                 <div
                   key={idx}
                   className={`flex gap-2.5 ${m.role === "user" ? "justify-end" : "justify-start"}`}
@@ -215,7 +247,7 @@ export function AiFoodAssistant() {
                         <div className="relative h-32 w-full overflow-hidden">
                           <img
                             src={m.recommendation.image}
-                            alt={m.recommendation.nameAr}
+                            alt={lang === "ar" ? m.recommendation.nameAr : m.recommendation.nameEn}
                             className="size-full object-cover"
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
@@ -223,13 +255,13 @@ export function AiFoodAssistant() {
                             {m.recommendation.tagAr}
                           </Badge>
                           <div className="absolute bottom-2 end-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
-                            {m.recommendation.price} ر.س
+                            {m.recommendation.price} {t("sar")}
                           </div>
                         </div>
 
                         <div className="p-3.5 space-y-2.5">
                           <h4 className="font-bold text-white text-base">
-                            {m.recommendation.nameAr}
+                            {lang === "ar" ? m.recommendation.nameAr : m.recommendation.nameEn}
                           </h4>
                           <p className="text-xs text-slate-300 leading-relaxed bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
                             💡 {m.recommendation.aiReasonAr}
@@ -238,31 +270,37 @@ export function AiFoodAssistant() {
                           {/* Telemetry Stats */}
                           <div className="grid grid-cols-3 gap-2 text-center text-xs">
                             <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
-                              <span className="text-slate-400 block text-[10px]">السعرات</span>
+                              <span className="text-slate-400 block text-[10px]">
+                                {lang === "ar" ? "السعرات" : "Calories"}
+                              </span>
                               <span className="font-bold text-amber-400 flex items-center justify-center gap-0.5">
                                 <Flame className="size-3" /> {m.recommendation.calories}
                               </span>
                             </div>
                             <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
-                              <span className="text-slate-400 block text-[10px]">البروتين</span>
+                              <span className="text-slate-400 block text-[10px]">
+                                {lang === "ar" ? "البروتين" : "Protein"}
+                              </span>
                               <span className="font-bold text-cyan-400 flex items-center justify-center gap-0.5">
                                 <Zap className="size-3" /> {m.recommendation.protein}g
                               </span>
                             </div>
                             <div className="bg-slate-950 p-2 rounded-xl border border-slate-800">
-                              <span className="text-slate-400 block text-[10px]">التحضير</span>
-                              <span className="font-bold text-emerald-400">
+                              <span className="text-slate-400 block text-[10px]">
+                                {lang === "ar" ? "التحضير" : "Prep"}
+                              </span>
+                              <span className="font-bold text-slate-300">
                                 {m.recommendation.prepTime}
                               </span>
                             </div>
                           </div>
 
                           <Button
+                            className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 shadow-md shadow-amber-500/20 rounded-xl"
                             onClick={() => addToCartFromAi(m.recommendation!)}
-                            className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 mt-1 shadow-lg shadow-amber-500/20"
                           >
-                            <Plus className="size-4 me-1.5" />
-                            أضف هذه الوجبة إلى السلة
+                            <Plus className="me-1.5 size-4" />
+                            {t("addToCart")}
                           </Button>
                         </div>
                       </div>
@@ -272,39 +310,61 @@ export function AiFoodAssistant() {
               ))}
 
               {isThinking && (
-                <div className="flex items-center gap-2 text-xs text-amber-400 bg-slate-900/60 p-3 rounded-2xl border border-slate-800 w-fit">
-                  <Bot className="size-4 animate-bounce" />
-                  <span>الذكاء الاصطناعي يقوم بتحليل القيم الغذائية واختيار الوجبة المناسبة...</span>
+                <div className="flex gap-2.5 items-center text-xs text-amber-400 animate-pulse">
+                  <Bot className="size-4 animate-spin" />
+                  <span>
+                    {lang === "ar"
+                      ? "يقوم الذكاء الاصطناعي بحساب أفضل خيار لك..."
+                      : "AI is analyzing meals and calculating nutrition..."}
+                  </span>
                 </div>
               )}
             </div>
 
-            {/* Quick Prompt Pills */}
-            <div className="px-4 py-2 border-t border-slate-800/80 bg-slate-900/40 flex gap-1.5 overflow-x-auto">
-              {PROMPT_SUGGESTIONS.map((p, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleAsk(p)}
-                  className="shrink-0 text-[11px] bg-slate-800/80 hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700 transition-colors"
-                >
-                  {p}
-                </button>
-              ))}
+            {/* Prompt Suggestions */}
+            <div className="border-t border-slate-800/80 bg-slate-900/60 p-3">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+                {lang === "ar" ? "اقتراحات سريعة بنقرة واحدة:" : "Quick Suggestions:"}
+              </span>
+              <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                {(lang === "ar"
+                  ? PROMPT_SUGGESTIONS
+                  : [
+                      "High-protein lunch under 50 SAR 🥩",
+                      "Workout energy smoothie ⚡",
+                      "Light vegan detox salad 🌱",
+                      "Low carb keto bowl 🥑",
+                    ]
+                ).map((prompt, pIdx) => (
+                  <button
+                    key={pIdx}
+                    onClick={() => handleAsk(prompt)}
+                    className="shrink-0 rounded-xl border border-slate-800 bg-slate-950 px-2.5 py-1 text-xs text-slate-300 hover:border-amber-500/40 hover:text-amber-300 transition-colors"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 border-t border-slate-800 bg-slate-950 flex gap-2">
+            <div className="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2">
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleAsk()}
-                placeholder="اكتب طلبك هنا (مثال: وجبة بروتين عالية أقل من 50 ريال)..."
-                className="bg-slate-900 border-slate-800 text-slate-100 placeholder:text-slate-500 focus-visible:ring-amber-500"
+                placeholder={
+                  lang === "ar"
+                    ? "اكتب طلبك هنا (مثال: وجبة عشاء بروتين عالي وسعرات قليلة)..."
+                    : "Type your request (e.g. high protein low calorie dinner)..."
+                }
+                className="border-slate-800 bg-slate-900 text-slate-100 placeholder:text-slate-500 text-xs rounded-xl"
               />
               <Button
+                size="sm"
                 onClick={() => handleAsk()}
                 disabled={!input.trim() || isThinking}
-                className="bg-amber-500 text-slate-950 font-bold hover:bg-amber-400 shrink-0"
+                className="bg-amber-500 text-slate-950 hover:bg-amber-400 px-3.5 rounded-xl font-bold"
               >
                 <Send className="size-4" />
               </Button>
