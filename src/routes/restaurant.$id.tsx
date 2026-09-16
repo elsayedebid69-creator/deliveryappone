@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { sounds } from "@/lib/sound-effects";
 
 export const Route = createFileRoute("/restaurant/$id")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "قائمة أطباق المطعم | FoodHub 3.0" },

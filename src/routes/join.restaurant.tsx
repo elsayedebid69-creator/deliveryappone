@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/join/restaurant")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "انضمام شريك مطعم أو مطبخ سحابي | FoodHub 3.0" },

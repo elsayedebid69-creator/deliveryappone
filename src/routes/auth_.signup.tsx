@@ -12,6 +12,7 @@ import { sounds } from "@/lib/sound-effects";
 import { User, Phone, Mail, Lock, ArrowRight, CheckCircle2, Sparkles, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/auth_/signup")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "إنشاء حساب جديد | FOODHUB 3.0" },

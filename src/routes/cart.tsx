@@ -16,6 +16,7 @@ import { SmartAddressPicker } from "@/components/customer/smart-address-picker";
 import { sounds } from "@/lib/sound-effects";
 
 export const Route = createFileRoute("/cart")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "سلة الطلبات الذكية | FoodHub 3.0" },

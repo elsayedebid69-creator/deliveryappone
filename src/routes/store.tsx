@@ -3,6 +3,7 @@ import { CustomerApp } from "@/components/storefront/customer-app";
 import { AppHeader, AppFooter } from "@/components/app-header";
 
 export const Route = createFileRoute("/store")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "FoodHub Store | اطلب الآن من أفضل المطابخ والمتاجر" },

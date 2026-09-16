@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/join/courier")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "انضمام كابتن توصيل ذكي | FoodHub 3.0" },

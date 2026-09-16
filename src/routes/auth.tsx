@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "بوابة الدخول | FOODHUB 3.0" },

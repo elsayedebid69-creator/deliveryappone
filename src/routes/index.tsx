@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppSimulatorWorkspace } from "@/components/dev-workspace/app-simulator";
 
 export const Route = createFileRoute("/")({
+  ssr: false,
   head: () => ({
     meta: [
       { title: "FoodHub 3.0 | لوحة تطوير ومحاكاة المنظومة الشاملة" },
