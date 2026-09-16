@@ -75,17 +75,12 @@ export function FoodHubLogo({
 
       {/* Clean, Bold, Minimalist Typography */}
       {showText && (
-        <div className="flex flex-col justify-center leading-none">
-          <div dir="ltr" className="flex items-center tracking-tight font-black">
-            <span className="text-2xl sm:text-[25px] font-black tracking-tight text-white">
-              FOOD
-            </span>
-            <span className="text-2xl sm:text-[25px] font-black tracking-tight text-[#FFC72C]">
-              HUB
-            </span>
-          </div>
-          <span className="text-[10px] font-bold text-slate-400 tracking-wider mt-0.5">
-            فودهب لتوصيل الطعام
+        <div dir="ltr" className="flex items-center tracking-tight font-black leading-none select-none">
+          <span className="text-2xl sm:text-[25px] font-black tracking-tight text-white">
+            FOOD
+          </span>
+          <span className="text-2xl sm:text-[25px] font-black tracking-tight text-[#FFC72C]">
+            HUB
           </span>
         </div>
       )}
