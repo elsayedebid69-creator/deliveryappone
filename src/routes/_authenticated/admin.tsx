@@ -273,13 +273,15 @@ function AdminPage() {
             </div>
             <div>
               <h1 className="text-2xl font-black text-white flex items-center gap-2">
-                لوحة الإدارة المركزية (FOODHUB Master Ops)
+                {lang === "ar" ? "لوحة الإدارة المركزية (FOODHUB Master Ops)" : "FOODHUB Master Ops & Control"}
                 <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
                   AI Anti-Fraud Security
                 </Badge>
               </h1>
               <p className="text-xs text-slate-400">
-                مراجعة طلبات الانضمام، توليد معرفات الـ AI المشفرة، والتحكم في حماية الـ IP الفردي
+                {lang === "ar"
+                  ? "مراجعة طلبات الانضمام، توليد معرفات الـ AI المشفرة، والتحكم في حماية الـ IP الفردي"
+                  : "Review join requests, AI encrypted partner IDs, and manage Single-IP hardware lock anti-fraud security"}
               </p>
             </div>
           </div>
@@ -287,7 +289,7 @@ function AdminPage() {
           <div className="flex items-center gap-2">
             <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs py-1 px-3">
               <Activity className="size-3.5 me-1.5 animate-pulse text-emerald-400" />
-              حماية الـ IP الفردي نشطة 100%
+              {lang === "ar" ? "حماية الـ IP الفردي نشطة 100%" : "Single-IP Lock: 100% Active"}
             </Badge>
           </div>
         </div>
@@ -296,7 +298,7 @@ function AdminPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>طلبات الانضمام المعلقة</span>
+              <span>{lang === "ar" ? "طلبات الانضمام المعلقة" : "Pending Join Requests"}</span>
               <Clock className="size-4 text-amber-400" />
             </div>
             <p className="text-2xl font-black text-amber-400 font-mono">{pendingRequests.length}</p>
@@ -304,7 +306,7 @@ function AdminPage() {
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>معرفات الشركاء النشطة (AI IDs)</span>
+              <span>{lang === "ar" ? "معرفات الشركاء النشطة (AI IDs)" : "Active Partner AI IDs"}</span>
               <KeyRound className="size-4 text-cyan-400" />
             </div>
             <p className="text-2xl font-black text-cyan-400 font-mono">{securityRecords.length}</p>
@@ -312,7 +314,7 @@ function AdminPage() {
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>حسابات محظورة لخرق الـ IP</span>
+              <span>{lang === "ar" ? "حسابات محظورة لخرق الـ IP" : "Dual-IP Conflict Locked"}</span>
               <AlertTriangle className="size-4 text-rose-400" />
             </div>
             <p className="text-2xl font-black text-rose-400 font-mono">
@@ -322,10 +324,10 @@ function AdminPage() {
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>إجمالي المبيعات المنفذة</span>
+              <span>{lang === "ar" ? "إجمالي المبيعات المنفذة" : "Total Platform Revenue"}</span>
               <TrendingUp className="size-4 text-emerald-400" />
             </div>
-            <p className="text-2xl font-black text-emerald-400 font-mono">{revenue.toFixed(0)} ر.س</p>
+            <p className="text-2xl font-black text-emerald-400 font-mono">{revenue.toFixed(0)} {t("sar")}</p>
           </div>
         </div>
 

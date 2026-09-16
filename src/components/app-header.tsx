@@ -54,14 +54,14 @@ export function AppHeader() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900"
+              className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800/80 rounded-xl"
               onClick={() => {
                 sounds.playClick();
-                setLang(lang === "ar" ? "en" : "ar");
+                setLang(lang === "en" ? "ar" : "en");
               }}
             >
               <Languages className="size-4 text-amber-400" />
-              {lang === "ar" ? "EN" : "عربي"}
+              <span className="font-semibold">{lang === "en" ? "العربية" : "English"}</span>
             </Button>
 
             {/* Link to Store / Home */}
@@ -153,27 +153,27 @@ export function AppHeader() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="justify-start gap-2 text-slate-300 hover:text-white"
+                className="justify-start gap-2 text-slate-300 hover:text-white border border-slate-800/80"
                 onClick={() => {
                   sounds.playClick();
-                  setLang(lang === "ar" ? "en" : "ar");
+                  setLang(lang === "en" ? "ar" : "en");
                 }}
               >
                 <Languages className="size-4 text-amber-400" />
-                {lang === "ar" ? "English" : "العربية"}
-              </Button>
-
-              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
-                <Link to="/store" onClick={() => setMobileMenuOpen(false)}>
-                  <Store className="size-4 text-amber-400" />
-                  {lang === "ar" ? "المتجر والطلبات" : "Store & Delivery"}
-                </Link>
+                <span>{lang === "en" ? "العربية (Arabic)" : "English (الإنجليزية)"}</span>
               </Button>
 
               <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Sparkles className="size-4 text-amber-400" />
-                  {lang === "ar" ? "لوحة محاكاة وتطوير المنظومة" : "Dev & Simulator Studio"}
+                  <Store className="size-4 text-amber-400" />
+                  {lang === "ar" ? "المتجر والطلب" : "Store"}
+                </Link>
+              </Button>
+
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-cyan-300 hover:text-white">
+                <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
+                  <ShieldCheck className="size-4 text-cyan-400" />
+                  {lang === "ar" ? "لوحة الإدارة والمحاكاة" : "Admin & Simulator"}
                 </Link>
               </Button>
 

@@ -58,9 +58,11 @@ const ZOMATO_COLLECTIONS = [
     titleEn: "Top Trending Meals 🏆",
     descAr: "أكثر 25 وجبة حصدت تقييمات 5 نجوم هذا الأسبوع",
     descEn: "25 trending dishes with top 5-star customer ratings",
-    places: "25 صنف",
+    placesAr: "25 صنف",
+    placesEn: "25 items",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
-    tag: "🔥 رائج الآن",
+    tagAr: "🔥 رائج الآن",
+    tagEn: "🔥 Trending",
   },
   {
     id: "col-2",
@@ -68,9 +70,11 @@ const ZOMATO_COLLECTIONS = [
     titleEn: "Keto & Pure Protein Power 🥑",
     descAr: "وجبات محسوبة الماكروز للرياضيين ومتبعي الكيتو",
     descEn: "Macro-calculated meals for athletes & keto lifestyle",
-    places: "18 صنف",
+    placesAr: "18 صنف",
+    placesEn: "18 items",
     image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=400&fit=crop",
-    tag: "🥩 بروتين عالي",
+    tagAr: "🥩 بروتين عالي",
+    tagEn: "🥩 High Protein",
   },
   {
     id: "col-3",
@@ -78,9 +82,11 @@ const ZOMATO_COLLECTIONS = [
     titleEn: "Lightning 15-Min Delivery ⚡",
     descAr: "مطابخ سحابية جاهزة للتوصيل في أقل من 20 دقيقة",
     descEn: "Cloud kitchens delivering hot & fresh in under 20 mins",
-    places: "12 مطبخ",
+    placesAr: "12 مطبخ",
+    placesEn: "12 kitchens",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
-    tag: "⚡ فائق السرعة",
+    tagAr: "⚡ فائق السرعة",
+    tagEn: "⚡ Lightning Fast",
   },
   {
     id: "col-4",
@@ -88,9 +94,11 @@ const ZOMATO_COLLECTIONS = [
     titleEn: "Organic Detox Bowls & Smoothies 🌱",
     descAr: "أطباق كينوا وأكاي طازجة غنية بمضادات الأكسدة",
     descEn: "Fresh antioxidant organic quinoa & acai bowls",
-    places: "15 صنف",
+    placesAr: "15 صنف",
+    placesEn: "15 items",
     image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&h=400&fit=crop",
-    tag: "✨ صحي 100%",
+    tagAr: "✨ صحي 100%",
+    tagEn: "✨ 100% Organic",
   },
 ];
 
@@ -105,7 +113,8 @@ const ZOMATO_PILLARS = [
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=350&fit=crop",
     linkTextAr: "اطلب الآن",
     linkTextEn: "Order Now",
-    badge: "🛵 توصيل راداري حي",
+    badgeAr: "🛵 توصيل راداري حي",
+    badgeEn: "🛵 Live GPS Delivery",
   },
   {
     id: "dining",
@@ -116,7 +125,8 @@ const ZOMATO_PILLARS = [
     image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=350&fit=crop",
     linkTextAr: "استكشف المطابخ",
     linkTextEn: "View Kitchens",
-    badge: "👨‍🍳 علامات معتمدة",
+    badgeAr: "👨‍🍳 علامات معتمدة",
+    badgeEn: "👨‍🍳 Verified Brands",
   },
   {
     id: "healthy",
@@ -127,7 +137,8 @@ const ZOMATO_PILLARS = [
     image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=350&fit=crop",
     linkTextAr: "خطط التغذية",
     linkTextEn: "Nutrition Plans",
-    badge: "✨ ذكاء اصطناعي AI",
+    badgeAr: "✨ ذكاء اصطناعي AI",
+    badgeEn: "✨ Smart AI Core",
   },
 ];
 
@@ -141,12 +152,16 @@ const FEATURED_KITCHENS = [
     cuisineEn: "Healthy • Keto Diet • High Protein",
     rating: 4.9,
     reviews: "1.2k+",
-    deliveryTime: "15-20 دقيقة",
-    deliveryFee: "توصيل مجاني",
+    deliveryTimeAr: "15-20 دقيقة",
+    deliveryTimeEn: "15-20 mins",
+    deliveryFeeAr: "توصيل مجاني",
+    deliveryFeeEn: "Free delivery",
     minOrder: 30,
-    discount: "خصم 25% بكود: FOOD25",
+    discountAr: "خصم 25% بكود: FOOD25",
+    discountEn: "25% OFF with code: FOOD25",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=350&fit=crop",
-    tag: "🔥 الأكثر طلباً",
+    tagAr: "🔥 الأكثر طلباً",
+    tagEn: "🔥 Most Popular",
   },
   {
     id: "rest-2",
@@ -156,12 +171,16 @@ const FEATURED_KITCHENS = [
     cuisineEn: "Healthy Grills • Tenderloin Steak • Chicken",
     rating: 4.85,
     reviews: "850+",
-    deliveryTime: "20-25 دقيقة",
-    deliveryFee: "5 ر.س",
+    deliveryTimeAr: "20-25 دقيقة",
+    deliveryTimeEn: "20-25 mins",
+    deliveryFeeAr: "5 ر.س",
+    deliveryFeeEn: "5 SAR",
     minOrder: 40,
-    discount: "توصيل مجاني للطلبات فوق 50 ر.س",
+    discountAr: "توصيل مجاني للطلبات فوق 50 ر.س",
+    discountEn: "Free delivery over 50 SAR",
     image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=350&fit=crop",
-    tag: "⚡ سرعة قياسية",
+    tagAr: "⚡ سرعة قياسية",
+    tagEn: "⚡ Ultra Fast",
   },
   {
     id: "rest-3",
@@ -171,12 +190,16 @@ const FEATURED_KITCHENS = [
     cuisineEn: "Organic Acai • Protein Smoothies • Quinoa",
     rating: 4.95,
     reviews: "2.1k+",
-    deliveryTime: "12-18 دقيقة",
-    deliveryFee: "توصيل مجاني",
+    deliveryTimeAr: "12-18 دقيقة",
+    deliveryTimeEn: "12-18 mins",
+    deliveryFeeAr: "توصيل مجاني",
+    deliveryFeeEn: "Free delivery",
     minOrder: 25,
-    discount: "خصم 20% للطلب الأول",
+    discountAr: "خصم 20% للطلب الأول",
+    discountEn: "20% OFF first order",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=350&fit=crop",
-    tag: "✨ اختيار الشيف",
+    tagAr: "✨ اختيار الشيف",
+    tagEn: "✨ Chef's Pick",
   },
 ];
 
@@ -256,7 +279,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const { lang, t, setLang } = useI18n();
   const [selectedCat, setSelectedCat] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeLocation, setActiveLocation] = useState("الرياض • حي السليمانية / العليا");
+  const [selectedLocId, setSelectedLocId] = useState("loc-1");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [likedDishes, setLikedDishes] = useState<Record<string, boolean>>({});
   const [showAllLocalities, setShowAllLocalities] = useState(false);
@@ -264,6 +287,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [sendType, setSendType] = useState<"phone" | "email">("phone");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const cart = useCart();
+
+  const currentLoc = RIYADH_LOCALITIES.find((l) => l.id === selectedLocId) ?? RIYADH_LOCALITIES[0];
+  const activeLocation = lang === "ar" ? `الرياض • ${currentLoc.nameAr}` : `Riyadh • ${currentLoc.nameEn}`;
 
   const toggleLike = (id: string) => {
     sounds.playClick();
@@ -403,14 +429,14 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                           type="button"
                           onClick={() => {
                             sounds.playClick();
-                            setActiveLocation(lang === "ar" ? `الرياض • ${loc.nameAr}` : `Riyadh • ${loc.nameEn}`);
+                            setSelectedLocId(loc.id);
                             setIsLocationDropdownOpen(false);
                             toast.info(lang === "ar" ? `📍 تم تحديد: ${loc.nameAr}` : `📍 Location set: ${loc.nameEn}`);
                           }}
                           className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
                         >
                           <span className="font-medium">{lang === "ar" ? loc.nameAr : loc.nameEn}</span>
-                          <span className="text-[10px] text-slate-400">{loc.places} مكان</span>
+                          <span className="text-[10px] text-slate-400">{loc.places} {lang === "ar" ? "مكان" : "places"}</span>
                         </button>
                       ))}
                     </div>
@@ -497,7 +523,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                 <Badge className="absolute top-3 end-3 bg-slate-950/80 backdrop-blur-md border-amber-500/40 text-amber-400 text-[10px]">
-                  {pillar.badge}
+                  {lang === "ar" ? pillar.badgeAr : pillar.badgeEn}
                 </Badge>
               </div>
 
@@ -557,7 +583,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 
                 {/* Badge */}
                 <span className="absolute top-2.5 start-2.5 rounded-lg bg-slate-950/80 border border-slate-700 px-2 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-md">
-                  {col.tag}
+                  {lang === "ar" ? col.tagAr : col.tagEn}
                 </span>
 
                 {/* Bottom Card Content */}
@@ -567,7 +593,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   </h4>
                   <div className="flex items-center justify-between text-[11px] text-slate-300">
                     <span className="text-slate-400">{lang === "ar" ? col.descAr : col.descEn}</span>
-                    <span className="font-bold text-amber-400 shrink-0 ms-2">{col.places}</span>
+                    <span className="font-bold text-amber-400 shrink-0 ms-2">{lang === "ar" ? col.placesAr : col.placesEn}</span>
                   </div>
                 </div>
               </div>
@@ -606,7 +632,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               key={loc.id}
               onClick={() => {
                 sounds.playClick();
-                setActiveLocation(lang === "ar" ? `الرياض • ${loc.nameAr}` : `Riyadh • ${loc.nameEn}`);
+                setSelectedLocId(loc.id);
                 toast.info(lang === "ar" ? `📍 تم تحديد الحي: ${loc.nameAr}` : `📍 Selected: ${loc.nameEn}`);
               }}
               className="group cursor-pointer flex items-center justify-between p-3.5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:border-amber-500/40 hover:bg-slate-900 transition-all"
@@ -681,7 +707,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
                 <Badge className="absolute top-3 start-3 bg-amber-500 text-slate-950 font-black text-[10px]">
-                  {k.tag}
+                  {lang === "ar" ? k.tagAr : k.tagEn}
                 </Badge>
                 <div className="absolute top-3 end-3 flex items-center gap-1 rounded-lg bg-slate-950/80 px-2 py-0.5 text-xs font-bold text-amber-400 backdrop-blur-md">
                   <Star className="size-3 fill-amber-400 text-amber-400" />
@@ -704,11 +730,11 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
                   <div className="flex items-center gap-1 text-slate-300 font-medium">
                     <Clock className="size-3.5 text-amber-400" />
-                    <span>{k.deliveryTime}</span>
+                    <span>{lang === "ar" ? k.deliveryTimeAr : k.deliveryTimeEn}</span>
                   </div>
                   <div className="flex items-center gap-1 text-emerald-400 font-bold">
                     <Bike className="size-3.5" />
-                    <span>{k.deliveryFee}</span>
+                    <span>{lang === "ar" ? k.deliveryFeeAr : k.deliveryFeeEn}</span>
                   </div>
                 </div>
               </div>
@@ -859,7 +885,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                     <div className="h-2 w-1/2 rounded-full bg-slate-800" />
                   </div>
                   <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 font-bold text-center">
-                    ⚡ كابتن في الطريق إليك (12 دقيقة)
+                    {lang === "ar" ? "⚡ كابتن في الطريق إليك (12 دقيقة)" : "⚡ Courier on the way (12 mins)"}
                   </div>
                 </div>
               </div>

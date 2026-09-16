@@ -16,10 +16,13 @@ interface AiRecommendation {
   price: number;
   calories: number;
   protein: number;
-  prepTime: string;
+  prepTimeAr: string;
+  prepTimeEn: string;
   image: string;
   aiReasonAr: string;
+  aiReasonEn: string;
   tagAr: string;
+  tagEn: string;
 }
 
 const PRESET_MEALS: AiRecommendation[] = [
@@ -30,10 +33,13 @@ const PRESET_MEALS: AiRecommendation[] = [
     price: 52,
     calories: 480,
     protein: 42,
-    prepTime: "12-15 دقيقة",
+    prepTimeAr: "12-15 دقيقة",
+    prepTimeEn: "12-15 mins",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=350&fit=crop",
     aiReasonAr: "خيار مثالي لبناء العضلات مع أوميغا 3 ودهون صحية تمنحك طاقة مستدامة.",
+    aiReasonEn: "Ideal for muscle building with omega-3 fatty acids and clean sustained energy.",
     tagAr: "🔥 أعلى بروتين",
+    tagEn: "🔥 High Protein",
   },
   {
     id: "rec-2",
@@ -42,10 +48,13 @@ const PRESET_MEALS: AiRecommendation[] = [
     price: 45,
     calories: 410,
     protein: 38,
-    prepTime: "10-14 دقيقة",
+    prepTimeAr: "10-14 دقيقة",
+    prepTimeEn: "10-14 mins",
     image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=500&h=350&fit=crop",
     aiReasonAr: "وجبة متوازنة ذات مؤشر جلايسيمي منخفض وخالية من الزيوت المهدرجة.",
+    aiReasonEn: "Low glycemic balanced meal free of trans fats with clean complex carbs.",
     tagAr: "⚡ طاقة نقية",
+    tagEn: "⚡ Clean Fuel",
   },
   {
     id: "rec-3",
@@ -54,10 +63,13 @@ const PRESET_MEALS: AiRecommendation[] = [
     price: 38,
     calories: 320,
     protein: 18,
-    prepTime: "8-10 دقائق",
+    prepTimeAr: "8-10 دقائق",
+    prepTimeEn: "8-10 mins",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&h=350&fit=crop",
     aiReasonAr: "خفيفة على المعدة، غنية بمضادات الأكسدة والألياف لتعزيز الهضم.",
+    aiReasonEn: "Light on the stomach, loaded with antioxidants and fiber for optimal digestion.",
     tagAr: "🌱 نباتي خفيف",
+    tagEn: "🌱 Vegan Detox",
   },
   {
     id: "rec-4",
@@ -66,10 +78,13 @@ const PRESET_MEALS: AiRecommendation[] = [
     price: 24,
     calories: 190,
     protein: 9,
-    prepTime: "5 دقائق",
+    prepTimeAr: "5 دقائق",
+    prepTimeEn: "5 mins",
     image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&h=350&fit=crop",
     aiReasonAr: "انتعاش فوري غني بالفيتامينات والمعادن لتعويض السوائل بعد التمارين.",
+    aiReasonEn: "Instant refreshing hydration packed with minerals and electrolytes.",
     tagAr: "🥤 ريكفري سريع",
+    tagEn: "🥤 Post-Workout",
   },
 ];
 
@@ -251,7 +266,7 @@ export function AiFoodAssistant() {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
                           <Badge className="absolute top-2 start-2 bg-amber-500 text-slate-950 font-bold">
-                            {m.recommendation.tagAr}
+                            {lang === "ar" ? m.recommendation.tagAr : m.recommendation.tagEn}
                           </Badge>
                           <div className="absolute bottom-2 end-2 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
                             {m.recommendation.price} {t("sar")}
@@ -263,7 +278,7 @@ export function AiFoodAssistant() {
                             {lang === "ar" ? m.recommendation.nameAr : m.recommendation.nameEn}
                           </h4>
                           <p className="text-xs text-slate-300 leading-relaxed bg-amber-500/10 p-2 rounded-lg border border-amber-500/20">
-                            💡 {m.recommendation.aiReasonAr}
+                            💡 {lang === "ar" ? m.recommendation.aiReasonAr : m.recommendation.aiReasonEn}
                           </p>
 
                           {/* Telemetry Stats */}
@@ -289,7 +304,7 @@ export function AiFoodAssistant() {
                                 {lang === "ar" ? "التحضير" : "Prep"}
                               </span>
                               <span className="font-bold text-slate-300">
-                                {m.recommendation.prepTime}
+                                {lang === "ar" ? m.recommendation.prepTimeAr : m.recommendation.prepTimeEn}
                               </span>
                             </div>
                           </div>

@@ -5,6 +5,8 @@ import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+import { useI18n } from "@/lib/i18n";
+
 const ROLES = [
   {
     id: "customer",
@@ -13,7 +15,8 @@ const ROLES = [
     path: "/",
     icon: User,
     color: "from-amber-500 to-yellow-400 text-slate-950",
-    badge: "طلب + تتبع",
+    badgeAr: "طلب + تتبع",
+    badgeEn: "Order + Radar",
   },
   {
     id: "vendor",
@@ -22,7 +25,8 @@ const ROLES = [
     path: "/vendor",
     icon: Store,
     color: "from-orange-500 to-amber-500 text-white",
-    badge: "KDS + منيو AI",
+    badgeAr: "KDS + منيو AI",
+    badgeEn: "KDS + AI Menu",
   },
   {
     id: "courier",
@@ -31,7 +35,8 @@ const ROLES = [
     path: "/courier",
     icon: Bike,
     color: "from-cyan-500 to-blue-600 text-white",
-    badge: "ملاحة + إثبات AI",
+    badgeAr: "ملاحة + إثبات AI",
+    badgeEn: "HUD + AI Proof",
   },
   {
     id: "admin",
@@ -40,12 +45,14 @@ const ROLES = [
     path: "/admin",
     icon: ShieldCheck,
     color: "from-purple-600 to-indigo-600 text-white",
-    badge: "تحكم مركزي",
+    badgeAr: "تحكم مركزي",
+    badgeEn: "Command Center",
   },
 ];
 
 
 export function UniversalRoleBar() {
+  const { lang } = useI18n();
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
   const [soundActive, setSoundActive] = useState(sounds.isEnabled());
@@ -132,7 +139,7 @@ export function UniversalRoleBar() {
             FoodHub OS 3.0
           </span>
           <span className="hidden text-[11px] text-slate-400 sm:inline">
-            | المنظومة الثلاثية الموحدة
+            {lang === "ar" ? "| المنظومة الثلاثية الموحدة" : "| Unified Tri-App System"}
           </span>
         </div>
 
@@ -156,13 +163,13 @@ export function UniversalRoleBar() {
                 }`}
               >
                 <role.icon className={`size-3.5 ${isActive ? "" : "text-slate-400 group-hover:text-amber-400"}`} />
-                <span>{role.nameAr}</span>
+                <span>{lang === "ar" ? role.nameAr : role.nameEn}</span>
                 <span
                   className={`hidden md:inline rounded-md px-1.5 py-0.5 text-[10px] ${
                     isActive ? "bg-black/20 text-white" : "bg-slate-800 text-slate-400"
                   }`}
                 >
-                  {role.badge}
+                  {lang === "ar" ? role.badgeAr : role.badgeEn}
                 </span>
               </Link>
             );
@@ -175,10 +182,10 @@ export function UniversalRoleBar() {
             onClick={createSimulatedOrder}
             disabled={isSimulating}
             className="flex items-center gap-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300 transition-all hover:bg-amber-500/20 active:scale-95 disabled:opacity-50"
-            title="إنشاء طلب فوري لاختبار تدفق المطبخ والمندوب"
+            title={lang === "ar" ? "إنشاء طلب فوري لاختبار تدفق المطبخ والمندوب" : "Trigger live test order for Kitchen & Courier"}
           >
             <PlusCircle className="size-3.5 text-amber-400" />
-            <span className="hidden sm:inline">طلب تجريبي فوري</span>
+            <span className="hidden sm:inline">{lang === "ar" ? "طلب تجريبي فوري" : "Live Demo Order"}</span>
             <Activity className="size-3 text-amber-400 animate-pulse" />
           </button>
 

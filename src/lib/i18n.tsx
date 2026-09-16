@@ -184,11 +184,26 @@ type I18nValue = {
 const I18nContext = createContext<I18nValue | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>("ar");
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window !== "undefined") {
+      const saved = window.localStorage.getItem("lang");
+      if (saved === "en" || saved === "ar") return saved;
+    }
+    return "en";
+  });
 
   useEffect(() => {
     const saved = window.localStorage.getItem("lang");
-    if (saved === "en" || saved === "ar") setLangState(saved);
+    if (saved === "en" || saved === "ar") {
+      setLangState(saved);
+    } else {
+      setLangState("en");
+      try {
+        window.localStorage.setItem("lang", "en");
+      } catch {
+        // ignore in private / restricted environments
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -201,12 +216,16 @@ export function I18nProvider({ children }: { children: ReactNode }) {
       lang,
       dir: lang === "ar" ? "rtl" : "ltr",
       setLang: (l) => {
-        window.localStorage.setItem("lang", l);
+        try {
+          window.localStorage.setItem("lang", l);
+        } catch {
+          // ignore
+        }
         setLangState(l);
       },
-      t: (key) => dict[key][lang],
-      tn: (row) => (lang === "ar" ? row.name_ar : row.name_en),
-      tf: (row, field) => String(row[`${field}_${lang}`] ?? ""),
+      t: (key) => dict[key]?.[lang] ?? key,
+      tn: (row) => (lang === "ar" ? (row.name_ar || row.name_en) : (row.name_en || row.name_ar)),
+      tf: (row, field) => String(row[`${field}_${lang}`] ?? row[`${field}_en`] ?? row[`${field}_ar`] ?? ""),
       tStatus: (s) => statusDict[s]?.[lang] ?? s,
     }),
     [lang],
