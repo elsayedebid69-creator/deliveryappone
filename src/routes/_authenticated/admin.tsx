@@ -206,6 +206,7 @@ function AdminPage() {
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
       // 1. Generate and save AI partner ID with IP lock
+      const rd = (request.data ?? {}) as Record<string, string | undefined>;
       const partnerName = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name;
       const secRecord = registerApprovedPartner({
         partnerType: request.type as "restaurant" | "courier",
@@ -429,7 +430,8 @@ function AdminPage() {
                       </Button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </TabsContent>
