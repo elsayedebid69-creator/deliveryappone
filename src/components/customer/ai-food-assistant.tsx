@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/lib/cart";
+import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
 import { sounds } from "@/lib/sound-effects";
 
