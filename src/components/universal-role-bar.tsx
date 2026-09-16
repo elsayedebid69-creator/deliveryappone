@@ -72,7 +72,7 @@ export function UniversalRoleBar() {
         "حي الياسمين، فيلا 23، مخرج 5 - الرياض",
         "حي الملقا، طريق أنس بن مالك، برج النخبة - الرياض",
       ];
-      const randomAddress = sampleAddresses[Math.floor(Math.random() * sampleAddresses.length)];
+      const randomAddress = sampleAddresses[Math.floor(Math.random() * sampleAddresses.length)] ?? sampleAddresses[0]!;
       const randomSubtotal = Math.floor(Math.random() * 80) + 45;
       const deliveryFee = 12;
 
