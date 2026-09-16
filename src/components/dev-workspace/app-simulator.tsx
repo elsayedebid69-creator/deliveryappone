@@ -89,7 +89,7 @@ export function AppSimulatorWorkspace({ showHeader = false }: AppSimulatorProps)
   // Trigger test live order
   const handleSimulateNewOrder = () => {
     setIsSimulatingOrder(true);
-    sounds.playNotify();
+    sounds.playNewOrder();
     const newId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
     const newOrder = {
       id: newId,

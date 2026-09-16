@@ -100,9 +100,9 @@ function RestaurantPage() {
       <section className="relative overflow-hidden border-b border-slate-800 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 py-12">
         <div className="mx-auto max-w-4xl px-4 space-y-4">
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
-            {tf(r, "cuisine")}
+            {r ? tf(r, "cuisine") : ""}
           </Badge>
-          <h1 className="text-3xl sm:text-4xl font-black text-white">{tf(r, "name")}</h1>
+          <h1 className="text-3xl sm:text-4xl font-black text-white">{r ? tf(r, "name") : ""}</h1>
 
           {/* Badges HUD */}
           <div className="flex flex-wrap items-center gap-3 text-xs pt-2">

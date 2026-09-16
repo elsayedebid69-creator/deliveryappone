@@ -208,11 +208,12 @@ function AdminPage() {
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
       // 1. Generate and save AI partner ID with IP lock
-      const partnerName = request.data.business_name_ar || request.data.business_name || request.data.full_name || request.data.contact_name;
+      const rd = (request.data ?? {}) as { business_name_ar?: string; business_name?: string; full_name?: string; contact_name?: string; contact_phone?: string; phone?: string; email?: string };
+      const partnerName = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name || "شريك FoodHub";
       const secRecord = registerApprovedPartner({
         partnerType: request.type as "restaurant" | "courier",
         partnerName,
-        email: request.data.email,
+        email: rd.email ?? "",
         initialIp: "156.204.18.92",
       });
 
@@ -374,7 +375,9 @@ function AdminPage() {
               </h3>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                {pendingRequests.map((request) => (
+                {pendingRequests.map((request) => {
+                  const rd = (request.data ?? {}) as { business_name_ar?: string; business_name?: string; full_name?: string; contact_name?: string; contact_phone?: string; phone?: string; email?: string };
+                  return (
                   <div
                     key={request.id}
                     className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 space-y-4 shadow-xl"
@@ -392,12 +395,12 @@ function AdminPage() {
                         </div>
                         <div>
                           <p className="font-bold text-white text-sm">
-                            {request.data.business_name_ar || request.data.business_name || request.data.full_name || request.data.contact_name}
+                            {rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name}
                           </p>
                           <p className="text-xs text-slate-400 font-mono mt-0.5">
-                            {request.data.contact_phone || request.data.phone}
+                            {rd.contact_phone || rd.phone}
                           </p>
-                          <p className="text-[11px] text-cyan-400 font-mono">{request.data.email}</p>
+                          <p className="text-[11px] text-cyan-400 font-mono">{rd.email}</p>
                         </div>
                       </div>
 
@@ -440,7 +443,8 @@ function AdminPage() {
                       </Button>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </TabsContent>
