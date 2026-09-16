@@ -101,7 +101,7 @@ export function UniversalRoleBar() {
           {
             order_id: newOrder.id,
             name_ar: "سلطة الكينوا والأفوكادو بالبروتين",
-            nameEn: "Super Protein Quinoa Avocado Bowl",
+            name_en: "Super Protein Quinoa Avocado Bowl",
             price: randomSubtotal,
             quantity: 1,
           },
