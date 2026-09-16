@@ -122,6 +122,9 @@ export function verifyPartnerSessionIp(
   }
 
   const record = records[index];
+  if (!record) {
+    return { allowed: false, reason: "not_found" };
+  }
 
   if (record.isTamperBanned) {
     return { allowed: false, reason: "tamper_detected", record };
@@ -153,14 +156,15 @@ export function verifyPartnerSessionIp(
 export function adminUnlockPartner(aiPartnerId: string, newAuthorizedIp?: string) {
   const records = getPartnerSecurityRecords();
   const index = records.findIndex((r) => r.aiPartnerId === aiPartnerId);
-  if (index !== -1) {
-    records[index].isLockedDualIp = false;
-    records[index].isTamperBanned = false;
+  const target = records[index];
+  if (target) {
+    target.isLockedDualIp = false;
+    target.isTamperBanned = false;
     if (newAuthorizedIp) {
-      records[index].registeredIp = newAuthorizedIp;
-      records[index].currentIp = newAuthorizedIp;
+      target.registeredIp = newAuthorizedIp;
+      target.currentIp = newAuthorizedIp;
     } else {
-      records[index].registeredIp = records[index].currentIp;
+      target.registeredIp = target.currentIp;
     }
     savePartnerSecurityRecords(records);
   }
@@ -170,9 +174,10 @@ export function adminUnlockPartner(aiPartnerId: string, newAuthorizedIp?: string
 export function simulateDualIpConflict(aiPartnerId: string) {
   const records = getPartnerSecurityRecords();
   const index = records.findIndex((r) => r.aiPartnerId === aiPartnerId);
-  if (index !== -1) {
-    records[index].isLockedDualIp = true;
-    records[index].currentIp = "197.38.214.88 (محاولة من شبكة أخرى)";
+  const target = records[index];
+  if (target) {
+    target.isLockedDualIp = true;
+    target.currentIp = "197.38.214.88 (محاولة من شبكة أخرى)";
     savePartnerSecurityRecords(records);
   }
 }
@@ -181,8 +186,9 @@ export function simulateDualIpConflict(aiPartnerId: string) {
 export function flagPartnerTampering(aiPartnerId: string) {
   const records = getPartnerSecurityRecords();
   const index = records.findIndex((r) => r.aiPartnerId === aiPartnerId);
-  if (index !== -1) {
-    records[index].isTamperBanned = true;
+  const target = records[index];
+  if (target) {
+    target.isTamperBanned = true;
     savePartnerSecurityRecords(records);
   }
 }
