@@ -145,11 +145,9 @@ export function AiFoodAssistant() {
       setMessages((prev) => [
         ...(prev.length === 0 ? [{ role: "assistant" as const, text: welcomeText }] : prev),
         { role: "user" as const, text: textToAsk },
-        {
-          role: "assistant",
-          text: responseText,
-          recommendation: matchedMeal,
-        },
+        ...(matchedMeal
+          ? [{ role: "assistant" as const, text: responseText, recommendation: matchedMeal }]
+          : [{ role: "assistant" as const, text: responseText }]),
       ]);
       setIsThinking(false);
       sounds.playSuccess();

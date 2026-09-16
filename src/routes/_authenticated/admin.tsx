@@ -206,12 +206,12 @@ function AdminPage() {
   const approveRequest = useMutation({
     mutationFn: async (request: any) => {
       // 1. Generate and save AI partner ID with IP lock
-      const rd = (request.data ?? {}) as Record<string, string | undefined>;
-      const partnerName = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name;
+      const rd = (request.data ?? {}) as { business_name_ar?: string; business_name?: string; full_name?: string; contact_name?: string; contact_phone?: string; phone?: string; email?: string };
+      const partnerName = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name || "شريك FoodHub";
       const secRecord = registerApprovedPartner({
         partnerType: request.type as "restaurant" | "courier",
         partnerName,
-        email: rd.email,
+        email: rd.email ?? "",
         initialIp: "156.204.18.92",
       });
 
@@ -363,7 +363,7 @@ function AdminPage() {
 
               <div className="grid gap-4 sm:grid-cols-2">
                 {pendingRequests.map((request) => {
-                  const rd = (request.data ?? {}) as Record<string, string | undefined>;
+                  const rd = (request.data ?? {}) as { business_name_ar?: string; business_name?: string; full_name?: string; contact_name?: string; contact_phone?: string; phone?: string; email?: string };
                   return (
                   <div
                     key={request.id}
