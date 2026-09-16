@@ -43,12 +43,10 @@ export function AppHeader() {
       <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl text-slate-100">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {/* Logo */}
-          <Link to="/" onClick={() => sounds.playClick()} className="flex items-center gap-2">
+          <Link to="/" onClick={() => sounds.playClick()} className="flex items-center gap-2 group transition-transform active:scale-95">
             <FoodHubLogo size={40} showText />
-            <span className="hidden sm:inline-block rounded-md bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[10px] font-mono font-bold text-amber-400">
-              3.0 AI
-            </span>
           </Link>
+
 
           {/* Desktop Navigation */}
           <div className="flex-1" />
