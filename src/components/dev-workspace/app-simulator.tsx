@@ -263,17 +263,17 @@ export function AppSimulatorWorkspace() {
                     <Smartphone className="size-5" />
                   </div>
                   <Badge variant="outline" className="text-[10px] border-amber-500/30 bg-amber-500/10 text-amber-300">
-                    PedidosYa / Snoonu UI
+                    Zomato Style UI
                   </Badge>
                 </div>
                 <div>
                   <h3 className="font-bold text-white text-sm group-hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? "📱 تطبيق العميل (Storefront)" : "📱 Customer Super-App"}
+                    {lang === "ar" ? "📱 تطبيق العميل (Zomato Storefront)" : "📱 Customer Super-App (Zomato)"}
                   </h3>
                   <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5">
                     {lang === "ar"
-                      ? "تصفح المطاعم، الوجبات الصحية، حساب السعرات والماكروز، مساعد AI الذكي، وسلة الطلبات."
-                      : "Multi-category food delivery, calorie/protein telemetry, AI dietitian, and cart checkout."}
+                      ? "شريط البحث المزدوج، المجموعات المختارة، أحياء الرياض، حساب الماكروز والسعرات، والمساعد الذكي AI."
+                      : "Dual search bar, curated collections, Riyadh localities, macro telemetry, and AI dietitian."}
                   </p>
                 </div>
               </div>

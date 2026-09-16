@@ -11,15 +11,21 @@ import {
   ShoppingBag,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Filter,
   Percent,
   Bike,
   Store,
   Compass,
   ArrowRight,
-  BadgeCheck,
   Heart,
-  SlidersHorizontal,
+  Smartphone,
+  Check,
+  Send,
+  QrCode,
+  Utensils,
+  Award,
+  ChevronUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -31,41 +37,123 @@ import { Badge } from "@/components/ui/badge";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import { AiFoodAssistant } from "@/components/customer/ai-food-assistant";
 
-// PedidosYa / Foodpanda / Snoonu Categories
-const SNOONU_CATEGORIES = [
-  { id: "all", nameAr: "المطاعم والأكلات", nameEn: "Food Delivery", icon: "🍔", color: "bg-rose-500/10 text-rose-500 border-rose-500/20" },
-  { id: "grocery", nameAr: "ماركت وسوبرماركت", nameEn: "Quick Mart", icon: "🛒", color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" },
-  { id: "healthy", nameAr: "صحي ودايت", nameEn: "Healthy & Diet", icon: "🥑", color: "bg-amber-500/10 text-amber-500 border-amber-500/20" },
-  { id: "bakery", nameAr: "مخابز وحلويات", nameEn: "Bakery & Sweets", icon: "🥐", color: "bg-orange-500/10 text-orange-500 border-orange-500/20" },
-  { id: "coffee", nameAr: "كافيهات ومشروبات", nameEn: "Coffee & Drinks", icon: "☕", color: "bg-amber-700/10 text-amber-600 border-amber-700/20" },
-  { id: "pharmacy", nameAr: "صيدلية وعناية", nameEn: "Pharmacy & Care", icon: "💊", color: "bg-cyan-500/10 text-cyan-500 border-cyan-500/20" },
-  { id: "protein", nameAr: "وجبات البروتين", nameEn: "High Protein", icon: "🥩", color: "bg-red-500/10 text-red-500 border-red-500/20" },
+// Zomato Popular Localities in Riyadh / Saudi Arabia
+const RIYADH_LOCALITIES = [
+  { id: "loc-1", nameAr: "العليا والسليمانية", nameEn: "Al Olaya & As Sulimaniyah", places: 184 },
+  { id: "loc-2", nameAr: "حطين والملقا", nameEn: "Hittin & Al Malqa", places: 210 },
+  { id: "loc-3", nameAr: "النرجس والياسمين", nameEn: "An Narjis & Al Yasmin", places: 145 },
+  { id: "loc-4", nameAr: "التحلية والزهراء", nameEn: "Tahlia & Az Zahra", places: 168 },
+  { id: "loc-5", nameAr: "الروضة والربوة", nameEn: "Ar Rawdah & Ar Rabwah", places: 98 },
+  { id: "loc-6", nameAr: "الصحافة والملز", nameEn: "As Sahafah & Al Malaz", places: 124 },
+  { id: "loc-7", nameAr: "الدرعية والخزامى", nameEn: "Diriyah & Al Khuzama", places: 92 },
+  { id: "loc-8", nameAr: "السويدي والبديعة", nameEn: "As Suwaidi & Al Badi'ah", places: 86 },
+  { id: "loc-9", nameAr: "قرطبة واليرموك", nameEn: "Qurtubah & Al Yarmuk", places: 115 },
+];
+
+// Zomato Curated Collections
+const ZOMATO_COLLECTIONS = [
+  {
+    id: "col-1",
+    titleAr: "أعلى الوجبات طلباً وتقييماً 🏆",
+    titleEn: "Top Trending Meals 🏆",
+    descAr: "أكثر 25 وجبة حصدت تقييمات 5 نجوم هذا الأسبوع",
+    descEn: "25 trending dishes with top 5-star customer ratings",
+    places: "25 صنف",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
+    tag: "🔥 رائج الآن",
+  },
+  {
+    id: "col-2",
+    titleAr: "مملكة الكيتو والبروتين الصافي 🥑",
+    titleEn: "Keto & Pure Protein Power 🥑",
+    descAr: "وجبات محسوبة الماكروز للرياضيين ومتبعي الكيتو",
+    descEn: "Macro-calculated meals for athletes & keto lifestyle",
+    places: "18 صنف",
+    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=400&fit=crop",
+    tag: "🥩 بروتين عالي",
+  },
+  {
+    id: "col-3",
+    titleAr: "توصيل البرق فائق السرعة ⚡",
+    titleEn: "Lightning 15-Min Delivery ⚡",
+    descAr: "مطابخ سحابية جاهزة للتوصيل في أقل من 20 دقيقة",
+    descEn: "Cloud kitchens delivering hot & fresh in under 20 mins",
+    places: "12 مطبخ",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
+    tag: "⚡ فائق السرعة",
+  },
+  {
+    id: "col-4",
+    titleAr: "سلطات وسموذي الديتوكس العضوي 🌱",
+    titleEn: "Organic Detox Bowls & Smoothies 🌱",
+    descAr: "أطباق كينوا وأكاي طازجة غنية بمضادات الأكسدة",
+    descEn: "Fresh antioxidant organic quinoa & acai bowls",
+    places: "15 صنف",
+    image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&h=400&fit=crop",
+    tag: "✨ صحي 100%",
+  },
+];
+
+// Zomato 3 Core Pillars (Order Online, Cloud Dining, Pro Healthy)
+const ZOMATO_PILLARS = [
+  {
+    id: "online",
+    titleAr: "الطلب أونلاين والتوصيل السريع",
+    titleEn: "Order Online & Fast Delivery",
+    descAr: "وجبات طازجة ومحسوبة السعرات تصل إلى باب منزلك في 15-20 دقيقة.",
+    descEn: "Fresh macro-calculated meals delivered right to your doorstep in 15-20 mins.",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=350&fit=crop",
+    linkTextAr: "اطلب الآن",
+    linkTextEn: "Order Now",
+    badge: "🛵 توصيل راداري حي",
+  },
+  {
+    id: "dining",
+    titleAr: "استكشاف المطابخ السحابية",
+    titleEn: "Explore Cloud Kitchens",
+    descAr: "تصفح قوائم أشهر المطابخ والماركات السحابية المعتمدة في منطقتك.",
+    descEn: "Discover top-rated cloud kitchens, gourmet brands and verified chefs.",
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=350&fit=crop",
+    linkTextAr: "استكشف المطابخ",
+    linkTextEn: "View Kitchens",
+    badge: "👨‍🍳 علامات معتمدة",
+  },
+  {
+    id: "healthy",
+    titleAr: "وجبات الشيف والدايت الصحي",
+    titleEn: "Chef Gourmet & Diet Plans",
+    descAr: "وجبات بروتين عالية ونظام كيتو متوازن مع استشارة ذكاء اصطناعي مخصصة.",
+    descEn: "High-protein, keto & personalized nutrition guided by FoodHub AI.",
+    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=350&fit=crop",
+    linkTextAr: "خطط التغذية",
+    linkTextEn: "Nutrition Plans",
+    badge: "✨ ذكاء اصطناعي AI",
+  },
 ];
 
 // Featured Kitchens & Brands
-const POPULAR_RESTAURANTS = [
+const FEATURED_KITCHENS = [
   {
     id: "rest-1",
     nameAr: "مطبخ هيلثي جورميه السحابي",
     nameEn: "Healthy Gourmet Cloud Kitchen",
-    cuisineAr: "وجبات صحية • كيتو • بروتين عالي",
-    cuisineEn: "Healthy • Keto • High Protein",
+    cuisineAr: "وجبات صحية • كيتو دايت • بروتين عالي",
+    cuisineEn: "Healthy • Keto Diet • High Protein",
     rating: 4.9,
     reviews: "1.2k+",
     deliveryTime: "15-20 دقيقة",
-    deliveryFee: "مجاني",
+    deliveryFee: "توصيل مجاني",
     minOrder: 30,
     discount: "خصم 25% بكود: FOOD25",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=350&fit=crop",
-    isFeatured: true,
     tag: "🔥 الأكثر طلباً",
   },
   {
     id: "rest-2",
     nameAr: "جريل ماستر بروتين هاوس",
     nameEn: "Grill Master Protein House",
-    cuisineAr: "مشويات صحية • ستيك • دجاج تندرلوين",
-    cuisineEn: "Healthy Grills • Steak • Tenderloin",
+    cuisineAr: "مشويات صحية • ستيك تندرلوين • دجاج مشوي",
+    cuisineEn: "Healthy Grills • Tenderloin Steak • Chicken",
     rating: 4.85,
     reviews: "850+",
     deliveryTime: "20-25 دقيقة",
@@ -73,28 +161,26 @@ const POPULAR_RESTAURANTS = [
     minOrder: 40,
     discount: "توصيل مجاني للطلبات فوق 50 ر.س",
     image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=350&fit=crop",
-    isFeatured: true,
-    tag: "⚡ توصيل فائق",
+    tag: "⚡ سرعة قياسية",
   },
   {
     id: "rest-3",
     nameAr: "أورجانيك بول & سموذي بار",
     nameEn: "Organic Bowl & Smoothie Bar",
-    cuisineAr: "أكاي • سموذي • سلطات كينوا عضوية",
-    cuisineEn: "Acai • Smoothies • Organic Salads",
+    cuisineAr: "أكاي عضوي • سموذي بروتين • سلطات كينوا",
+    cuisineEn: "Organic Acai • Protein Smoothies • Quinoa",
     rating: 4.95,
     reviews: "2.1k+",
     deliveryTime: "12-18 دقيقة",
-    deliveryFee: "مجاني",
+    deliveryFee: "توصيل مجاني",
     minOrder: 25,
     discount: "خصم 20% للطلب الأول",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=350&fit=crop",
-    isFeatured: true,
     tag: "✨ اختيار الشيف",
   },
 ];
 
-// Top Trending Meals
+// Trending Dishes with Macros
 const TRENDING_MEALS = [
   {
     id: "dish-1",
@@ -158,7 +244,7 @@ const TRENDING_MEALS = [
     prepTime: "5 د",
     rating: 4.85,
     image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&h=350&fit=crop",
-    category: "coffee",
+    category: "smoothie",
   },
 ];
 
@@ -171,7 +257,12 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [selectedCat, setSelectedCat] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeLocation, setActiveLocation] = useState("الرياض • حي السليمانية / العليا");
+  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [likedDishes, setLikedDishes] = useState<Record<string, boolean>>({});
+  const [showAllLocalities, setShowAllLocalities] = useState(false);
+  const [phoneOrEmailInput, setPhoneOrEmailInput] = useState("");
+  const [sendType, setSendType] = useState<"phone" | "email">("phone");
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const cart = useCart();
 
   const toggleLike = (id: string) => {
@@ -195,336 +286,719 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     );
   };
 
+  const handleSendAppLink = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!phoneOrEmailInput.trim()) {
+      toast.error(lang === "ar" ? "يرجى إدخال رقم الهاتف أو البريد الإلكتروني" : "Please enter phone number or email");
+      return;
+    }
+    sounds.playSuccess();
+    toast.success(
+      lang === "ar"
+        ? `🚀 تم إرسال رابط تطبيق FoodHub 3.0 بنجاح إلى: ${phoneOrEmailInput}`
+        : `🚀 App download link sent successfully to: ${phoneOrEmailInput}`
+    );
+    setPhoneOrEmailInput("");
+  };
+
   const filteredDishes = TRENDING_MEALS.filter((d) => {
     const matchCat = selectedCat === "all" || d.category === selectedCat;
     const term = searchQuery.trim().toLowerCase();
-    if (!term) return matchCat;
-    return (
-      matchCat &&
-      (d.nameAr.toLowerCase().includes(term) ||
-        d.nameEn.toLowerCase().includes(term) ||
-        d.descAr.toLowerCase().includes(term) ||
-        d.descEn.toLowerCase().includes(term))
-    );
+    const matchSearch =
+      !term ||
+      d.nameAr.toLowerCase().includes(term) ||
+      d.nameEn.toLowerCase().includes(term) ||
+      d.descAr.toLowerCase().includes(term) ||
+      d.descEn.toLowerCase().includes(term);
+    return matchCat && matchSearch;
   });
 
+  const visibleLocalities = showAllLocalities ? RIYADH_LOCALITIES : RIYADH_LOCALITIES.slice(0, 6);
+
   return (
-    <div className="flex flex-col min-h-full bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950 font-sans">
-      {/* 
-        1. TOP LOCATION & EXPRESS BAR (PedidosYa / Foodpanda / Snoonu Style)
-      */}
-      <header className="sticky top-0 z-30 border-b border-slate-800 bg-slate-950/95 backdrop-blur-md px-4 py-3">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
-          {/* Brand + Location Selector */}
-          <div className="flex items-center gap-3">
-            <FoodHubLogo size={36} showText={!isEmbedded} />
-
-            <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-slate-800 bg-slate-900/90 px-3 py-1.5 text-xs text-slate-300 shadow-sm">
-              <MapPin className="size-3.5 text-amber-400 shrink-0" />
-              <span className="font-bold text-white truncate max-w-[200px]">
-                {lang === "ar" ? activeLocation : "Riyadh • Al Olaya District"}
-              </span>
-              <Badge className="ms-1 bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] px-1.5 py-0 font-mono">
-                15-20m
-              </Badge>
-            </div>
-          </div>
-
-          {/* Actions: Lang Switcher, Radar Orders, Cart */}
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                sounds.playClick();
-                setLang(lang === "ar" ? "en" : "ar");
-              }}
-              className="h-8 px-2.5 text-xs text-slate-300 hover:bg-slate-900"
-            >
-              {lang === "ar" ? "EN" : "عربي"}
-            </Button>
-
-            <Button asChild variant="ghost" size="sm" className="h-8 gap-1.5 text-xs text-slate-300 hover:bg-slate-900">
-              <Link to="/orders" onClick={() => sounds.playClick()}>
-                <Sparkles className="size-3.5 text-amber-400" />
-                <span className="hidden md:inline">{lang === "ar" ? "تتبع طلباتي" : "Track"}</span>
-              </Link>
-            </Button>
-
-            <Button asChild size="sm" className="relative h-8 gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold px-3">
-              <Link to="/cart" onClick={() => sounds.playClick()}>
-                <ShoppingBag className="size-4" />
-                <span className="hidden sm:inline">{t("cart")}</span>
-                {cart.count > 0 && (
-                  <span className="flex size-5 items-center justify-center rounded-full bg-slate-950 text-[10px] font-bold text-amber-400 shadow-sm">
-                    {cart.count}
-                  </span>
-                )}
-              </Link>
-            </Button>
-          </div>
+    <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950 ${isEmbedded ? "text-sm" : ""}`}>
+      {/* ============================================================ */}
+      {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
+      {/* ============================================================ */}
+      <section className="relative overflow-hidden bg-slate-950">
+        {/* Cinematic Foodie Background Image with Rich Dark Gradients */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&h=800&fit=crop"
+            alt="FoodHub Zomato Background"
+            className="size-full object-cover object-center opacity-30 scale-105 transition-transform duration-10000 hover:scale-100"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/90 to-slate-950" />
         </div>
 
-        {/* Mobile Location Sub-bar */}
-        <div className="mt-2 flex items-center justify-between sm:hidden text-xs text-slate-400 px-1">
-          <div className="flex items-center gap-1.5 truncate">
-            <MapPin className="size-3 text-amber-400 shrink-0" />
-            <span className="truncate">{lang === "ar" ? activeLocation : "Riyadh • Al Olaya District"}</span>
-          </div>
-          <span className="text-[10px] text-amber-400 font-mono font-bold shrink-0">⚡ 15-20 min</span>
-        </div>
-      </header>
-
-      {/* 
-        2. HERO SEARCH & PROMO BANNER CAROUSEL
-      */}
-      <div className="p-4 sm:p-6 space-y-6 max-w-5xl mx-auto w-full">
-        
-        {/* Search Bar with Filter */}
-        <div className="relative flex items-center gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-500" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={
-                lang === "ar"
-                  ? "ابحث عن وجبة، مطبخ سحابي، سعرات، بروتين أو كيتو..."
-                  : "Search food, cloud kitchens, calories, protein or keto..."
-              }
-              className="h-11 ps-10 pe-4 bg-slate-900 border-slate-800 rounded-2xl text-xs sm:text-sm text-slate-100 placeholder:text-slate-500 focus-visible:ring-amber-500"
-            />
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-11 w-11 shrink-0 rounded-2xl border-slate-800 bg-slate-900 text-slate-300 hover:border-amber-500/40 hover:text-amber-400"
-          >
-            <SlidersHorizontal className="size-4" />
-          </Button>
-        </div>
-
-        {/* Category Stories (Foodpanda / Snoonu Style Circles) */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xs sm:text-sm font-bold text-slate-300">
-              {lang === "ar" ? "التصنيفات والخدمات السريعة" : "Quick Categories"}
-            </h3>
-            <span className="text-[11px] text-amber-400 font-medium cursor-pointer hover:underline">
-              {lang === "ar" ? "عرض الكل" : "View all"}
+        {/* Hero Content Container */}
+        <div className="relative z-10 mx-auto max-w-5xl px-4 py-12 sm:py-20 flex flex-col items-center text-center space-y-6">
+          {/* Brand Logo & Pill */}
+          <div className="flex flex-col items-center gap-3">
+            <FoodHubLogo size={56} showText />
+            <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3.5 py-1 text-xs font-bold text-amber-300 backdrop-blur-md">
+              ✨ {lang === "ar" ? "منظومة توصيل الطعام الذكية 3.0" : "Smart AI Food Delivery Platform"}
             </span>
           </div>
 
-          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
-            {SNOONU_CATEGORIES.map((cat) => (
+          {/* Zomato Headline */}
+          <div className="max-w-3xl space-y-3">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight">
+              {lang === "ar" ? (
+                <>
+                  اكتشف أفضل المأكولات والمطابخ السحابية في{" "}
+                  <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                    الرياض
+                  </span>
+                </>
+              ) : (
+                <>
+                  Discover the best food & cloud kitchens in{" "}
+                  <span className="bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+                    Riyadh
+                  </span>
+                </>
+              )}
+            </h1>
+            <p className="text-xs sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              {lang === "ar"
+                ? "وجبات صحية طازجة، دايت وكيتو محسوبة الماكروز، وتوصيل راداري فائق السرعة يصلك أينما كنت."
+                : "Fresh healthy dining, keto & high-protein macros delivered in 15-20 minutes with live GPS radar."}
+            </p>
+          </div>
+
+          {/* ============================================================ */}
+          {/* ZOMATO DUAL SEARCH BAR (Location Pill + Dish Search) */}
+          {/* ============================================================ */}
+          <div className="w-full max-w-3xl mt-4">
+            <div className="relative flex flex-col sm:flex-row items-center rounded-2xl sm:rounded-full bg-slate-900/95 border border-slate-700/80 p-1.5 sm:p-2 shadow-2xl shadow-slate-950 backdrop-blur-xl transition-all focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20">
+              
+              {/* Location Picker (Left on LTR / Right on RTL) */}
+              <div className="relative w-full sm:w-5/12">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setIsLocationDropdownOpen(!isLocationDropdownOpen);
+                  }}
+                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl sm:rounded-full text-xs font-semibold text-slate-200 hover:bg-slate-800/80 transition-colors"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <MapPin className="size-4 text-rose-500 shrink-0 animate-bounce" />
+                    <span className="truncate">{activeLocation}</span>
+                  </div>
+                  <ChevronDown className="size-3.5 text-slate-400 shrink-0" />
+                </button>
+
+                {/* Location Dropdown */}
+                {isLocationDropdownOpen && (
+                  <div className="absolute top-full start-0 z-50 mt-2 w-72 rounded-2xl border border-slate-700 bg-slate-900 p-2 shadow-2xl animate-in fade-in zoom-in-95 text-start">
+                    <p className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {lang === "ar" ? "اختر الحي / منطقة التوصيل:" : "Select Delivery Neighborhood:"}
+                    </p>
+                    <div className="max-h-56 overflow-y-auto space-y-1">
+                      {RIYADH_LOCALITIES.map((loc) => (
+                        <button
+                          key={loc.id}
+                          type="button"
+                          onClick={() => {
+                            sounds.playClick();
+                            setActiveLocation(lang === "ar" ? `الرياض • ${loc.nameAr}` : `Riyadh • ${loc.nameEn}`);
+                            setIsLocationDropdownOpen(false);
+                            toast.info(lang === "ar" ? `📍 تم تحديد: ${loc.nameAr}` : `📍 Location set: ${loc.nameEn}`);
+                          }}
+                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs text-slate-200 hover:bg-amber-500/10 hover:text-amber-400 transition-colors"
+                        >
+                          <span className="font-medium">{lang === "ar" ? loc.nameAr : loc.nameEn}</span>
+                          <span className="text-[10px] text-slate-400">{loc.places} مكان</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="hidden sm:block h-6 w-px bg-slate-700 mx-1" />
+
+              {/* Dish / Kitchen Search Input */}
+              <div className="relative flex-1 w-full flex items-center">
+                <Search className="absolute start-3.5 size-4 text-slate-400" />
+                <Input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={
+                    lang === "ar"
+                      ? "ابحث عن مطعم، وجبة صحية، كيتو، أو سموذي..."
+                      : "Search for restaurant, healthy meal, keto, or smoothie..."
+                  }
+                  className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-white placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute end-3 text-xs text-slate-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Trending Search Tags */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 text-xs">
+              <span className="text-slate-400 text-[11px] me-1">
+                {lang === "ar" ? "الأكثر بحثاً:" : "Trending Searches:"}
+              </span>
+              {[
+                { ar: "🔥 مشويات بروتين", en: "🔥 Protein Grills", cat: "protein" },
+                { ar: "🥑 كيتو دايت", en: "🥑 Keto Meals", cat: "healthy" },
+                { ar: "🥗 سلطات كينوا", en: "🥗 Quinoa Bowls", cat: "healthy" },
+                { ar: "🥤 سموذي طاقة", en: "🥤 Power Smoothies", cat: "smoothie" },
+              ].map((pill, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    sounds.playClick();
+                    setSelectedCat(pill.cat);
+                  }}
+                  className="rounded-full bg-slate-900/80 border border-slate-800 px-3 py-1 text-[11px] text-slate-300 hover:border-amber-500/50 hover:text-amber-400 transition-all active:scale-95"
+                >
+                  {lang === "ar" ? pill.ar : pill.en}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 2. ZOMATO 3 CORE PILLARS (Order Online, Dining, Pro Healthy) */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ZOMATO_PILLARS.map((pillar) => (
+            <div
+              key={pillar.id}
+              onClick={() => {
+                sounds.playClick();
+                if (pillar.id === "healthy") setSelectedCat("healthy");
+                if (pillar.id === "online") setSelectedCat("all");
+              }}
+              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
+            >
+              {/* Photo Background */}
+              <div className="relative h-44 w-full overflow-hidden">
+                <img
+                  src={pillar.image}
+                  alt={pillar.titleEn}
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <Badge className="absolute top-3 end-3 bg-slate-950/80 backdrop-blur-md border-amber-500/40 text-amber-400 text-[10px]">
+                  {pillar.badge}
+                </Badge>
+              </div>
+
+              {/* Pillar Body */}
+              <div className="p-4 space-y-2">
+                <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors flex items-center justify-between">
+                  <span>{lang === "ar" ? pillar.titleAr : pillar.titleEn}</span>
+                  <ChevronRight className={`size-4 text-amber-400 transition-transform ${lang === "ar" ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`} />
+                </h3>
+                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                  {lang === "ar" ? pillar.descAr : pillar.descEn}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 3. ZOMATO CURATED COLLECTIONS CAROUSEL */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-800/80 pb-3">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <Award className="size-6 text-amber-400" />
+              <span>{lang === "ar" ? "المجموعات المختارة (Collections)" : "Curated Collections"}</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              {lang === "ar"
+                ? "استكشف قوائم منسقة لأفضل المطابخ والوجبات الرائجة هذا الأسبوع في منطقتك"
+                : "Explore curated lists of top-rated cloud kitchens, gourmet diets and trending meals"}
+            </p>
+          </div>
+
+          <span className="text-xs text-amber-400 font-semibold cursor-pointer hover:underline flex items-center gap-1">
+            {lang === "ar" ? "عرض جميع المجموعات (4)" : "All Collections (4)"}
+            <ChevronRight className={`size-3 ${lang === "ar" ? "rotate-180" : ""}`} />
+          </span>
+        </div>
+
+        {/* Collections Cards Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {ZOMATO_COLLECTIONS.map((col) => (
+            <div
+              key={col.id}
+              onClick={() => sounds.playClick()}
+              className="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-lg transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl"
+            >
+              <div className="relative h-56 w-full overflow-hidden">
+                <img
+                  src={col.image}
+                  alt={col.titleEn}
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
+                
+                {/* Badge */}
+                <span className="absolute top-2.5 start-2.5 rounded-lg bg-slate-950/80 border border-slate-700 px-2 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-md">
+                  {col.tag}
+                </span>
+
+                {/* Bottom Card Content */}
+                <div className="absolute bottom-3 start-3 end-3 space-y-1">
+                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                    {lang === "ar" ? col.titleAr : col.titleEn}
+                  </h4>
+                  <div className="flex items-center justify-between text-[11px] text-slate-300">
+                    <span className="text-slate-400">{lang === "ar" ? col.descAr : col.descEn}</span>
+                    <span className="font-bold text-amber-400 shrink-0 ms-2">{col.places}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 4. POPULAR LOCALITIES IN RIYADH (Zomato Localities Grid) */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+        <div className="space-y-1">
+          <h2 className="text-xl sm:text-2xl font-black text-white">
+            {lang === "ar" ? (
+              <>
+                الأحياء الأكثر طلباً في{" "}
+                <span className="text-amber-400">الرياض</span>
+              </>
+            ) : (
+              <>
+                Popular localities in and around <span className="text-amber-400">Riyadh</span>
+              </>
+            )}
+          </h2>
+          <p className="text-xs text-slate-400">
+            {lang === "ar"
+              ? "اختر حيك المفضل لتصفح المطابخ السحابية وأوقات التوصيل الفورية"
+              : "Select your neighborhood to explore active cloud kitchens and instant delivery ETAs"}
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {visibleLocalities.map((loc) => (
+            <div
+              key={loc.id}
+              onClick={() => {
+                sounds.playClick();
+                setActiveLocation(lang === "ar" ? `الرياض • ${loc.nameAr}` : `Riyadh • ${loc.nameEn}`);
+                toast.info(lang === "ar" ? `📍 تم تحديد الحي: ${loc.nameAr}` : `📍 Selected: ${loc.nameEn}`);
+              }}
+              className="group cursor-pointer flex items-center justify-between p-3.5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:border-amber-500/40 hover:bg-slate-900 transition-all"
+            >
+              <div className="space-y-0.5">
+                <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
+                  {lang === "ar" ? loc.nameAr : loc.nameEn}
+                </h4>
+                <p className="text-xs text-slate-400">
+                  {loc.places} {lang === "ar" ? "مكان متاح للتوصيل" : "places nearby"}
+                </p>
+              </div>
+              <ChevronRight className={`size-4 text-slate-500 group-hover:text-amber-400 transition-colors ${lang === "ar" ? "rotate-180" : ""}`} />
+            </div>
+          ))}
+        </div>
+
+        {/* Toggle Show More Localities */}
+        <div className="flex justify-center pt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              sounds.playClick();
+              setShowAllLocalities(!showAllLocalities);
+            }}
+            className="border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-amber-400 hover:border-amber-500/40 rounded-xl gap-1.5"
+          >
+            {showAllLocalities ? (
+              <>
+                <ChevronUp className="size-3.5" />
+                {lang === "ar" ? "إخفاء الأحياء الإضافية" : "Show less"}
+              </>
+            ) : (
+              <>
+                <ChevronDown className="size-3.5" />
+                {lang === "ar" ? `عرض المزيد من الأحياء (${RIYADH_LOCALITIES.length})` : `Show all localities (${RIYADH_LOCALITIES.length})`}
+              </>
+            )}
+          </Button>
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 5. FEATURED CLOUD KITCHENS & BRANDS */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <Store className="size-6 text-amber-400" />
+              <span>{lang === "ar" ? "أفضل المطابخ السحابية المعتمدة" : "Top Verified Cloud Kitchens"}</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              {lang === "ar" ? "مطابخ صحية معتمدة بأعلى معايير النظافة والجودة" : "Certified kitchens with highest hygiene & freshness ratings"}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURED_KITCHENS.map((k) => (
+            <div
+              key={k.id}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl"
+            >
+              {/* Photo */}
+              <div className="relative h-40 w-full overflow-hidden">
+                <img
+                  src={k.image}
+                  alt={k.nameEn}
+                  className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
+                <Badge className="absolute top-3 start-3 bg-amber-500 text-slate-950 font-black text-[10px]">
+                  {k.tag}
+                </Badge>
+                <div className="absolute top-3 end-3 flex items-center gap-1 rounded-lg bg-slate-950/80 px-2 py-0.5 text-xs font-bold text-amber-400 backdrop-blur-md">
+                  <Star className="size-3 fill-amber-400 text-amber-400" />
+                  <span>{k.rating}</span>
+                  <span className="text-[10px] text-slate-400">({k.reviews})</span>
+                </div>
+              </div>
+
+              {/* Info */}
+              <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
+                <div className="space-y-1">
+                  <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-400 transition-colors">
+                    {lang === "ar" ? k.nameAr : k.nameEn}
+                  </h3>
+                  <p className="text-xs text-slate-400 line-clamp-1">
+                    {lang === "ar" ? k.cuisineAr : k.cuisineEn}
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+                  <div className="flex items-center gap-1 text-slate-300 font-medium">
+                    <Clock className="size-3.5 text-amber-400" />
+                    <span>{k.deliveryTime}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-emerald-400 font-bold">
+                    <Bike className="size-3.5" />
+                    <span>{k.deliveryFee}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ============================================================ */}
+      {/* 6. TRENDING DISHES WITH LIVE MACROS & FAST CART */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <Flame className="size-6 text-amber-400" />
+              <span>{lang === "ar" ? "قائمة الأطباق الأكثر طلباً اليوم" : "Today's Trending Gourmet Dishes"}</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              {lang === "ar" ? "محسوبة السعرات والبروتين جاهزة للإضافة الفورية" : "Macro-calculated meals ready for instant order"}
+            </p>
+          </div>
+
+          {/* Categories Pill Tabs */}
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {[
+              { id: "all", ar: "الكل", en: "All" },
+              { id: "healthy", ar: "🥑 صحي وكيتو", en: "Healthy/Keto" },
+              { id: "protein", ar: "🥩 بروتين عالي", en: "High Protein" },
+              { id: "smoothie", ar: "🥤 سموذي", en: "Smoothies" },
+            ].map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => {
                   sounds.playClick();
                   setSelectedCat(cat.id);
                 }}
-                className={`flex flex-col items-center gap-1.5 p-2.5 rounded-2xl border transition-all duration-200 shrink-0 min-w-[76px] ${
+                className={`rounded-xl px-3 py-1.5 text-xs font-bold transition-all whitespace-nowrap ${
                   selectedCat === cat.id
-                    ? "border-amber-500 bg-amber-500/15 shadow-lg shadow-amber-500/20 scale-105"
-                    : "border-slate-800/80 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 text-slate-400"
+                    ? "bg-amber-500 text-slate-950 shadow-md"
+                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
                 }`}
               >
-                <span className="text-2xl">{cat.icon}</span>
-                <span className="text-[11px] font-bold text-center leading-tight">
-                  {lang === "ar" ? cat.nameAr : cat.nameEn}
-                </span>
+                {lang === "ar" ? cat.ar : cat.en}
               </button>
             ))}
           </div>
         </div>
 
-        {/* Delivery Hero Promo Banner Card */}
-        <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-r from-amber-600/30 via-orange-600/20 to-slate-900 p-5 sm:p-6 shadow-2xl">
-          <div className="relative z-10 max-w-md space-y-2">
-            <Badge className="bg-amber-500 text-slate-950 font-black text-[11px] px-2.5 py-0.5">
-              <Percent className="size-3 me-1" />
-              {lang === "ar" ? "عروض حصرية اليوم" : "Today's Deals"}
-            </Badge>
-            <h2 className="text-lg sm:text-2xl font-black text-white leading-tight">
-              {lang === "ar"
-                ? "خصم 25% + توصيل مجاني على أول طلب!"
-                : "25% OFF + Free Delivery on 1st Order!"}
-            </h2>
-            <p className="text-xs text-slate-300">
-              {lang === "ar"
-                ? "استخدم كود FOOD25 عند الدفع واستمتع بأشهى الأطباق المحسوبة السعرات."
-                : "Use voucher code FOOD25 at checkout for instant discount & fast dispatch."}
-            </p>
-          </div>
-          <div className="absolute -bottom-6 -end-6 size-40 rounded-full bg-amber-500/20 blur-2xl pointer-events-none" />
-        </div>
+        {/* Dishes Grid */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {filteredDishes.map((dish) => (
+            <div
+              key={dish.id}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl"
+            >
+              {/* Dish Image */}
+              <div className="relative h-36 w-full overflow-hidden">
+                <img
+                  src={dish.image}
+                  alt={dish.nameEn}
+                  className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
 
-        {/* 
-          3. FEATURED CLOUD KITCHENS (PedidosYa / Snoonu Layout)
-        */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Store className="size-4 text-amber-400" />
-              <h3 className="text-base sm:text-lg font-black text-white">
-                {lang === "ar" ? "مطابخ ومطاعم معتمدة للتوصيل السريع" : "Featured Fast Delivery Kitchens"}
-              </h3>
-            </div>
-            <span className="text-xs text-slate-400">
-              {POPULAR_RESTAURANTS.length} {lang === "ar" ? "متاح الآن" : "open now"}
-            </span>
-          </div>
+                {/* Heart / Favorite */}
+                <button
+                  onClick={() => toggleLike(dish.id)}
+                  className="absolute top-2.5 end-2.5 size-7 rounded-full bg-slate-950/80 backdrop-blur-md flex items-center justify-center text-slate-300 hover:text-rose-400 transition-colors"
+                >
+                  <Heart className={`size-3.5 ${likedDishes[dish.id] ? "fill-rose-500 text-rose-500" : ""}`} />
+                </button>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {POPULAR_RESTAURANTS.map((rest) => (
-              <div
-                key={rest.id}
-                className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 shadow-lg transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl hover:-translate-y-1"
-              >
-                {/* Image */}
-                <div className="relative h-40 w-full overflow-hidden">
-                  <img
-                    src={rest.image}
-                    alt={rest.nameEn}
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                  
-                  {/* Top Badge */}
-                  <span className="absolute top-2.5 start-2.5 rounded-full bg-slate-950/85 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-bold text-amber-300 border border-slate-800">
-                    {rest.tag}
+                {/* Price */}
+                <div className="absolute bottom-2 start-2 flex items-center gap-1.5">
+                  <span className="rounded-xl bg-amber-500 px-2.5 py-0.5 text-xs font-black text-slate-950 shadow-md">
+                    {dish.price} {t("sar")}
                   </span>
-
-                  {/* Delivery time pill */}
-                  <span className="absolute bottom-2.5 end-2.5 rounded-xl bg-slate-950/90 backdrop-blur-md px-2.5 py-1 text-xs font-mono font-bold text-white border border-slate-800 flex items-center gap-1">
-                    <Clock className="size-3 text-amber-400" />
-                    {rest.deliveryTime}
-                  </span>
-                </div>
-
-                {/* Details */}
-                <div className="p-4 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-black text-white text-sm sm:text-base group-hover:text-amber-400 transition-colors truncate">
-                      {lang === "ar" ? rest.nameAr : rest.nameEn}
-                    </h4>
-                    <span className="flex items-center gap-1 text-xs font-bold text-amber-400 shrink-0">
-                      <Star className="size-3.5 fill-amber-400" />
-                      {rest.rating}
+                  {dish.oldPrice && (
+                    <span className="text-[10px] text-slate-400 line-through">
+                      {dish.oldPrice} {t("sar")}
                     </span>
-                  </div>
+                  )}
+                </div>
+              </div>
 
-                  <p className="text-xs text-slate-400 truncate">
-                    {lang === "ar" ? rest.cuisineAr : rest.cuisineEn}
+              {/* Dish Body */}
+              <div className="p-3.5 flex flex-col flex-1 justify-between gap-2.5">
+                <div className="space-y-1">
+                  <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">
+                    {lang === "ar" ? dish.nameAr : dish.nameEn}
+                  </h4>
+                  <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    {lang === "ar" ? dish.descAr : dish.descEn}
                   </p>
-
-                  <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
-                    <span className="text-emerald-400 font-bold">
-                      🛵 {lang === "ar" ? `توصيل ${rest.deliveryFee}` : `Delivery: ${rest.deliveryFee}`}
-                    </span>
-                    <span>
-                      {lang === "ar" ? `أقل طلب ${rest.minOrder} ر.س` : `Min: ${rest.minOrder} SAR`}
-                    </span>
-                  </div>
-
-                  <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 text-[10px] text-amber-300 font-medium truncate">
-                    🏷️ {rest.discount}
-                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* 
-          4. TRENDING DISHES & INSTANT QUICK-ADD
-        */}
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Flame className="size-4 text-orange-400" />
-              <h3 className="text-base sm:text-lg font-black text-white">
-                {lang === "ar" ? "أشهى الأطباق الأكثر طلباً" : "Trending Meals Near You"}
-              </h3>
+                {/* Macros Pill */}
+                <div className="flex items-center justify-between text-[10px] text-slate-400 bg-slate-950/80 px-2 py-1 rounded-xl border border-slate-800">
+                  <span className="flex items-center gap-0.5 text-amber-400 font-bold">
+                    <Flame className="size-2.5" /> {dish.calories} kcal
+                  </span>
+                  <span className="flex items-center gap-0.5 text-cyan-400 font-bold">
+                    <Zap className="size-2.5" /> {dish.protein}g P
+                  </span>
+                </div>
+
+                {/* Add to Cart button */}
+                <Button
+                  size="sm"
+                  onClick={() => handleAddToCart(dish)}
+                  className="w-full h-8 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl text-xs gap-1 shadow-sm"
+                >
+                  <Plus className="size-3.5" />
+                  {t("addToCart")}
+                </Button>
+              </div>
             </div>
-            <span className="text-xs text-slate-400">
-              {filteredDishes.length} {lang === "ar" ? "طبق متطابق" : "items"}
-            </span>
-          </div>
+          ))}
+        </div>
+      </section>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {filteredDishes.map((dish) => (
-              <div
-                key={dish.id}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl"
-              >
-                {/* Dish Photo */}
-                <div className="relative h-36 w-full overflow-hidden">
-                  <img
-                    src={dish.image}
-                    alt={dish.nameEn}
-                    className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
-
-                  {/* Favorite Like button */}
-                  <button
-                    onClick={() => toggleLike(dish.id)}
-                    className="absolute top-2.5 end-2.5 size-7 rounded-full bg-slate-950/80 backdrop-blur-md flex items-center justify-center text-slate-300 hover:text-rose-400 transition-colors"
-                  >
-                    <Heart className={`size-3.5 ${likedDishes[dish.id] ? "fill-rose-500 text-rose-500" : ""}`} />
-                  </button>
-
-                  {/* Price */}
-                  <div className="absolute bottom-2 start-2 flex items-center gap-1.5">
-                    <span className="rounded-xl bg-amber-500 px-2.5 py-0.5 text-xs font-black text-slate-950 shadow-md">
-                      {dish.price} {t("sar")}
-                    </span>
-                    {dish.oldPrice && (
-                      <span className="text-[10px] text-slate-400 line-through">
-                        {dish.oldPrice} {t("sar")}
-                      </span>
-                    )}
+      {/* ============================================================ */}
+      {/* 7. ZOMATO MOBILE APP DOWNLOAD SHOWCASE BANNER */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-12 w-full">
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 p-6 sm:p-10 shadow-2xl">
+          <div className="grid gap-8 md:grid-cols-2 items-center">
+            
+            {/* Left: Smartphone Showcase */}
+            <div className="flex justify-center order-2 md:order-1">
+              <div className="relative w-60 sm:w-72 rounded-[40px] border-[8px] border-slate-800 bg-slate-950 p-2 shadow-2xl ring-1 ring-slate-700/50">
+                <div className="h-4 w-20 rounded-full bg-black mx-auto mb-2" />
+                <div className="rounded-[28px] overflow-hidden bg-slate-900 p-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <FoodHubLogo size={24} showText={false} />
+                    <span className="text-[10px] text-amber-400 font-bold">FoodHub App</span>
                   </div>
-                </div>
-
-                {/* Dish Body */}
-                <div className="p-3.5 flex flex-col flex-1 justify-between gap-2.5">
+                  <div className="h-28 rounded-2xl overflow-hidden">
+                    <img
+                      src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=250&fit=crop"
+                      alt="App preview"
+                      className="size-full object-cover"
+                    />
+                  </div>
                   <div className="space-y-1">
-                    <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">
-                      {lang === "ar" ? dish.nameAr : dish.nameEn}
-                    </h4>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
-                      {lang === "ar" ? dish.descAr : dish.descEn}
-                    </p>
+                    <div className="h-3 w-3/4 rounded-full bg-slate-800" />
+                    <div className="h-2 w-1/2 rounded-full bg-slate-800" />
                   </div>
-
-                  {/* Macros Pill */}
-                  <div className="flex items-center justify-between text-[10px] text-slate-400 bg-slate-950/80 px-2 py-1 rounded-xl border border-slate-800">
-                    <span className="flex items-center gap-0.5 text-amber-400 font-bold">
-                      <Flame className="size-2.5" /> {dish.calories} kcal
-                    </span>
-                    <span className="flex items-center gap-0.5 text-cyan-400 font-bold">
-                      <Zap className="size-2.5" /> {dish.protein}g P
-                    </span>
+                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 font-bold text-center">
+                    ⚡ كابتن في الطريق إليك (12 دقيقة)
                   </div>
-
-                  {/* Add to Cart button */}
-                  <Button
-                    size="sm"
-                    onClick={() => handleAddToCart(dish)}
-                    className="w-full h-8 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl text-xs gap-1 shadow-sm"
-                  >
-                    <Plus className="size-3.5" />
-                    {t("addToCart")}
-                  </Button>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Right: Copy & Send Link Form */}
+            <div className="space-y-5 order-1 md:order-2">
+              <div className="space-y-2">
+                <Badge className="bg-amber-500/15 border-amber-500/30 text-amber-400 text-xs">
+                  📱 {lang === "ar" ? "تطبيق الهاتف الذكي" : "Mobile Experience"}
+                </Badge>
+                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                  {lang === "ar" ? "احصل على تطبيق FoodHub 3.0" : "Get the FoodHub 3.0 App"}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                  {lang === "ar"
+                    ? "سنرسل لك رابط التحميل الفوري عبر رسالة نصية أو بريد إلكتروني. متوفر لأجهزة iOS وأندرويد."
+                    : "We will send you a direct download link via SMS or Email. Available for iOS & Android."}
+                </p>
+              </div>
+
+              {/* Radio Selector */}
+              <div className="flex items-center gap-4 text-xs">
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                  <input
+                    type="radio"
+                    name="sendType"
+                    checked={sendType === "phone"}
+                    onChange={() => setSendType("phone")}
+                    className="accent-amber-500"
+                  />
+                  <span>{lang === "ar" ? "رقم الهاتف (SMS)" : "Phone Number (SMS)"}</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                  <input
+                    type="radio"
+                    name="sendType"
+                    checked={sendType === "email"}
+                    onChange={() => setSendType("email")}
+                    className="accent-amber-500"
+                  />
+                  <span>{lang === "ar" ? "البريد الإلكتروني" : "Email Address"}</span>
+                </label>
+              </div>
+
+              {/* Form Input */}
+              <form onSubmit={handleSendAppLink} className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <Input
+                  type={sendType === "email" ? "email" : "tel"}
+                  value={phoneOrEmailInput}
+                  onChange={(e) => setPhoneOrEmailInput(e.target.value)}
+                  placeholder={
+                    sendType === "email"
+                      ? "name@example.com"
+                      : lang === "ar"
+                      ? "05xxxxxxxx"
+                      : "+966 5x xxx xxxx"
+                  }
+                  className="bg-slate-950 border-slate-700 text-xs sm:text-sm text-white"
+                />
+                <Button
+                  type="submit"
+                  className="bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 text-xs shrink-0 gap-1.5 shadow-md"
+                >
+                  <Send className="size-3.5" />
+                  {lang === "ar" ? "إرسال الرابط" : "Share App Link"}
+                </Button>
+              </form>
+
+              {/* Store Badges */}
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <div className="flex items-center gap-2 rounded-xl bg-slate-950 border border-slate-800 px-3 py-1.5 text-xs text-slate-300">
+                  <Smartphone className="size-4 text-amber-400" />
+                  <span>App Store & Google Play</span>
+                </div>
+                <div className="flex items-center gap-1.5 rounded-xl bg-slate-950 border border-slate-800 px-3 py-1.5 text-xs text-slate-400">
+                  <QrCode className="size-4 text-cyan-400" />
+                  <span>{lang === "ar" ? "امسح QR للتحميل" : "Scan QR"}</span>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+      </section>
 
-      </div>
+      {/* ============================================================ */}
+      {/* 8. EXPLORE OPTIONS NEAR YOU (Zomato Accordion Guide) */}
+      {/* ============================================================ */}
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+        <h3 className="text-lg sm:text-xl font-bold text-white">
+          {lang === "ar" ? "استكشف الخيارات القريبة منك" : "Explore options near you"}
+        </h3>
+
+        <div className="space-y-2">
+          {[
+            {
+              qAr: "المأكولات والأنظمة الغذائية الشائعة بالقرب منك",
+              qEn: "Popular cuisines & diets near you",
+              aAr: "مشويات صحية • وجبات كيتو دايت • سلطات كينوا عضوية • وجبات بحرية غنية بالأوميغا • سموذي بروتين • إفطار صحي متوازن.",
+              aEn: "Healthy Grills • Keto Diet Bowls • Organic Quinoa Salads • Omega-Rich Salmon • Protein Smoothies • Morning Energy Fuel.",
+            },
+            {
+              qAr: "أنواع المطاعم والمطابخ السحابية المعتمدة",
+              qEn: "Popular restaurant types near you",
+              aAr: "مطابخ سحابية متخصصة • بارات العصير والأكاي • مطاعم المشويات الصحية • مخابز الشوفان والحلويات الصحية.",
+              aEn: "Gourmet Cloud Kitchens • Acai & Juice Bars • Healthy Steak & Grill Houses • Oat & Guilt-Free Bakeries.",
+            },
+            {
+              qAr: "المدن والأحياء المغطاة بالتوصيل السريع",
+              qEn: "Cities & localities delivered by FoodHub 3.0",
+              aAr: "الرياض (العليا، السليمانية، حطين، الملقا، النرجس، الياسمين، التحلية، الروضة، الصحافة، الدرعية) وجدة قريباً.",
+              aEn: "Riyadh (Al Olaya, Sulimaniyah, Hittin, Malqa, Narjis, Yasmin, Tahlia, Rawdah, Sahafah, Diriyah) and Jeddah soon.",
+            },
+          ].map((item, index) => (
+            <div
+              key={index}
+              className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-colors"
+            >
+              <button
+                type="button"
+                onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                className="w-full flex items-center justify-between text-start text-xs sm:text-sm font-bold text-white hover:text-amber-400"
+              >
+                <span>{lang === "ar" ? item.qAr : item.qEn}</span>
+                <ChevronDown
+                  className={`size-4 text-slate-400 transition-transform ${openFaq === index ? "rotate-180 text-amber-400" : ""}`}
+                />
+              </button>
+
+              {openFaq === index && (
+                <p className="pt-3 text-xs text-slate-400 leading-relaxed border-t border-slate-800/60 mt-3 animate-in fade-in">
+                  {lang === "ar" ? item.aAr : item.aEn}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Floating AI Assistant */}
       <AiFoodAssistant />
