@@ -29,6 +29,8 @@ import {
   Compass,
   CreditCard,
   Camera,
+  KeyRound,
+  Lock,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/courier")({
