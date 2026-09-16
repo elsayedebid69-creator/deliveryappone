@@ -28,6 +28,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { AppSimulatorWorkspace } from "@/components/dev-workspace/app-simulator";
 import {
   ClipboardCheck,
   Clock,
@@ -47,6 +48,7 @@ import {
   Lock,
   Unlock,
   RefreshCw,
+  Smartphone,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -327,29 +329,40 @@ function AdminPage() {
         </div>
 
         {/* Tabs Control */}
-        <Tabs defaultValue="requests" className="space-y-6">
+        <Tabs defaultValue="simulator" className="space-y-6">
           <TabsList className="bg-slate-900 border border-slate-800 p-1 rounded-2xl flex flex-wrap">
+            <TabsTrigger value="simulator" className="gap-2 text-xs data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-500 data-[state=active]:to-yellow-400 data-[state=active]:text-slate-950 font-black rounded-xl shadow-md">
+              <Smartphone className="size-4" />
+              {lang === "ar" ? "📱 محاكي التطبيقات (العميل، المطعم، المندوب)" : "📱 Multi-App Simulator"}
+            </TabsTrigger>
             <TabsTrigger value="requests" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <ClipboardCheck className="size-4" />
-              طلبات الانضمام والمراجعة
+              {lang === "ar" ? "طلبات الانضمام والمراجعة" : "Join Requests"}
               {pendingRequests.length > 0 && (
                 <Badge className="ms-1 bg-slate-950 text-amber-300 text-[10px]">{pendingRequests.length}</Badge>
               )}
             </TabsTrigger>
             <TabsTrigger value="security" className="gap-2 text-xs data-[state=active]:bg-cyan-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <ShieldCheck className="size-4" />
-              أمان الـ IP ومكافحة الاحتيال
+              {lang === "ar" ? "أمان الـ IP ومكافحة الاحتيال" : "IP Security Shield"}
               <Badge className="ms-1 bg-slate-950 text-cyan-300 text-[10px]">{securityRecords.length}</Badge>
             </TabsTrigger>
             <TabsTrigger value="restaurants" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <Store className="size-4" />
-              المطاعم الشريكة
+              {lang === "ar" ? "المطاعم الشريكة" : "Partner Kitchens"}
             </TabsTrigger>
             <TabsTrigger value="orders" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <Clock className="size-4" />
-              العمليات المباشرة
+              {lang === "ar" ? "العمليات المباشرة" : "Live Operations"}
             </TabsTrigger>
           </TabsList>
+
+          {/* 1. Premier Simulator Tab */}
+          <TabsContent value="simulator" className="space-y-6">
+            <div className="rounded-3xl border border-slate-800 bg-slate-900/90 p-6 space-y-6 shadow-2xl">
+              <AppSimulatorWorkspace showHeader={true} />
+            </div>
+          </TabsContent>
 
           {/* Join Requests Tab */}
           <TabsContent value="requests" className="space-y-6">

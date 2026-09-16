@@ -64,23 +64,21 @@ export function AppHeader() {
               {lang === "ar" ? "EN" : "عربي"}
             </Button>
 
-            {/* Link to Store / Customer App */}
+            {/* Link to Store / Home */}
             <Button asChild variant="ghost" size="sm" className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
-              <Link to="/store" onClick={() => sounds.playClick()}>
+              <Link to="/" onClick={() => sounds.playClick()}>
                 <Store className="size-4 text-amber-400" />
-                <span>{lang === "ar" ? "المتجر" : "Store"}</span>
+                <span>{lang === "ar" ? "المتجر والطلب" : "Store"}</span>
               </Link>
             </Button>
 
-            {/* If logged in with special role, direct to their dashboard */}
-            {user && role && role !== "customer" ? (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 border border-amber-500/30">
-                <Link to={dashboardPathFor(role)} onClick={() => sounds.playClick()}>
-                  <LayoutDashboard className="size-4 text-amber-400" />
-                  <span>{lang === "ar" ? "لوحة التحكم" : "Dashboard"} ({role})</span>
-                </Link>
-              </Button>
-            ) : null}
+            {/* Link to Admin & Multi-App Simulator */}
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-300 hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30">
+              <Link to="/admin" onClick={() => sounds.playClick()}>
+                <ShieldCheck className="size-4 text-cyan-400" />
+                <span>{lang === "ar" ? "لوحة الإدارة والمحاكاة" : "Admin & Simulator"}</span>
+              </Link>
+            </Button>
 
             <Button asChild variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-slate-900">
               <Link to="/orders" onClick={() => sounds.playClick()}>
