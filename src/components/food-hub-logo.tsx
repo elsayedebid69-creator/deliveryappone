@@ -12,64 +12,36 @@ export function FoodHubLogo({
   return (
     <span className={`inline-flex items-center gap-3 select-none ${className}`}>
       {/* 
-        HungerStation-style Iconic App Badge:
-        Vibrant, appetizing golden-yellow squircle with a bold, solid, heavy letter 'F' (FoodHub)
+        Official FOODHUB App Badge:
+        Vibrant golden-yellow squircle with a bold, rounded letter 'F' and top-right accent dot
       */}
       <div className="relative flex items-center justify-center shrink-0 group">
         <svg
           width={size}
           height={size}
-          viewBox="0 0 64 64"
+          viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="shrink-0 transition-transform duration-200 group-hover:scale-105 drop-shadow-[0_4px_16px_rgba(255,199,44,0.4)]"
         >
-          {/* Signature Vibrant Golden-Yellow Squircle Background (Like HungerStation Yellow) */}
+          {/* Vibrant Golden-Yellow Squircle Background */}
           <rect
-            x="2"
-            y="2"
-            width="60"
-            height="60"
-            rx="16"
+            width="100"
+            height="100"
+            rx="28"
             fill="#FFC72C"
           />
 
           {/* 
-            Ultra-Bold Iconic Letter 'F' in Rich Dark Espresso/Chocolate (#26160C)
-            Clean, solid, powerful, and unmistakable.
+            Official Letter 'F' in Espresso (#26160C) with smooth rounded geometry
           */}
-          {/* Vertical Spine */}
-          <rect
-            x="17"
-            y="14"
-            width="10"
-            height="36"
-            rx="3"
+          <path
+            d="M25 21C25 17.6863 27.6863 15 31 15H64C67.3137 15 70 17.6863 70 21C70 24.3137 67.3137 27 64 27H37V41H57C60.3137 41 63 43.6863 63 47C63 50.3137 60.3137 53 57 53H37V75C37 78.3137 34.3137 81 31 81C27.6863 81 25 78.3137 25 75V21Z"
             fill="#26160C"
           />
 
-          {/* Top Horizontal Bar */}
-          <rect
-            x="17"
-            y="14"
-            width="28"
-            height="9.5"
-            rx="3"
-            fill="#26160C"
-          />
-
-          {/* Middle Horizontal Bar with subtle food/speed dynamic bevel */}
-          <rect
-            x="17"
-            y="28"
-            width="22"
-            height="9"
-            rx="2.5"
-            fill="#26160C"
-          />
-
-          {/* Subtle Smile / Plate Spark Accent in Top-Right Corner */}
-          <circle cx="49" cy="18.5" r="3" fill="#26160C" />
+          {/* Top-Right Accent Dot */}
+          <circle cx="81" cy="21" r="6" fill="#26160C" />
         </svg>
       </div>
 
