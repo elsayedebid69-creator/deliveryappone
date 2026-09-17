@@ -131,6 +131,41 @@ function RootComponent() {
 
   useEffect(() => {
     registerServiceWorker();
+
+    // Remove any "Edit with Lovable" badges or injected widgets from the DOM
+    const removeLovableBadges = () => {
+      const selectors = [
+        "#lovable-badge",
+        ".lovable-badge",
+        "[data-lovable-badge]",
+        '[id*="lovable-badge"]',
+        '[class*="lovable-badge"]',
+        '[id*="lovable-edit"]',
+        '[class*="lovable-edit"]',
+        'a[href*="lovable.dev"]',
+        'div[id^="lovable-"]',
+        'iframe[id*="lovable"]',
+      ];
+      try {
+        selectors.forEach((sel) => {
+          document.querySelectorAll(sel).forEach((el) => {
+            el.remove();
+          });
+        });
+      } catch {
+        // ignore
+      }
+    };
+
+    removeLovableBadges();
+    const observer = new MutationObserver(() => removeLovableBadges());
+    try {
+      observer.observe(document.body, { childList: true, subtree: true });
+    } catch {
+      // ignore
+    }
+
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -143,7 +178,6 @@ function RootComponent() {
         </CartProvider>
       </I18nProvider>
     </QueryClientProvider>
-
   );
 }
 
