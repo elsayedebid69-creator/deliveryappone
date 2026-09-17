@@ -15,9 +15,9 @@ export const Route = createFileRoute("/auth_/signup")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "إنشاء حساب عميل جديد | FOODHUB 3.0" },
-      { name: "description", content: "سجّل حساب عميل جديد للاستمتاع بأسرع خدمة توصيل وجبات صحية بالذكاء الاصطناعي عبر FOODHUB." },
-      { property: "og:title", content: "إنشاء حساب جديد | FOODHUB 3.0" },
+      { title: "إنشاء حساب عميل جديد | FOODHUB" },
+      { name: "description", content: "سجّل حساب عميل جديد للاستمتاع بأسرع خدمة توصيل وجبات صحية بأقل سعر عبر FOODHUB." },
+      { property: "og:title", content: "إنشاء حساب جديد | FOODHUB" },
       { property: "og:description", content: "انضم إلى FOODHUB لتجربة أحدث منظومة لتوصيل الطعام الصحي." },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },

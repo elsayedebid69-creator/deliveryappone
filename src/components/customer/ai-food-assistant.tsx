@@ -221,7 +221,7 @@ export function AiFoodAssistant() {
                   <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
                     FoodHub AI Dietician & Meal Matcher
                     <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
-                      {lang === "ar" ? "نظام الذكاء الاصطناعي 3.0" : "AI Core 3.0"}
+                      {lang === "ar" ? "نظام الذكاء الاصطناعي" : "AI Core"}
                     </Badge>
                   </DialogTitle>
                   <p className="text-xs text-slate-400 mt-0.5">

@@ -19,9 +19,9 @@ export const Route = createFileRoute("/cart")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "سلة الطلبات الذكية | FoodHub 3.0" },
-      { name: "description", content: "إتمام الطلب الذكي وتحديد العنوان بالذكاء الاصطناعي عبر منصة FoodHub." },
-      { property: "og:title", content: "سلة الطلبات الذكية | FoodHub" },
+      { title: "سلة الطلبات الذكية | FOODHUB | أسرع توصيل بأقل سعر" },
+      { name: "description", content: "إتمام الطلب الذكي وتحديد العنوان بأسرع توصيل وأقل سعر عبر منصة FOODHUB." },
+      { property: "og:title", content: "سلة الطلبات الذكية | FOODHUB" },
       { property: "og:description", content: "إتمام طلب الوجبات الصحية وتحديد العنوان الفوري بالذكاء الاصطناعي." },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },

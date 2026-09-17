@@ -27,7 +27,7 @@ export const Route = createFileRoute("/join/restaurant")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "انضمام شريك مطعم أو مطبخ سحابي | FOODHUB 3.0" },
+      { title: "انضمام شريك مطعم أو مطبخ سحابي | FOODHUB" },
       { name: "description", content: "سجّل مطبخك السحابي أو مطعمك في أسرع وأحدث شبكة توصيل طعام بالذكاء الاصطناعي مع نظام حماية IP متقدم وعمولات تنافسية." },
       { property: "og:title", content: "انضمام شريك مطبخ سحابي / مطعم | FOODHUB" },
       { property: "og:description", content: "سجّل مطبخك السحابي في شبكة FOODHUB وزد مبيعاتك اليومية." },
@@ -126,7 +126,7 @@ function RestaurantJoinPage() {
         <div className="text-center max-w-2xl mx-auto space-y-3">
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs px-3 py-1 font-bold">
             <Sparkles className="size-3.5 me-1 text-amber-400" />
-            انضم لمنظومة المطابخ السحابية الذكية 3.0
+            انضم لمنظومة المطابخ السحابية الذكية
           </Badge>
           <h1 className="text-3xl sm:text-4xl font-black text-white">
             ضاعف مبيعات مطعمك مع شاشات المطبخ الذكية (KDS)

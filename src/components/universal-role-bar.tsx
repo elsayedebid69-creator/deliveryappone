@@ -136,7 +136,7 @@ export function UniversalRoleBar() {
           </div>
           <span className="text-xs font-bold tracking-wider text-amber-400 uppercase flex items-center gap-1.5">
             <Sparkles className="size-3.5 text-amber-400" />
-            FoodHub OS 3.0
+            FoodHub OS
           </span>
           <span className="hidden text-[11px] text-slate-400 sm:inline">
             {lang === "ar" ? "| المنظومة الثلاثية الموحدة" : "| Unified Tri-App System"}

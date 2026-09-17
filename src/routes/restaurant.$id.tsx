@@ -15,8 +15,8 @@ export const Route = createFileRoute("/restaurant/$id")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "قائمة أطباق المطعم والتوصيل السريع | FOODHUB 3.0" },
-      { name: "description", content: "تصفح قائمة الطعام الصحية، السعرات الحرارية، والماكروز واطلب أطباقك المفضلة فوراً عبر FOODHUB." },
+      { title: "قائمة أطباق المطعم والتوصيل السريع | FOODHUB | أسرع توصيل بأقل سعر" },
+      { name: "description", content: "تصفح قائمة الطعام الصحية، السعرات الحرارية، والماكروز واطلب أطباقك المفضلة فوراً بأسرع توصيل وأقل سعر عبر FOODHUB." },
       { property: "og:title", content: "قائمة المطعم والأطباق | FOODHUB" },
       { property: "og:description", content: "تصفح قائمة الطعام الصحية واطلب أطباقك المفضلة بتوصيل راداري فائق السرعة." },
       { property: "og:image", content: "/icons/icon-512.png" },

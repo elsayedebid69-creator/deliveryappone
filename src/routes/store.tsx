@@ -9,9 +9,9 @@ export const Route = createFileRoute("/store")({
       { title: "FoodHub Store | اطلب الآن من أفضل المطابخ والمتاجر" },
       {
         name: "description",
-        content: "اطلب وجباتك المفضلة ومشترياتك اليومية بتوصيل فائق السرعة عبر FoodHub 3.0.",
+        content: "اطلب وجباتك المفضلة ومشترياتك اليومية بأسرع توصيل وأقل سعر عبر FoodHub.",
       },
-      { property: "og:title", content: "متجر FoodHub 3.0" },
+      { property: "og:title", content: "متجر FoodHub | أسرع توصيل بأقل سعر" },
     ],
   }),
   component: StorePage,

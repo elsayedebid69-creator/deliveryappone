@@ -6,15 +6,15 @@ export const Route = createFileRoute("/")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "FOODHUB 3.0 | الجيل القادم لتوصيل الطعام الصحي والذكي" },
+      { title: "FOODHUB | أسرع توصيل بأقل سعر" },
       {
         name: "description",
-        content: "منظومة توصيل وجبات فائقة الحداثة مدعومة بالذكاء الاصطناعي على طريقة Zomato — أسرع، أطزج، وأذكى.",
+        content: "أسرع توصيل طعام بأقل سعر في المملكة. وجبات صحية ولذيذة من أفضل المطابخ السحابية بتوصيل فائق السرعة يبدأ من 15 دقيقة.",
       },
-      { property: "og:title", content: "FOODHUB 3.0 | الجيل القادم لتوصيل الطعام" },
+      { property: "og:title", content: "FOODHUB | أسرع توصيل بأقل سعر" },
       {
         property: "og:description",
-        content: "وجبات طازجة محسوبة السعرات بتوصيل راداري حي ومساعد ذكي AI.",
+        content: "أسرع توصيل طعام في 15 دقيقة بأقل سعر توصيل في المملكة مع رادار تتبع حي وخصومات فورية.",
       },
       { property: "og:image", content: "/icons/icon-512.png" },
       { property: "og:type", content: "website" },
@@ -34,7 +34,7 @@ function HomePage() {
         "@id": "https://mealify-admin.lovable.app/#website",
         url: "https://mealify-admin.lovable.app/",
         name: "FOODHUB",
-        description: "منظومة توصيل الطعام الصحي والذكي 3.0",
+        description: "أسرع منصة توصيل طعام بأقل سعر في المملكة",
         potentialAction: {
           "@type": "SearchAction",
           target: "https://mealify-admin.lovable.app/?q={search_term_string}",

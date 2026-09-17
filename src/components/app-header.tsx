@@ -347,7 +347,7 @@ export function AppFooter() {
           </div>
 
           <div className="mt-8 border-t border-slate-800/80 pt-8 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
-            <p>© {new Date().getFullYear()} FoodHub Core 3.0 — FAST. FRESH. INTELLIGENT.</p>
+            <p>© {new Date().getFullYear()} FOODHUB — {lang === "ar" ? "أسرع توصيل بأقل سعر" : "FASTEST DELIVERY & LOWEST PRICE"}</p>
             <div className="flex items-center gap-2">
               <span className="flex size-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-[11px] text-slate-400">

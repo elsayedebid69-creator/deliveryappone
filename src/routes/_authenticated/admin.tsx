@@ -54,9 +54,9 @@ import {
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "لوحة الإدارة والمحاكاة المركزية (Master Admin) | FOODHUB 3.0" },
+      { title: "لوحة الإدارة والمحاكاة المركزية (Master Admin) | FOODHUB" },
       { name: "description", content: "إدارة الحسابات، طلبات انضمام الشركاء، نظام حماية IP الفردي ومحاكي التطبيقات في منصة FOODHUB." },
-      { property: "og:title", content: "لوحة الإدارة المركزية | FOODHUB 3.0" },
+      { property: "og:title", content: "لوحة الإدارة المركزية | FOODHUB" },
       { property: "og:description", content: "لوحة القيادة والمراقبة لمنظومة FOODHUB." },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },

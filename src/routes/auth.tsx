@@ -35,9 +35,9 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "بوابة تسجيل الدخول المركزية | FOODHUB 3.0" },
+      { title: "بوابة تسجيل الدخول المركزية | FOODHUB" },
       { name: "description", content: "سجّل الدخول إلى حساب العميل أو بوابة الشركاء المعتمدين عبر معرف AI ID في منصة FOODHUB." },
-      { property: "og:title", content: "تسجيل الدخول | FOODHUB 3.0" },
+      { property: "og:title", content: "تسجيل الدخول | FOODHUB" },
       { property: "og:description", content: "بوابة الدخول المركزية لمنظومة FOODHUB لتوصيل الطعام." },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -165,7 +165,7 @@ function AuthPage() {
               <FoodHubLogo size={64} />
             </div>
             <h1 className="text-2xl font-black text-white">بوابة تسجيل الدخول المركزية</h1>
-            <p className="text-xs text-slate-400">منظومة FOODHUB 3.0 الذكية والمحمية بتشفير الـ IP الفردي</p>
+            <p className="text-xs text-slate-400">منظومة FOODHUB الذكية والمحمية بتشفير الـ IP الفردي</p>
           </div>
 
           {/* Dual IP / Tamper Lock Security Alert Dialog */}

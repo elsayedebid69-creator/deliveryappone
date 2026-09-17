@@ -36,9 +36,9 @@ import {
 export const Route = createFileRoute("/_authenticated/courier")({
   head: () => ({
     meta: [
-      { title: "لوحة المندوب الذكي (Courier HUD) | FOODHUB 3.0" },
+      { title: "لوحة المندوب الذكي (Courier HUD) | FOODHUB" },
       { name: "description", content: "استلم الطلبات، الملاحة الذكية، وإثبات التسليم بالذكاء الاصطناعي على FOODHUB." },
-      { property: "og:title", content: "لوحة المندوب الذكي | FOODHUB 3.0" },
+      { property: "og:title", content: "لوحة المندوب الذكي | FOODHUB" },
       { property: "og:description", content: "لوحة تحكم كابتن التوصيل مع نظام الملاحة وإثبات التسليم الذكي." },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -321,7 +321,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     sounds.playSuccess();
     toast.success(
       lang === "ar"
-        ? `🚀 تم إرسال رابط تطبيق FoodHub 3.0 بنجاح إلى: ${phoneOrEmailInput}`
+        ? `🚀 تم إرسال رابط تطبيق FoodHub بنجاح إلى: ${phoneOrEmailInput}`
         : `🚀 App download link sent successfully to: ${phoneOrEmailInput}`
     );
     setPhoneOrEmailInput("");
@@ -363,7 +363,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           <div className="flex flex-col items-center gap-3">
             <FoodHubLogo size={56} showText />
             <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-3.5 py-1 text-xs font-bold text-amber-300 backdrop-blur-md">
-              ✨ {lang === "ar" ? "منظومة توصيل الطعام الذكية 3.0" : "Smart AI Food Delivery Platform"}
+              ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at the lowest rates"}
             </span>
           </div>
 
@@ -914,7 +914,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   📱 {lang === "ar" ? "تطبيق الهاتف الذكي" : "Mobile Experience"}
                 </Badge>
                 <h2 className="text-2xl sm:text-3xl font-black text-white">
-                  {lang === "ar" ? "احصل على تطبيق FoodHub 3.0" : "Get the FoodHub 3.0 App"}
+                  {lang === "ar" ? "احصل على تطبيق FoodHub" : "Get the FoodHub App"}
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {lang === "ar"
@@ -1012,7 +1012,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             },
             {
               qAr: "المدن والأحياء المغطاة بالتوصيل السريع",
-              qEn: "Cities & localities delivered by FoodHub 3.0",
+              qEn: "Cities & localities delivered by FoodHub",
               aAr: "الرياض (العليا، السليمانية، حطين، الملقا، النرجس، الياسمين، التحلية، الروضة، الصحافة، الدرعية) وجدة قريباً.",
               aEn: "Riyadh (Al Olaya, Sulimaniyah, Hittin, Malqa, Narjis, Yasmin, Tahlia, Rawdah, Sahafah, Diriyah) and Jeddah soon.",
             },

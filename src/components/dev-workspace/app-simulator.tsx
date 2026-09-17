@@ -156,7 +156,7 @@ export function AppSimulatorWorkspace({ showHeader = false }: AppSimulatorProps)
               <h2 className="text-xl font-black text-white flex items-center gap-2">
                 {lang === "ar" ? "محاكي التطبيقات الذكي (FoodHub Multi-App Simulator)" : "Smart Multi-App Simulator"}
                 <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
-                  Next-Gen 3.0
+                  Next-Gen
                 </Badge>
               </h2>
               <p className="text-xs text-slate-400">

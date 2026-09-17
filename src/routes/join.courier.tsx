@@ -27,7 +27,7 @@ export const Route = createFileRoute("/join/courier")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "انضمام كابتن توصيل ذكي | FOODHUB 3.0" },
+      { title: "انضمام كابتن توصيل ذكي | FOODHUB" },
       { name: "description", content: "انضم إلى أسطول مناديب FOODHUB الذكي: رادار توجيه GPS فوري، سحب أرباح يومي فوري، وأعلى عوائد طلبات في المملكة." },
       { property: "og:title", content: "انضمام كابتن توصيل | FOODHUB" },
       { property: "og:description", content: "انضم إلى أسطول مناديب FOODHUB الذكي وابدأ تحقيق أعلى دخل يومي." },
