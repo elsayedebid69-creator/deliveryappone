@@ -27,9 +27,13 @@ export const Route = createFileRoute("/join/restaurant")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "انضمام شريك مطعم أو مطبخ سحابي | FoodHub 3.0" },
-      { name: "description", content: "انضم إلى منصة FoodHub كشريك مطعم أو مطبخ سحابي ذكي." },
-      { property: "og:title", content: "انضمام شريك مطعم | FoodHub" },
+      { title: "انضمام شريك مطعم أو مطبخ سحابي | FOODHUB 3.0" },
+      { name: "description", content: "سجّل مطبخك السحابي أو مطعمك في أسرع وأحدث شبكة توصيل طعام بالذكاء الاصطناعي مع نظام حماية IP متقدم وعمولات تنافسية." },
+      { property: "og:title", content: "انضمام شريك مطبخ سحابي / مطعم | FOODHUB" },
+      { property: "og:description", content: "سجّل مطبخك السحابي في شبكة FOODHUB وزد مبيعاتك اليومية." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
     ],
   }),
   component: RestaurantJoinPage,

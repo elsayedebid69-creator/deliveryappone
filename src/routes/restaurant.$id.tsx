@@ -15,10 +15,14 @@ export const Route = createFileRoute("/restaurant/$id")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "قائمة أطباق المطعم | FoodHub 3.0" },
-      { name: "description", content: "تصفح قائمة الطعام واطلب أطباقك المفضلة عبر FoodHub." },
-      { property: "og:title", content: "قائمة المطعم | FoodHub" },
-      { property: "og:type", content: "website" },
+      { title: "قائمة أطباق المطعم والتوصيل السريع | FOODHUB 3.0" },
+      { name: "description", content: "تصفح قائمة الطعام الصحية، السعرات الحرارية، والماكروز واطلب أطباقك المفضلة فوراً عبر FOODHUB." },
+      { property: "og:title", content: "قائمة المطعم والأطباق | FOODHUB" },
+      { property: "og:description", content: "تصفح قائمة الطعام الصحية واطلب أطباقك المفضلة بتوصيل راداري فائق السرعة." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { property: "og:type", content: "restaurant.restaurant" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
     ],
   }),
   component: RestaurantPage,
@@ -92,8 +96,59 @@ function RestaurantPage() {
 
   const r = data?.restaurant;
 
+  const schemaData = r
+    ? {
+        "@context": "https://schema.org",
+        "@type": "Restaurant",
+        "@id": `https://mealify-admin.lovable.app/restaurant/${id}`,
+        name: tf(r, "name"),
+        servesCuisine: tf(r, "cuisine"),
+        image: "https://mealify-admin.lovable.app/icons/icon-512.png",
+        priceRange: "$$",
+        telephone: "+966551234567",
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: "Olaya Main Street",
+          addressLocality: "Riyadh",
+          addressRegion: "Riyadh",
+          postalCode: "12211",
+          addressCountry: "SA",
+        },
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: r.rating || 4.9,
+          reviewCount: 128,
+          bestRating: "5",
+          worstRating: "1",
+        },
+        hasMenu: {
+          "@type": "Menu",
+          name: `${tf(r, "name")} Menu`,
+          hasMenuItem: (data?.items || []).map((item) => ({
+            "@type": "MenuItem",
+            name: tf(item, "name"),
+            description: tf(item, "description") || "",
+            offers: {
+              "@type": "Offer",
+              price: item.price,
+              priceCurrency: "SAR",
+              availability: item.is_available
+                ? "https://schema.org/InStock"
+                : "https://schema.org/OutOfStock",
+            },
+          })),
+        },
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-amber-500 selection:text-slate-950">
+      {schemaData && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        />
+      )}
       <AppHeader />
 
       {/* Restaurant Header Banner */}

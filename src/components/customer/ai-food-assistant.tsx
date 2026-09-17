@@ -192,6 +192,8 @@ export function AiFoodAssistant() {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <button
+              type="button"
+              aria-label={lang === "ar" ? "فتح مساعد الوجبات الذكي بالذكاء الاصطناعي" : "Open AI Meal Assistant"}
               onClick={() => {
                 sounds.playClick();
                 setOpen(true);
@@ -376,6 +378,7 @@ export function AiFoodAssistant() {
               />
               <Button
                 size="sm"
+                aria-label={lang === "ar" ? "إرسال السؤال إلى المساعد الذكي" : "Send query to AI assistant"}
                 onClick={() => handleAsk()}
                 disabled={!input.trim() || isThinking}
                 className="bg-amber-500 text-slate-950 hover:bg-amber-400 px-3.5 rounded-xl font-bold"

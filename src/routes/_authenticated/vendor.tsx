@@ -45,9 +45,13 @@ import {
 export const Route = createFileRoute("/_authenticated/vendor")({
   head: () => ({
     meta: [
-      { title: "شاشة المطبخ الذكية (KDS) | FoodHub 3.0" },
-      { name: "description", content: "إدارة قائمة الطعام ومتابعة شاشة المطبخ KDS لحظياً على FoodHub." },
-      { property: "og:title", content: "شاشة المطبخ KDS | FoodHub" },
+      { title: "شاشة المطبخ وإدارة المطعم (KDS) | FOODHUB 3.0" },
+      { name: "description", content: "إدارة قائمة الطعام ومتابعة شاشة المطبخ KDS والطلبات الحية لحظياً على FOODHUB." },
+      { property: "og:title", content: "شاشة المطبخ KDS | FOODHUB 3.0" },
+      { property: "og:description", content: "شاشة إدارة المطبخ السحابي والطلبات الحية." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),

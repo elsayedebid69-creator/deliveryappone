@@ -54,6 +54,7 @@ export function AppHeader() {
             <Button
               variant="ghost"
               size="sm"
+              aria-label={lang === "en" ? "تغيير اللغة إلى العربية" : "Switch language to English"}
               className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800/80 rounded-xl"
               onClick={() => {
                 sounds.playClick();
@@ -89,7 +90,7 @@ export function AppHeader() {
               </Link>
             </Button>
 
-            <Button asChild variant="ghost" size="sm" className="relative gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
+            <Button asChild variant="ghost" size="sm" aria-label={t("cart")} className="relative gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
               <Link to="/cart" onClick={() => sounds.playClick()}>
                 <ShoppingBag className="size-4 text-amber-400" />
                 <span className="hidden sm:inline">{t("cart")}</span>
@@ -119,6 +120,7 @@ export function AppHeader() {
               <Button
                 variant="outline"
                 size="sm"
+                aria-label={t("logout")}
                 onClick={signOut}
                 className="gap-1.5 border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white"
               >
@@ -136,6 +138,7 @@ export function AppHeader() {
           <Button
             variant="ghost"
             size="sm"
+            aria-label={mobileMenuOpen ? (lang === "ar" ? "إغلاق القائمة" : "Close menu") : (lang === "ar" ? "فتح القائمة الرئيسية" : "Open menu")}
             className="md:hidden text-slate-300 hover:text-white"
             onClick={() => {
               sounds.playClick();

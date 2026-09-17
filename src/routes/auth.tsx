@@ -35,9 +35,13 @@ export const Route = createFileRoute("/auth")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "بوابة الدخول | FOODHUB 3.0" },
-      { name: "description", content: "سجّل الدخول إلى حسابك أو عبر معرف الشريك الذكي في منصة FoodHub." },
-      { property: "og:title", content: "تسجيل الدخول | FOODHUB" },
+      { title: "بوابة تسجيل الدخول المركزية | FOODHUB 3.0" },
+      { name: "description", content: "سجّل الدخول إلى حساب العميل أو بوابة الشركاء المعتمدين عبر معرف AI ID في منصة FOODHUB." },
+      { property: "og:title", content: "تسجيل الدخول | FOODHUB 3.0" },
+      { property: "og:description", content: "بوابة الدخول المركزية لمنظومة FOODHUB لتوصيل الطعام." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -169,7 +173,7 @@ function AuthPage() {
             <div className="rounded-3xl border-2 border-rose-500/50 bg-rose-950/40 p-6 space-y-3 shadow-2xl animate-in fade-in duration-300">
               <div className="flex items-center gap-3 text-rose-400">
                 <AlertTriangle className="size-6 shrink-0" />
-                <h3 className="font-black text-base">⚠️ تم قفل وحظر حساب الشريك تلقائياً</h3>
+                <h2 className="font-black text-base">⚠️ تم قفل وحظر حساب الشريك تلقائياً</h2>
               </div>
               <p className="text-xs text-rose-200 leading-relaxed">
                 {ipLockError.reason === "dual_ip" ? (

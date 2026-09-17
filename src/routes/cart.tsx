@@ -20,8 +20,12 @@ export const Route = createFileRoute("/cart")({
   head: () => ({
     meta: [
       { title: "سلة الطلبات الذكية | FoodHub 3.0" },
-      { name: "description", content: "إتمام الطلب الذكي وتحديد العنوان بالـ AI عبر منصة FoodHub." },
+      { name: "description", content: "إتمام الطلب الذكي وتحديد العنوان بالذكاء الاصطناعي عبر منصة FoodHub." },
       { property: "og:title", content: "سلة الطلبات الذكية | FoodHub" },
+      { property: "og:description", content: "إتمام طلب الوجبات الصحية وتحديد العنوان الفوري بالذكاء الاصطناعي." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -29,7 +33,7 @@ export const Route = createFileRoute("/cart")({
 });
 
 function CartPage() {
-  const { t, tn } = useI18n();
+  const { t, tn, lang } = useI18n();
   const cart = useCart();
   const { user } = useSession();
   const navigate = useNavigate();
@@ -58,6 +62,11 @@ function CartPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (cart.lines.length === 0) {
+      toast.error(lang === "ar" ? "سلة الطلبات فارغة!" : "Your cart is empty!");
+      return;
+    }
+
     setBusy(true);
     sounds.playClick();
 
@@ -82,34 +91,47 @@ function CartPage() {
         .single();
 
       if (error || !order) {
-        // Fallback for offline demo
-        cart.clear();
-        sounds.playSuccess();
-        toast.success("🚀 تم إرسال طلبك بنجاح إلى المطبخ وسيبدأ التحضير فوراً!");
-        void navigate({ to: "/orders" });
+        console.error("Order creation failed in Supabase:", error);
+        toast.error(
+          lang === "ar"
+            ? "تعذر حفظ الطلب في قاعدة البيانات. يرجى التحقق من الاتصال والمحاولة مجدداً."
+            : "Failed to save order to database. Please check your connection and try again."
+        );
         return;
       }
 
-      await supabase.from("order_items").insert(
-        cart.lines.map((l) => ({
-          order_id: order.id,
-          menu_item_id: l.id.startsWith("rec-") ? null : l.id,
-          name_ar: l.name_ar,
-          name_en: l.name_en,
-          price: l.price,
-          quantity: l.quantity,
-        }))
-      );
+      if (cart.lines.length > 0) {
+        const { error: itemsError } = await supabase.from("order_items").insert(
+          cart.lines.map((l) => ({
+            order_id: order.id,
+            menu_item_id: l.id.startsWith("rec-") ? null : l.id,
+            name_ar: l.name_ar,
+            name_en: l.name_en,
+            price: l.price,
+            quantity: l.quantity,
+          }))
+        );
+
+        if (itemsError) {
+          console.warn("Could not insert some order items:", itemsError);
+        }
+      }
 
       cart.clear();
       sounds.playSuccess();
-      toast.success("🎉 تم تأكيد طلبك بنجاح وجاري ربطه بالرادار الفضائي!");
+      toast.success(
+        lang === "ar"
+          ? "🎉 تم تأكيد طلبك بنجاح وجاري ربطه بالرادار الفضائي!"
+          : "🎉 Order confirmed and sent to kitchen!"
+      );
       void navigate({ to: "/orders" });
-    } catch {
-      cart.clear();
-      sounds.playSuccess();
-      toast.success("🚀 تم إرسال الطلب بنجاح!");
-      void navigate({ to: "/orders" });
+    } catch (err) {
+      console.error("Unexpected checkout error:", err);
+      toast.error(
+        lang === "ar"
+          ? "حدث خطأ غير متوقع أثناء معالجة الطلب. يرجى المحاولة مرة أخرى."
+          : "An unexpected error occurred. Please try again."
+      );
     } finally {
       setBusy(false);
     }

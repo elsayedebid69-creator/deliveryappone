@@ -403,6 +403,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               <div className="relative w-full sm:w-5/12">
                 <button
                   type="button"
+                  aria-label={lang === "ar" ? "اختر حي ومنطقة التوصيل" : "Select delivery neighborhood"}
                   onClick={() => {
                     sounds.playClick();
                     setIsLocationDropdownOpen(!isLocationDropdownOpen);
@@ -463,6 +464,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 />
                 {searchQuery && (
                   <button
+                    type="button"
+                    aria-label={lang === "ar" ? "مسح البحث" : "Clear search"}
                     onClick={() => setSearchQuery("")}
                     className="absolute end-3 text-xs text-slate-400 hover:text-white"
                   >
@@ -503,6 +506,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* 2. ZOMATO 3 CORE PILLARS (Order Online, Dining, Pro Healthy) */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-6xl px-4 py-8 w-full">
+        <h2 className="sr-only">
+          {lang === "ar" ? "خدمات وركائز FOODHUB الأساسية" : "Core FOODHUB Platform Pillars"}
+        </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {ZOMATO_PILLARS.map((pillar) => (
             <div
@@ -588,9 +594,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
 
                 {/* Bottom Card Content */}
                 <div className="absolute bottom-3 start-3 end-3 space-y-1">
-                  <h4 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
+                  <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
                     {lang === "ar" ? col.titleAr : col.titleEn}
-                  </h4>
+                  </h3>
                   <div className="flex items-center justify-between text-[11px] text-slate-300">
                     <span className="text-slate-400">{lang === "ar" ? col.descAr : col.descEn}</span>
                     <span className="font-bold text-amber-400 shrink-0 ms-2">{lang === "ar" ? col.placesAr : col.placesEn}</span>
@@ -638,9 +644,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               className="group cursor-pointer flex items-center justify-between p-3.5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:border-amber-500/40 hover:bg-slate-900 transition-all"
             >
               <div className="space-y-0.5">
-                <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
+                <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
                   {lang === "ar" ? loc.nameAr : loc.nameEn}
-                </h4>
+                </h3>
                 <p className="text-xs text-slate-400">
                   {loc.places} {lang === "ar" ? "مكان متاح للتوصيل" : "places nearby"}
                 </p>
@@ -802,6 +808,16 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
 
                 {/* Heart / Favorite */}
                 <button
+                  type="button"
+                  aria-label={
+                    likedDishes[dish.id]
+                      ? lang === "ar"
+                        ? "إزالة من المفضلة"
+                        : "Remove from favorites"
+                      : lang === "ar"
+                      ? "إضافة إلى المفضلة"
+                      : "Add to favorites"
+                  }
                   onClick={() => toggleLike(dish.id)}
                   className="absolute top-2.5 end-2.5 size-7 rounded-full bg-slate-950/80 backdrop-blur-md flex items-center justify-center text-slate-300 hover:text-rose-400 transition-colors"
                 >
@@ -824,9 +840,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               {/* Dish Body */}
               <div className="p-3.5 flex flex-col flex-1 justify-between gap-2.5">
                 <div className="space-y-1">
-                  <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">
+                  <h3 className="font-bold text-white text-xs sm:text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">
                     {lang === "ar" ? dish.nameAr : dish.nameEn}
-                  </h4>
+                  </h3>
                   <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
                     {lang === "ar" ? dish.descAr : dish.descEn}
                   </p>
@@ -897,9 +913,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 <Badge className="bg-amber-500/15 border-amber-500/30 text-amber-400 text-xs">
                   📱 {lang === "ar" ? "تطبيق الهاتف الذكي" : "Mobile Experience"}
                 </Badge>
-                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                <h2 className="text-2xl sm:text-3xl font-black text-white">
                   {lang === "ar" ? "احصل على تطبيق FoodHub 3.0" : "Get the FoodHub 3.0 App"}
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
                   {lang === "ar"
                     ? "سنرسل لك رابط التحميل الفوري عبر رسالة نصية أو بريد إلكتروني. متوفر لأجهزة iOS وأندرويد."
@@ -976,9 +992,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* 8. EXPLORE OPTIONS NEAR YOU (Zomato Accordion Guide) */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
-        <h3 className="text-lg sm:text-xl font-bold text-white">
+        <h2 className="text-lg sm:text-xl font-bold text-white">
           {lang === "ar" ? "استكشف الخيارات القريبة منك" : "Explore options near you"}
-        </h3>
+        </h2>
 
         <div className="space-y-2">
           {[

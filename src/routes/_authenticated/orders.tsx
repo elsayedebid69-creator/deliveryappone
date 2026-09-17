@@ -12,9 +12,13 @@ import { Clock, Store, CheckCircle2, ArrowRight, Package, Sparkles } from "lucid
 export const Route = createFileRoute("/_authenticated/orders")({
   head: () => ({
     meta: [
-      { title: "التتبع الراداري وطلباتي | FoodHub 3.0" },
-      { name: "description", content: "تابع حالة طلباتك الحالية عبر الرادار الفضائي المباشر على منصة FoodHub." },
-      { property: "og:title", content: "تتبع طلباتي | FoodHub" },
+      { title: "التتبع الراداري الحي وطلباتي | FOODHUB 3.0" },
+      { name: "description", content: "تابع حالة طلباتك الحالية عبر الرادار الفضائي المباشر على منصة FOODHUB." },
+      { property: "og:title", content: "تتبع طلباتي | FOODHUB 3.0" },
+      { property: "og:description", content: "رادار تتبع مباشر لحالة تحضير وتوصيل وجباتك خطوة بخطوة." },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
