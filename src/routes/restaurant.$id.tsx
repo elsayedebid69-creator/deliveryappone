@@ -100,10 +100,10 @@ function RestaurantPage() {
     ? {
         "@context": "https://schema.org",
         "@type": "Restaurant",
-        "@id": `https://mealify-admin.lovable.app/restaurant/${id}`,
+        "@id": `https://foodhub.delivery/restaurant/${id}`,
         name: tf(r, "name"),
         servesCuisine: tf(r, "cuisine"),
-        image: "https://mealify-admin.lovable.app/icons/icon-512.png",
+        image: "https://foodhub.delivery/icons/icon-512.png",
         priceRange: "$$",
         telephone: "+966551234567",
         address: {

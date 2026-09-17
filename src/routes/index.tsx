@@ -31,22 +31,22 @@ function HomePage() {
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://mealify-admin.lovable.app/#website",
-        url: "https://mealify-admin.lovable.app/",
+        "@id": "https://foodhub.delivery/#website",
+        url: "https://foodhub.delivery/",
         name: "FOODHUB",
         description: "أسرع منصة توصيل طعام بأقل سعر في المملكة",
         potentialAction: {
           "@type": "SearchAction",
-          target: "https://mealify-admin.lovable.app/?q={search_term_string}",
+          target: "https://foodhub.delivery/?q={search_term_string}",
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "Organization",
-        "@id": "https://mealify-admin.lovable.app/#organization",
+        "@id": "https://foodhub.delivery/#organization",
         name: "FOODHUB Delivery",
-        url: "https://mealify-admin.lovable.app/",
-        logo: "https://mealify-admin.lovable.app/icons/icon-512.png",
+        url: "https://foodhub.delivery/",
+        logo: "https://foodhub.delivery/icons/icon-512.png",
         contactPoint: {
           "@type": "ContactPoint",
           telephone: "+966551234567",

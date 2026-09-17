@@ -15,4 +15,4 @@ Allow: /
 Disallow: /admin
 Disallow: /_authenticated/
 
-Sitemap: https://mealify-admin.lovable.app/sitemap.xml
+Sitemap: https://foodhub.delivery/sitemap.xml
