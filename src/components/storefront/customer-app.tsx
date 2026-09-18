@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import deliveryHeroVideo from "@/assets/foodhub-delivery-hero-logo.webm.asset.json";
 import { Link } from "@tanstack/react-router";
 import {
   Search,
@@ -1494,6 +1495,50 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
 
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950 ${isEmbedded ? "text-sm" : ""}`}>
+      {/* ============================================================ */}
+      {/* 1. HERO WITH CINEMATIC FOODHUB DELIVERY VIDEO BACKGROUND */}
+      {/* ============================================================ */}
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <video
+            className="size-full object-cover object-center opacity-55"
+            src={deliveryHeroVideo.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
+        </div>
+
+        <div className="relative mx-auto max-w-3xl px-4 py-16 sm:py-24 text-center space-y-5">
+          <h1 className="text-2xl sm:text-4xl font-black text-white drop-shadow-lg leading-snug">
+            {lang === "ar"
+              ? "اكتشف أفضل المطاعم والمطابخ السحابية والمأكولات في الرياض"
+              : "Discover the best restaurants, cloud kitchens and dishes in Riyadh"}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-200/90 drop-shadow">
+            {lang === "ar"
+              ? "توصيل فائق السرعة يبدأ من 15 دقيقة مع تتبع حي لمسار المندوب."
+              : "Ultra-fast delivery from 15 minutes with live courier tracking."}
+          </p>
+
+          <div className="relative mx-auto max-w-xl">
+            <Search className={`absolute top-1/2 -translate-y-1/2 size-4 text-slate-400 ${lang === "ar" ? "right-4" : "left-4"}`} />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label={lang === "ar" ? "ابحث عن مطعم أو طبق" : "Search for a restaurant or dish"}
+              placeholder={lang === "ar" ? "ابحث عن مطعم، مطبخ سحابي، أو طبق..." : "Search restaurants, cloud kitchens or dishes..."}
+              className={`w-full rounded-2xl border border-white/20 bg-slate-950/70 py-4 text-sm text-white placeholder:text-slate-400 shadow-2xl backdrop-blur-xl outline-none focus:border-amber-400 ${lang === "ar" ? "pr-11 pl-4" : "pl-11 pr-4"}`}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* ============================================================ */}
       {/* 2. FOODHUB EXCLUSIVE PLATFORM FEATURES (مميزات المنصة) */}
       {/* ============================================================ */}
