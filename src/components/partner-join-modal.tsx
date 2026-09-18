@@ -1,31 +1,61 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Store, Bike, CheckCircle2, Sparkles, Zap, ShieldCheck, Mail, Phone, Lock } from "lucide-react";
+import {
+  Store,
+  Bike,
+  User,
+  CheckCircle2,
+  Sparkles,
+  ShieldCheck,
+  Mail,
+  Phone,
+  Send,
+  KeyRound,
+} from "lucide-react";
 import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
+export type JoinAccountType = "customer" | "courier" | "restaurant";
+
 interface PartnerJoinModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  defaultType?: "restaurant" | "courier";
+  defaultType?: JoinAccountType;
 }
 
-export function PartnerJoinModal({ open, onOpenChange, defaultType = "restaurant" }: PartnerJoinModalProps) {
-  const [partnerType, setPartnerType] = useState<"restaurant" | "courier">(defaultType);
+export function PartnerJoinModal({
+  open,
+  onOpenChange,
+  defaultType = "customer",
+}: PartnerJoinModalProps) {
+  const [accountType, setAccountType] = useState<JoinAccountType>(defaultType);
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  useEffect(() => {
+    if (open) {
+      setAccountType(defaultType);
+    }
+  }, [open, defaultType]);
+
   const [form, setForm] = useState({
+    full_name: "",
     business_name: "",
-    contact_name: "",
     email: "",
     phone: "",
+    city: "الرياض",
     commercial_register: "",
     address: "",
     id_number: "",
@@ -40,10 +70,10 @@ export function PartnerJoinModal({ open, onOpenChange, defaultType = "restaurant
 
     try {
       const payload = {
-        type: partnerType,
+        type: accountType,
         data: {
           ...form,
-          partner_type: partnerType,
+          partner_type: accountType,
           status: "pending",
           submitted_at: new Date().toISOString(),
         },
@@ -51,13 +81,13 @@ export function PartnerJoinModal({ open, onOpenChange, defaultType = "restaurant
 
       await supabase.from("join_requests").insert(payload);
     } catch {
-      // demo fallback
+      // fallback for demo
     }
 
     setBusy(false);
     setSubmitted(true);
     sounds.playSuccess();
-    toast.success("تم إرسال طلب الانضمام إلى إدارة شركة FOODHUB بنجاح!");
+    toast.success("تم إرسال بيانات إنشاء الحساب إلى إدارة FOODHUB بنجاح!");
   };
 
   const handleClose = () => {
@@ -65,10 +95,11 @@ export function PartnerJoinModal({ open, onOpenChange, defaultType = "restaurant
     setTimeout(() => {
       setSubmitted(false);
       setForm({
+        full_name: "",
         business_name: "",
-        contact_name: "",
         email: "",
         phone: "",
+        city: "الرياض",
         commercial_register: "",
         address: "",
         id_number: "",
@@ -80,250 +111,352 @@ export function PartnerJoinModal({ open, onOpenChange, defaultType = "restaurant
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-xl bg-slate-950 border-slate-800 text-slate-100 p-6 sm:p-8 rounded-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl bg-slate-950 border-slate-800 text-slate-100 p-6 sm:p-8 rounded-3xl max-h-[90vh] overflow-y-auto shadow-2xl">
         <DialogHeader className="space-y-2 text-start">
           <div className="flex items-center gap-2">
-            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
+            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-bold">
               <ShieldCheck className="size-3.5 me-1 text-amber-400" />
-              بوابة انضمام الشركاء المعتمدة | FOODHUB
+              بوابة إنشاء الحسابات والشركاء | FOODHUB
             </Badge>
           </div>
           <DialogTitle className="text-xl sm:text-2xl font-black text-white">
-            {submitted ? "تم استلام طلبك بنجاح" : "طلب انضمام شريك (مطعم / مندوب)"}
+            {submitted
+              ? "تم إرسال طلب إنشاء الحساب بنجاح"
+              : accountType === "customer"
+              ? "طلب إنشاء حساب عميل جديد"
+              : accountType === "courier"
+              ? "طلب انضمام كابتن مندوب توصيل"
+              : "طلب انضمام مطبخ سحابي / متجر"}
           </DialogTitle>
           <DialogDescription className="text-xs text-slate-400 leading-relaxed">
             {submitted
-              ? "طلبك الآن قيد المراجعة لدى الإدارة المركزية لشركة FOODHUB."
-              : "املأ البيانات التالية لإرسال طلبك إلى الإدارة لمراجعته وإصدار معرف الذكاء الاصطناعي المشفر (AI Partner ID)."}
+              ? "طلبك الآن قيد المراجعة لدى الإدارة المركزية لمنصة FOODHUB."
+              : "أرسل بياناتك إلى الموقع لمراجعتها من قبل الأدمن وتزويدك بكود الدخول المشفر الخاص بحسابك."}
           </DialogDescription>
         </DialogHeader>
 
         {submitted ? (
-          <div className="space-y-6 py-4 text-center">
-            <div className="mx-auto flex size-20 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400">
-              <CheckCircle2 className="size-10" />
+          <div className="space-y-5 py-4 text-center">
+            <div className="size-16 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/10">
+              <CheckCircle2 className="size-9" />
             </div>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 text-xs text-slate-300 space-y-3 leading-relaxed text-start">
-              <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-                <Sparkles className="size-4" />
-                خطوات الاعتماد وتفعيل الحساب:
+            <div className="space-y-2 max-w-md mx-auto">
+              <h3 className="text-lg font-black text-white">
+                تم استلام طلبك وبانتظار إصدار كود الدخول
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                ستقوم الإدارة بالتحقق من البيانات المسجلة، ثم إصدار كود وصول صالح
+                لحسابك لوضعه في واجهة التطبيق لفتح حسابك مباشرة.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-xs text-amber-200 text-start space-y-1">
+              <div className="flex items-center gap-2 font-bold text-amber-400">
+                <KeyRound className="size-4" />
+                <span>كيف يعمل نظام الدخول؟</span>
               </div>
-              <p>1. تقوم إدارة FOODHUB بمراجعة بياناتك والتأكد من صحتها.</p>
-              <p>2. سيتم التواصل معك عبر الهاتف ({form.phone}) أو البريد الإلكتروني ({form.email}).</p>
-              <p>
-                3. يقوم الأدمن بتوليد <span className="font-bold text-amber-300">معرف ذكاء اصطناعي مشفر (AI Partner ID)</span> وربطه بعنوان الـ IP الخاص بك لحماية أمان حسابك.
+              <p className="text-[11px] text-slate-300">
+                بمجرد موافقة الأدمن، ستتلقى كود الدخول. قم بالضغط على زر "دخول بكود
+                الوصول" في الموقع وضع الكود لفتح واجهتك فوراً.
               </p>
             </div>
 
             <Button
               onClick={handleClose}
-              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black hover:from-amber-400 hover:to-yellow-300 py-5 rounded-xl shadow-lg shadow-amber-500/20"
+              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 py-5 text-xs rounded-xl"
             >
-              تم، شكراً لكم
+              تم، حسناً
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-            {/* Type Selector */}
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setPartnerType("restaurant");
-                }}
-                className={`flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border text-xs font-bold transition-all ${
-                  partnerType === "restaurant"
-                    ? "border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-md shadow-amber-500/10"
-                    : "border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                }`}
-              >
-                <Store className="size-4" />
-                مطعم / مطبخ سحابي
-              </button>
+          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+            {/* Account Type Selector */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold text-slate-300">
+                اختر نوع الحساب المطلوب إنشاؤه:
+              </Label>
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setAccountType("customer");
+                  }}
+                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                    accountType === "customer"
+                      ? "bg-amber-500 text-slate-950 border-amber-500 font-bold shadow-lg shadow-amber-500/20"
+                      : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
+                  }`}
+                >
+                  <User className="size-4" />
+                  <span className="text-xs">حساب عميل</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  sounds.playClick();
-                  setPartnerType("courier");
-                }}
-                className={`flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border text-xs font-bold transition-all ${
-                  partnerType === "courier"
-                    ? "border-cyan-500/50 bg-cyan-500/15 text-cyan-300 shadow-md shadow-cyan-500/10"
-                    : "border-slate-800 bg-slate-900/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                }`}
-              >
-                <Bike className="size-4" />
-                كابتن مندوب توصيل
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setAccountType("courier");
+                  }}
+                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                    accountType === "courier"
+                      ? "bg-cyan-500 text-slate-950 border-cyan-500 font-bold shadow-lg shadow-cyan-500/20"
+                      : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
+                  }`}
+                >
+                  <Bike className="size-4" />
+                  <span className="text-xs">كابتن توصيل</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setAccountType("restaurant");
+                  }}
+                  className={`p-3 rounded-2xl border text-center transition-all flex flex-col items-center gap-1.5 ${
+                    accountType === "restaurant"
+                      ? "bg-orange-500 text-slate-950 border-orange-500 font-bold shadow-lg shadow-orange-500/20"
+                      : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
+                  }`}
+                >
+                  <Store className="size-4" />
+                  <span className="text-xs">مطبخ / متجر</span>
+                </button>
+              </div>
             </div>
 
-            {/* Form Fields */}
-            {partnerType === "restaurant" ? (
-              <div className="space-y-3.5">
+            {/* Fields based on Type */}
+            {accountType === "restaurant" ? (
+              <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">اسم المطعم / المنشأة</Label>
+                    <Label className="text-xs text-slate-300">
+                      اسم المطبخ السحابي / المطعم *
+                    </Label>
                     <Input
                       required
                       value={form.business_name}
-                      onChange={(e) => setForm({ ...form, business_name: e.target.value })}
-                      placeholder="مثال: شيف بروتين إكسبريس"
-                      className="bg-slate-950 border-slate-800 text-xs"
+                      onChange={(e) =>
+                        setForm({ ...form, business_name: e.target.value })
+                      }
+                      placeholder="مثال: مطبخ هيلثي غورميه"
+                      className="bg-slate-900 border-slate-800 text-xs"
                     />
                   </div>
-
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">اسم المدير / الشيف المسؤول</Label>
+                    <Label className="text-xs text-slate-300">اسم المالك / المسؤول *</Label>
                     <Input
                       required
-                      value={form.contact_name}
-                      onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+                      value={form.full_name}
+                      onChange={(e) =>
+                        setForm({ ...form, full_name: e.target.value })
+                      }
                       placeholder="الاسم الثلاثي"
-                      className="bg-slate-950 border-slate-800 text-xs"
+                      className="bg-slate-900 border-slate-800 text-xs"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">رقم الهاتف للتواصل</Label>
+                    <Label className="text-xs text-slate-300">رقم السجل التجاري / وثيقة العمل</Label>
                     <Input
-                      required
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="05XXXXXXXX"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">البريد الإلكتروني التجاري</Label>
-                    <Input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="kitchen@example.com"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">رقم السجل التجاري / العمل الحر</Label>
-                    <Input
-                      required
                       value={form.commercial_register}
-                      onChange={(e) => setForm({ ...form, commercial_register: e.target.value })}
-                      placeholder="1010XXXXXX"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          commercial_register: e.target.value,
+                        })
+                      }
+                      placeholder="1010xxxxxx"
+                      className="bg-slate-900 border-slate-800 text-xs font-mono"
                     />
                   </div>
-
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">موقع المطبخ / المدينة والحي</Label>
+                    <Label className="text-xs text-slate-300">المدينة والحي *</Label>
                     <Input
                       required
-                      value={form.address}
-                      onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      placeholder="الرياض - حي الياسمين"
-                      className="bg-slate-950 border-slate-800 text-xs"
+                      value={form.city}
+                      onChange={(e) =>
+                        setForm({ ...form, city: e.target.value })
+                      }
+                      placeholder="الرياض - حي العليا"
+                      className="bg-slate-900 border-slate-800 text-xs"
                     />
                   </div>
                 </div>
-
-                <div className="space-y-1">
-                  <Label className="text-[11px] text-slate-300">نوع المأكولات ونبذة عن المطبخ</Label>
-                  <Textarea
-                    value={form.description}
-                    onChange={(e) => setForm({ ...form, description: e.target.value })}
-                    placeholder="وجبات صحية، بروتين عالي، كيتو دايت..."
-                    className="bg-slate-950 border-slate-800 text-xs min-h-[60px]"
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3.5">
+              </>
+            ) : accountType === "courier" ? (
+              <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">الاسم الكامل (كما بالهوية)</Label>
+                    <Label className="text-xs text-slate-300">الاسم الكامل للكابتن *</Label>
                     <Input
                       required
-                      value={form.contact_name}
-                      onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
+                      value={form.full_name}
+                      onChange={(e) =>
+                        setForm({ ...form, full_name: e.target.value })
+                      }
                       placeholder="الاسم الثلاثي"
-                      className="bg-slate-950 border-slate-800 text-xs"
+                      className="bg-slate-900 border-slate-800 text-xs"
                     />
                   </div>
-
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">رقم الهوية الوطنية / الإقامة</Label>
+                    <Label className="text-xs text-slate-300">رقم الهوية الوطنية / الإقامة *</Label>
                     <Input
                       required
                       value={form.id_number}
-                      onChange={(e) => setForm({ ...form, id_number: e.target.value })}
-                      placeholder="10XXXXXXXX"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
+                      onChange={(e) =>
+                        setForm({ ...form, id_number: e.target.value })
+                      }
+                      placeholder="10xxxxxxxx / 2xxxxxxxxx"
+                      className="bg-slate-900 border-slate-800 text-xs font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">رقم الهاتف للتواصل</Label>
-                    <Input
-                      required
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="05XXXXXXXX"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
-                    />
+                    <Label className="text-xs text-slate-300">نوع وسيلة التوصيل</Label>
+                    <select
+                      value={form.vehicle_type}
+                      onChange={(e) =>
+                        setForm({ ...form, vehicle_type: e.target.value })
+                      }
+                      className="w-full h-9 rounded-xl border border-slate-800 bg-slate-900 px-3 text-xs text-slate-200"
+                    >
+                      <option value="motorcycle">دراجة نارية (موتوسيكل)</option>
+                      <option value="car">سيارة خاصة</option>
+                      <option value="bicycle">دراجة هوائية / سكوتر</option>
+                    </select>
                   </div>
-
                   <div className="space-y-1">
-                    <Label className="text-[11px] text-slate-300">البريد الإلكتروني</Label>
+                    <Label className="text-xs text-slate-300">المدينة ومنطقة العمل المفضلة</Label>
                     <Input
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      placeholder="rider@example.com"
-                      className="bg-slate-950 border-slate-800 text-xs font-mono"
+                      value={form.city}
+                      onChange={(e) =>
+                        setForm({ ...form, city: e.target.value })
+                      }
+                      placeholder="الرياض - شمال / شرق"
+                      className="bg-slate-900 border-slate-800 text-xs"
                     />
                   </div>
                 </div>
-
+              </>
+            ) : (
+              /* Customer Account */
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[11px] text-slate-300">نوع وسيلة التوصيل</Label>
-                  <select
-                    value={form.vehicle_type}
-                    onChange={(e) => setForm({ ...form, vehicle_type: e.target.value })}
-                    className="w-full h-9 rounded-md bg-slate-950 border border-slate-800 text-slate-100 text-xs px-3 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                  >
-                    <option value="motorcycle">دراجة نارية (دباب سريع)</option>
-                    <option value="car">سيارة</option>
-                    <option value="bicycle">سكوتر / دراجة هوائية</option>
-                  </select>
+                  <Label className="text-xs text-slate-300">الاسم الكامل *</Label>
+                  <Input
+                    required
+                    value={form.full_name}
+                    onChange={(e) =>
+                      setForm({ ...form, full_name: e.target.value })
+                    }
+                    placeholder="الاسم الأول والأخير"
+                    className="bg-slate-900 border-slate-800 text-xs"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-slate-300">المدينة والحي *</Label>
+                  <Input
+                    required
+                    value={form.city}
+                    onChange={(e) =>
+                      setForm({ ...form, city: e.target.value })
+                    }
+                    placeholder="الرياض - حي الياسمين"
+                    className="bg-slate-900 border-slate-800 text-xs"
+                  />
                 </div>
               </div>
             )}
 
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3 text-[11px] text-amber-300/90 leading-relaxed">
-              🔒 <span className="font-bold">سياسة الأمان:</span> عند قبول طلبك من الإدارة، سيتم تزويدك برقم معرف ذكاء اصطناعي مشفر مرتبط بـ IP واحد لمنع أي اختراق أو احتيال.
+            {/* Contact Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs text-slate-300">رقم الجوال النشط للتواصل *</Label>
+                <div className="relative">
+                  <Phone className="absolute start-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
+                  <Input
+                    required
+                    type="tel"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm({ ...form, phone: e.target.value })
+                    }
+                    placeholder="05xxxxxxxx"
+                    className="ps-9 bg-slate-900 border-slate-800 text-xs font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs text-slate-300">البريد الإلكتروني *</Label>
+                <div className="relative">
+                  <Mail className="absolute start-3 top-1/2 -translate-y-1/2 size-3.5 text-slate-500" />
+                  <Input
+                    required
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm({ ...form, email: e.target.value })
+                    }
+                    placeholder="name@example.com"
+                    className="ps-9 bg-slate-900 border-slate-800 text-xs font-mono"
+                  />
+                </div>
+              </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={busy}
-              className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 font-black hover:from-amber-400 hover:to-orange-400 py-5 rounded-2xl shadow-xl shadow-amber-500/20 text-xs sm:text-sm"
-            >
-              <Zap className="me-2 size-4" />
-              {busy ? "جاري الإرسال..." : "إرسال طلب الانضمام لشركة FOODHUB"}
-            </Button>
+            {/* Description/Notes */}
+            <div className="space-y-1">
+              <Label className="text-xs text-slate-300">
+                {accountType === "restaurant"
+                  ? "تفاصيل قائمة الطعام ونوع الوجبات"
+                  : accountType === "courier"
+                  ? "ساعات العمل المتاحة وسنوات الخبرة"
+                  : "ملاحظات إضافية أو عنوان التوصيل المفضل"}
+              </Label>
+              <Textarea
+                rows={2}
+                value={form.description}
+                onChange={(e) =>
+                  setForm({ ...form, description: e.target.value })
+                }
+                placeholder="اكتب هنا..."
+                className="bg-slate-900 border-slate-800 text-xs"
+              />
+            </div>
+
+            {/* Submit Button */}
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                className="border-slate-800 bg-slate-900 text-xs text-slate-300"
+              >
+                إلغاء
+              </Button>
+              <Button
+                type="submit"
+                disabled={busy}
+                className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 text-xs gap-1.5"
+              >
+                {busy ? (
+                  <span>جاري الإرسال...</span>
+                ) : (
+                  <>
+                    <Send className="size-3.5" />
+                    إرسال البيانات إلى الموقع للمراجعة وإصدار الكود
+                  </>
+                )}
+              </Button>
+            </div>
           </form>
         )}
       </DialogContent>
