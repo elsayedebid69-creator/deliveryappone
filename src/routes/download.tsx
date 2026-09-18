@@ -462,36 +462,6 @@ export function DownloadPage() {
                     </Button>
                   </div>
                 </div>
-
-                {/* QR Code Scanner Card */}
-                <div className="w-full max-w-xs rounded-2xl border border-slate-800 bg-slate-900/90 p-4 flex items-center gap-3.5 shadow-lg">
-                  <div className="size-16 rounded-xl bg-white p-1.5 flex items-center justify-center shrink-0 shadow-md">
-                    {/* Stylized QR Code SVG */}
-                    <svg className="size-full text-slate-950" viewBox="0 0 100 100" fill="currentColor">
-                      <rect x="10" y="10" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-                      <rect x="20" y="20" width="10" height="10" />
-                      <rect x="60" y="10" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-                      <rect x="70" y="20" width="10" height="10" />
-                      <rect x="10" y="60" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="6" />
-                      <rect x="20" y="70" width="10" height="10" />
-                      <rect x="55" y="55" width="8" height="8" />
-                      <rect x="75" y="55" width="12" height="8" />
-                      <rect x="55" y="75" width="15" height="15" />
-                      <rect x="80" y="80" width="8" height="8" />
-                    </svg>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-black text-white flex items-center gap-1.5">
-                      <QrCode className="size-3.5 text-amber-400" />
-                      {lang === "ar" ? "المسح السريع بكاميرا الجوال" : "Scan to Download"}
-                    </p>
-                    <p className="text-[11px] text-slate-400 font-medium leading-tight">
-                      {lang === "ar"
-                        ? "وجّه كاميرا هاتفك نحو الباركود لفتح صفحة التحميل مباشرة."
-                        : "Point your phone camera at QR code for instant install."}
-                    </p>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
