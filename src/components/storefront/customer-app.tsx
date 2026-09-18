@@ -1529,12 +1529,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
 
         {/* Hero Content Container */}
         <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
-          {/* Brand Logo & Pill */}
-          <div className="flex flex-col items-center gap-3">
-            <FoodHubLogo size={60} showText />
-            <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-4 py-1.5 text-xs font-black text-amber-300 backdrop-blur-md shadow-lg shadow-amber-500/10">
-              ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at the lowest rates"}
-            </span>
+          {/* Brand Logo */}
+          <div className="flex flex-col items-center">
+            <FoodHubLogo size={64} showText />
           </div>
         </div>
       </section>
