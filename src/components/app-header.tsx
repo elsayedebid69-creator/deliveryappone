@@ -34,27 +34,24 @@ export function AppHeader() {
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [accessCodeModalOpen, setAccessCodeModalOpen] = useState(false);
-  const [activeCodeSession, setActiveCodeSession] = useState<AccessCodeAccount | null>(null);
 
-  useEffect(() => {
-    setActiveCodeSession(getActiveCodeSession());
-  }, []);
+  const goToLogin = () => {
+    sounds.playClick();
+    void navigate({ to: "/auth" });
+  };
 
   const handleSignOut = async () => {
     sounds.playClick();
-    logoutCodeSession();
-    setActiveCodeSession(null);
     await supabase.auth.signOut();
     void navigate({ to: "/", replace: true });
     setMobileMenuOpen(false);
   };
 
-  const isCustomer = role === "customer" || activeCodeSession?.accountType === "customer";
-  const isAdmin = role === "admin" || activeCodeSession?.accountType === "admin";
-  const isRestaurant = role === "restaurant" || activeCodeSession?.accountType === "restaurant";
-  const isCourier = role === "courier" || activeCodeSession?.accountType === "courier";
-  const isLoggedIn = Boolean(user || activeCodeSession);
+  const isCustomer = role === "customer";
+  const isAdmin = role === "admin";
+  const isRestaurant = role === "restaurant";
+  const isCourier = role === "courier";
+  const isLoggedIn = Boolean(user);
 
   return (
     <>
