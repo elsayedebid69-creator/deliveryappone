@@ -297,16 +297,6 @@ export function DownloadPage() {
                       </span>
                     </div>
                   </button>
-
-                  {/* Direct APK Download */}
-                  <button
-                    type="button"
-                    onClick={() => handleStoreClick("apk")}
-                    className="flex items-center gap-2 rounded-2xl bg-slate-900/90 border border-slate-700 px-4 py-3 text-xs font-bold text-slate-300 hover:text-white hover:border-slate-500 hover:bg-slate-800 transition-all active:scale-95"
-                  >
-                    <Download className="size-4 text-amber-400" />
-                    <span>{lang === "ar" ? "تحميل مباشر APK" : "Direct APK (Android)"}</span>
-                  </button>
                 </div>
 
                 {/* SMS / Email Download Link Box */}
