@@ -48,7 +48,7 @@ import {
 
 export const Route = createFileRoute("/register")({
   validateSearch: (search: Record<string, unknown>): { role?: AccountType } => {
-    const role = (search.role as AccountType) || "customer";
+    const role = (search['role'] as AccountType) || "customer";
     return { role: ["customer", "courier", "restaurant"].includes(role) ? role : "customer" };
   },
   head: () => ({

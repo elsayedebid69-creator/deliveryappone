@@ -1206,6 +1206,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [localityRegion, setLocalityRegion] = useState<string>("all");
   const [localityStatusFilter, setLocalityStatusFilter] = useState<"all" | "available" | "unavailable">("all");
   const [localityQuery, setLocalityQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [brandCategory, setBrandCategory] = useState("all");
   const [brandReelIndex, setBrandReelIndex] = useState(0);
@@ -1825,6 +1826,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             {[0, 1, 2, 3].map((offset) => {
               const itemIdx = (carouselIndex + offset) % POPULAR_ROTATING_MEALS.length;
               const meal = POPULAR_ROTATING_MEALS[itemIdx];
+              if (!meal) return null;
               return (
                 <div
                   key={`${meal.id}-${itemIdx}`}
@@ -2516,7 +2518,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             const cards = [];
             for (let i = 0; i < displayCount; i++) {
               const brandIndex = (brandReelIndex + i) % FAMOUS_KSA_RESTAURANTS.length;
-              cards.push(FAMOUS_KSA_RESTAURANTS[brandIndex]);
+              const brand = FAMOUS_KSA_RESTAURANTS[brandIndex];
+              if (brand) cards.push(brand);
             }
             return cards.map((b) => renderBrandCard(b));
           })()}
