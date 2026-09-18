@@ -24,8 +24,6 @@ import { Button } from "@/components/ui/button";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import { sounds } from "@/lib/sound-effects";
 import { PartnerJoinModal, JoinAccountType } from "@/components/partner-join-modal";
-import { AccessCodeModal } from "@/components/auth/access-code-modal";
-import { getActiveCodeSession, logoutCodeSession, AccessCodeAccount } from "@/lib/access-codes";
 import { ThemeToggleDropdown } from "@/components/theme-toggle-dropdown";
 import { LanguageDropdown } from "@/components/language-dropdown";
 
