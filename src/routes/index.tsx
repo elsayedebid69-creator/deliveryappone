@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CustomerApp } from "@/components/storefront/customer-app";
 import { AppHeader, AppFooter } from "@/components/app-header";
+import { safeJsonLd } from "@/lib/jsonld";
 
 export const Route = createFileRoute("/")({
   ssr: false,
@@ -64,7 +65,7 @@ function HomePage() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
       />
       <AppHeader />
       <main className="flex-1">
