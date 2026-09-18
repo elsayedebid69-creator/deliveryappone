@@ -1504,7 +1504,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* ============================================================ */}
       {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
       {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
+      <section className="relative isolate overflow-hidden bg-slate-950 border-b border-slate-800 min-h-[340px] sm:min-h-[460px] lg:min-h-[560px] flex items-center">
         {/* Cinematic FOODHUB delivery rider background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
@@ -1514,7 +1514,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           />
           {deliveryHeroVideo?.url && (
             <video
-              className="absolute inset-0 size-full object-cover object-center opacity-65"
+              className="absolute inset-0 size-full object-cover object-center"
               poster={riderFrameImage}
               autoPlay
               muted
@@ -1543,12 +1543,12 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/40 to-slate-950/85" />
-
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
         </div>
 
         {/* Hero Content Container */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
+        <div className="relative z-10 w-full mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
+
           {/* Brand Logo & Pill */}
           <div className="flex flex-col items-center gap-3">
             <FoodHubLogo size={60} showText />
