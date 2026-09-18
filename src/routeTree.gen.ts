@@ -13,9 +13,15 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DownloadRouteImport } from './routes/download'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as HelpRouteImport } from './routes/help'
+import { Route as PartnershipsRouteImport } from './routes/partnerships'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StoreRouteImport } from './routes/store'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCourierRouteImport } from './routes/_authenticated/courier'
 import { Route as AuthenticatedOrdersRouteImport } from './routes/_authenticated/orders'
@@ -44,9 +50,34 @@ const CartRoute = CartRouteImport.update({
   path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DownloadRoute = DownloadRouteImport.update({
   id: '/download',
   path: '/download',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpRoute = HelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PartnershipsRoute = PartnershipsRouteImport.update({
+  id: '/partnerships',
+  path: '/partnerships',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -57,6 +88,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const StoreRoute = StoreRouteImport.update({
   id: '/store',
   path: '/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
@@ -104,9 +140,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
+  '/help': typeof HelpRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -120,9 +162,15 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
+  '/help': typeof HelpRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
+  '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
   '/orders': typeof AuthenticatedOrdersRoute
@@ -138,9 +186,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
+  '/faq': typeof FaqRoute
+  '/help': typeof HelpRoute
+  '/partnerships': typeof PartnershipsRoute
+  '/privacy': typeof PrivacyRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/courier': typeof AuthenticatedCourierRoute
   '/_authenticated/orders': typeof AuthenticatedOrdersRoute
@@ -156,9 +210,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/download'
+    | '/faq'
+    | '/help'
+    | '/partnerships'
+    | '/privacy'
     | '/register'
     | '/store'
+    | '/terms'
     | '/admin'
     | '/courier'
     | '/orders'
@@ -172,9 +232,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/download'
+    | '/faq'
+    | '/help'
+    | '/partnerships'
+    | '/privacy'
     | '/register'
     | '/store'
+    | '/terms'
     | '/admin'
     | '/courier'
     | '/orders'
@@ -189,9 +255,15 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/cart'
+    | '/contact'
     | '/download'
+    | '/faq'
+    | '/help'
+    | '/partnerships'
+    | '/privacy'
     | '/register'
     | '/store'
+    | '/terms'
     | '/_authenticated/admin'
     | '/_authenticated/courier'
     | '/_authenticated/orders'
@@ -207,9 +279,15 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
+  FaqRoute: typeof FaqRoute
+  HelpRoute: typeof HelpRoute
+  PartnershipsRoute: typeof PartnershipsRoute
+  PrivacyRoute: typeof PrivacyRoute
   RegisterRoute: typeof RegisterRoute
   StoreRoute: typeof StoreRoute
+  TermsRoute: typeof TermsRoute
   AuthSignupRoute: typeof AuthSignupRoute
   JoinCourierRoute: typeof JoinCourierRoute
   JoinRestaurantRoute: typeof JoinRestaurantRoute
@@ -246,11 +324,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/download': {
       id: '/download'
       path: '/download'
       fullPath: '/download'
       preLoaderRoute: typeof DownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help': {
+      id: '/help'
+      path: '/help'
+      fullPath: '/help'
+      preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/partnerships': {
+      id: '/partnerships'
+      path: '/partnerships'
+      fullPath: '/partnerships'
+      preLoaderRoute: typeof PartnershipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -265,6 +378,13 @@ declare module '@tanstack/react-router' {
       path: '/store'
       fullPath: '/store'
       preLoaderRoute: typeof StoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin': {
@@ -348,9 +468,15 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
+  FaqRoute: FaqRoute,
+  HelpRoute: HelpRoute,
+  PartnershipsRoute: PartnershipsRoute,
+  PrivacyRoute: PrivacyRoute,
   RegisterRoute: RegisterRoute,
   StoreRoute: StoreRoute,
+  TermsRoute: TermsRoute,
   AuthSignupRoute: AuthSignupRoute,
   JoinCourierRoute: JoinCourierRoute,
   JoinRestaurantRoute: JoinRestaurantRoute,

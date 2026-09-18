@@ -409,38 +409,65 @@ export function AppFooter() {
               </ul>
             </div>
 
-            {/* 4. Access Codes & Support */}
+            {/* 4. Information & Support (Global Food Delivery Standard) */}
             <div>
               <h3 className="mb-3 font-bold text-white text-sm">
-                {lang === "ar" ? "أكواد الدخول والدعم الفني" : "Access Codes & Support"}
+                {lang === "ar" ? "عن FoodHub والمساعدة" : "About FoodHub & Support"}
               </h3>
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
-                  <button
-                    onClick={openCodeModal}
-                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors text-amber-300 font-semibold"
+                  <Link
+                    to="/faq"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
-                    <KeyRound className="size-3.5 text-amber-400" />
-                    {lang === "ar" ? "دخول بكود الوصول المعتمد" : "Access Code Login"}
-                  </button>
+                    <span>{lang === "ar" ? "الأسئلة الشائعة" : "FAQ"}</span>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={openCodeModal}
-                    className="flex items-center gap-1.5 text-start hover:text-rose-400 transition-colors"
+                  <Link
+                    to="/help"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
-                    <HelpCircle className="size-3.5 text-rose-400" />
-                    {lang === "ar" ? "نسيت كود الدخول؟ طلب كود جديد" : "Forgot Code? Request New Code"}
-                  </button>
+                    <span>{lang === "ar" ? "مركز المساعدة" : "Help Center"}</span>
+                  </Link>
                 </li>
-                <li className="text-[11px] text-slate-500 pt-1 leading-relaxed">
-                  {lang === "ar"
-                    ? "🛡️ نظام حماية الـ IP الفردي: يتم تزويد كل شريك وعميل بكود دخول مشفر معتمد من الإدارة."
-                    : "🛡️ Single-IP Protected: Valid access codes are issued and verified by administration."}
+                <li>
+                  <Link
+                    to="/terms"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
+                  >
+                    <span>{lang === "ar" ? "الشروط والأحكام" : "Terms & Conditions"}</span>
+                  </Link>
                 </li>
-                <li className="text-[11px] text-slate-500">
-                  {lang === "ar" ? "📧 للدعم والاستفسارات: " : "📧 Support & Inquiries: "}
-                  <span className="text-slate-300 font-mono">support@foodhub.com</span>
+                <li>
+                  <Link
+                    to="/privacy"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
+                  >
+                    <span>{lang === "ar" ? "سياسة الخصوصية" : "Privacy Policy"}</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/partnerships"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
+                  >
+                    <span>{lang === "ar" ? "الشراكات" : "Partnerships"}</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/contact"
+                    onClick={() => sounds.playClick()}
+                    className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
+                  >
+                    <span>{lang === "ar" ? "تواصل معنا" : "Contact Us"}</span>
+                  </Link>
                 </li>
               </ul>
             </div>
