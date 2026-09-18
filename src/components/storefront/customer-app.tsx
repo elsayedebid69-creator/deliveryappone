@@ -39,10 +39,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Radio,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
-import { useCart } from "@/lib/cart";
 import { sounds } from "@/lib/sound-effects";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -427,6 +427,7 @@ export interface FamousKsaRestaurant {
   nameEn: string;
   category: "burger" | "shawarma" | "traditional" | "pizza" | "cafe" | "fastfood";
   logoIcon: string;
+  logoImage: string;
   logoColor: string;
   avatarBg: string;
   signatureDishAr: string;
@@ -451,6 +452,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "KFC",
     category: "fastfood",
     logoIcon: "🍗",
+    logoImage: "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?w=200&h=200&fit=crop&q=80",
     logoColor: "#E4002B",
     avatarBg: "bg-red-600",
     signatureDishAr: "بوكس الزنجر سوبريم الحار + بطاطس وقطع دجاج مقرمش وكول سلو",
@@ -473,6 +475,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "ALBAIK",
     category: "fastfood",
     logoIcon: "🍗",
+    logoImage: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=200&h=200&fit=crop&q=80",
     logoColor: "#E11D48",
     avatarBg: "bg-red-600",
     signatureDishAr: "مسحب دجاج حراق 7 قطع + بطاطس مقرمشة وثوم أصلي",
@@ -495,6 +498,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Hardee's",
     category: "burger",
     logoIcon: "⭐",
+    logoImage: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=200&h=200&fit=crop&q=80",
     logoColor: "#EAB308",
     avatarBg: "bg-amber-600",
     signatureDishAr: "برجر سوبر ستار أنجوس مشوي على اللهب + بطاطس كيرلي المقرمشة",
@@ -517,6 +521,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Subway",
     category: "fastfood",
     logoIcon: "🥖",
+    logoImage: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=200&h=200&fit=crop&q=80",
     logoColor: "#16A34A",
     avatarBg: "bg-emerald-600",
     signatureDishAr: "فوت لونج دجاج ترياكي بالخبز المحمص الطازج مع الخضار الحقلية",
@@ -539,6 +544,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Domino's Pizza",
     category: "pizza",
     logoIcon: "🍕",
+    logoImage: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=200&h=200&fit=crop&q=80",
     logoColor: "#0284C7",
     avatarBg: "bg-sky-700",
     signatureDishAr: "بيتزا دجاج أسطورة بالرانش + أصابع الخبز بالجبن وكيكة الشوكولاتة",
@@ -561,6 +567,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Texas Roadhouse",
     category: "traditional",
     logoIcon: "🥩",
+    logoImage: "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop&q=80",
     logoColor: "#B45309",
     avatarBg: "bg-amber-800",
     signatureDishAr: "ستيك ريب آي مشوي طازج مع خبز الزبدة بالعسل والفول السوداني",
@@ -583,6 +590,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Shake Shack",
     category: "burger",
     logoIcon: "🍔",
+    logoImage: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop&q=80",
     logoColor: "#15803D",
     avatarBg: "bg-green-700",
     signatureDishAr: "شاك برجر لحم أنجوس 100% مع بطاطس كرينكل وشيك فانيلا كاسترد",
@@ -605,6 +613,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Popeyes",
     category: "fastfood",
     logoIcon: "🍗",
+    logoImage: "https://images.unsplash.com/photo-1562967914-608f82629710?w=200&h=200&fit=crop&q=80",
     logoColor: "#EA580C",
     avatarBg: "bg-orange-600",
     signatureDishAr: "ساندوتش الدجاج المقرمش الكلاسيكي مع بطاطس كاجون وبسكويت الزبدة",
@@ -627,6 +636,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Cinnabon",
     category: "cafe",
     logoIcon: "🧁",
+    logoImage: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200&h=200&fit=crop&q=80",
     logoColor: "#0284C7",
     avatarBg: "bg-cyan-700",
     signatureDishAr: "رول القرفة الكلاسيكية المغمورة بصوص الفروستينج وجوز البيكان",
@@ -649,9 +659,10 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Shawarmer",
     category: "shawarma",
     logoIcon: "🌯",
+    logoImage: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=200&h=200&fit=crop&q=80",
     logoColor: "#F97316",
     avatarBg: "bg-orange-500",
-    signatureDishAr: "وجبة عربي دبل دجاج مع صصوص ثوم ودبس الرمان وبطاطا",
+    signatureDishAr: "وجبة عربي دبل دجاج مع صوص ثوم ودبس الرمان وبطاطا",
     signatureDishEn: "Double Arabi Chicken Shawarma & Pomegranate Dip",
     branchesAr: "+130 فرع بالمملكة",
     branchesEn: "130+ KSA Branches",
@@ -671,6 +682,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Al Romansiah",
     category: "traditional",
     logoIcon: "🍛",
+    logoImage: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop&q=80",
     logoColor: "#B91C1C",
     avatarBg: "bg-red-800",
     signatureDishAr: "كبسة لحم نعيمي بالزعفران والمكسرات مع جريش وقرصان",
@@ -693,6 +705,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "McDonald's",
     category: "burger",
     logoIcon: "🍔",
+    logoImage: "https://images.unsplash.com/photo-1552895638-f7fe08d2f7d5?w=200&h=200&fit=crop&q=80",
     logoColor: "#EAB308",
     avatarBg: "bg-yellow-500",
     signatureDishAr: "وجبة بيج ماك دبل لحم مع بطاطس ذهبية وماك فلوري أوريو",
@@ -715,6 +728,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Kudu",
     category: "fastfood",
     logoIcon: "🥪",
+    logoImage: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200&h=200&fit=crop&q=80",
     logoColor: "#10B981",
     avatarBg: "bg-emerald-600",
     signatureDishAr: "وجبة كودو دجاج على الصاج مع توست مكرمل وبطاطس",
@@ -737,6 +751,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Maestro Pizza",
     category: "pizza",
     logoIcon: "🍕",
+    logoImage: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200&h=200&fit=crop&q=80",
     logoColor: "#EF4444",
     avatarBg: "bg-red-600",
     signatureDishAr: "بيتزا رانش دجاج كبيرة + أصابع جبن موزاريلا وصوصات",
@@ -759,6 +774,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Herfy",
     category: "burger",
     logoIcon: "🍔",
+    logoImage: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=200&h=200&fit=crop&q=80",
     logoColor: "#2563EB",
     avatarBg: "bg-blue-600",
     signatureDishAr: "وجبة سوبر هرفي دبل مع حلقات بصل ذهبية ومشروب",
@@ -781,6 +797,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Burgerizzr",
     category: "burger",
     logoIcon: "🍔",
+    logoImage: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop&q=80",
     logoColor: "#059669",
     avatarBg: "bg-emerald-700",
     signatureDishAr: "برجر لحم بلدي طازج يومياً مع صوص رمان وبطاطا مقرمشة",
@@ -803,6 +820,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Mama Noura",
     category: "shawarma",
     logoIcon: "🌯",
+    logoImage: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=200&h=200&fit=crop&q=80",
     logoColor: "#D97706",
     avatarBg: "bg-amber-600",
     signatureDishAr: "صحن شاورما عربي دجاج مميز مع عصير طبقات طازج وفطائر",
@@ -825,6 +843,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Dunkin'",
     category: "cafe",
     logoIcon: "🍩",
+    logoImage: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=200&h=200&fit=crop&q=80",
     logoColor: "#EC4899",
     avatarBg: "bg-pink-600",
     signatureDishAr: "بوكس 6 حبات دونات متنوعة + قهوة دانكن أوريجينال مثلجة",
@@ -847,6 +866,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Shawaya Al Khaleej",
     category: "traditional",
     logoIcon: "🍗",
+    logoImage: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=200&h=200&fit=crop&q=80",
     logoColor: "#EA580C",
     avatarBg: "bg-orange-600",
     signatureDishAr: "نصف حبة دجاج شواية ذهبي مع أرز شعبي أحمر ومكسرات",
@@ -869,6 +889,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Pizza Hut",
     category: "pizza",
     logoIcon: "🍕",
+    logoImage: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop&q=80",
     logoColor: "#DC2626",
     avatarBg: "bg-red-700",
     signatureDishAr: "بيتزا سوبريم ستافد كراست محشوة الأطراف بالجبن المذاب",
@@ -891,6 +912,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Starbucks",
     category: "cafe",
     logoIcon: "☕",
+    logoImage: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=200&h=200&fit=crop&q=80",
     logoColor: "#047857",
     avatarBg: "bg-emerald-800",
     signatureDishAr: "آيسد وايت موكا مع كراميل دريزل وكرواسون لوز فرنسي",
@@ -913,6 +935,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Five Guys",
     category: "burger",
     logoIcon: "🍔",
+    logoImage: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=200&h=200&fit=crop&q=80",
     logoColor: "#991B1B",
     avatarBg: "bg-red-800",
     signatureDishAr: "دبل تشيز برجر مع إضافات غير محدودة وبطاطس كاجون",
@@ -935,6 +958,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Tim Hortons",
     category: "cafe",
     logoIcon: "☕",
+    logoImage: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=200&h=200&fit=crop&q=80",
     logoColor: "#B91C1C",
     avatarBg: "bg-red-700",
     signatureDishAr: "آيسد فرنش فانيلا الشهيرة مع علبة 10 حبات تمبتس",
@@ -957,6 +981,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Krispy Kreme",
     category: "cafe",
     logoIcon: "🍩",
+    logoImage: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=200&h=200&fit=crop&q=80",
     logoColor: "#059669",
     avatarBg: "bg-emerald-600",
     signatureDishAr: "دزينة أوريجينال جليزد الساخنة مع كابتشينو غني بالرغوة",
@@ -979,6 +1004,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Bayt El Shawarma",
     category: "shawarma",
     logoIcon: "🌯",
+    logoImage: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=200&h=200&fit=crop&q=80",
     logoColor: "#B45309",
     avatarBg: "bg-amber-700",
     signatureDishAr: "صحن عربي شاورما دجاج مميز مع حمص وبطاطا مقلية وصوصات خاصة",
@@ -1001,6 +1027,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Al Nadeg",
     category: "traditional",
     logoIcon: "🍛",
+    logoImage: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=200&h=200&fit=crop&q=80",
     logoColor: "#991B1B",
     avatarBg: "bg-red-800",
     signatureDishAr: "مندي لحم حري طازج مع أرز شعبي مدخن وسلطات حارة",
@@ -1023,6 +1050,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Hashi Basha",
     category: "traditional",
     logoIcon: "🍖",
+    logoImage: "https://images.unsplash.com/photo-1544025162-d76694265947?w=200&h=200&fit=crop&q=80",
     logoColor: "#78350F",
     avatarBg: "bg-amber-900",
     signatureDishAr: "مضغوط لحم حاشي بلدي طازج متبل بالبهارات السعودية الفاخرة",
@@ -1045,6 +1073,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     nameEn: "Maki House",
     category: "fastfood",
     logoIcon: "🍣",
+    logoImage: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=200&h=200&fit=crop&q=80",
     logoColor: "#0F766E",
     avatarBg: "bg-teal-700",
     signatureDishAr: "بوكس ماكي رول مشكل 16 قطعة + ديناميت شريمب بالصوص الحار",
@@ -1199,6 +1228,32 @@ interface CustomerAppProps {
   isEmbedded?: boolean;
 }
 
+export interface PreviewDish {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  descAr: string;
+  descEn: string;
+  price: number;
+  oldPrice?: number;
+  rating: number;
+  image: string;
+  restaurantId?: string;
+  restaurantAr?: string;
+  restaurantEn?: string;
+  cuisineAr?: string;
+  cuisineEn?: string;
+  badgeAr?: string;
+  badgeEn?: string;
+  ordersCount?: string;
+  ordersCountEn?: string;
+  eta?: string;
+  calories?: number;
+  protein?: number;
+  prepTime?: string;
+  category?: string;
+}
+
 export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const { lang, t, setLang } = useI18n();
   const [selectedCat, setSelectedCat] = useState("all");
@@ -1220,7 +1275,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const [isSimulatingDelivery, setIsSimulatingDelivery] = useState(false);
-  const cart = useCart();
+  const [previewDish, setPreviewDish] = useState<PreviewDish | null>(null);
 
   // Auto-rotating timer for famous KSA restaurants circular carousel
   useEffect(() => {
@@ -1268,36 +1323,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     setLikedDishes((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const handleAddToCart = (dish: (typeof TRENDING_MEALS)[0]) => {
-    cart.add({
-      id: dish.id,
-      restaurant_id: dish.restaurantId,
-      name_ar: dish.nameAr,
-      name_en: dish.nameEn,
-      price: dish.price,
-    });
-    sounds.playSuccess();
-    toast.success(
-      lang === "ar"
-        ? `✨ تمت إضافة "${dish.nameAr}" إلى السلة!`
-        : `✨ Added "${dish.nameEn}" to cart!`
-    );
-  };
-
-  const handleAddToCartFromPopular = (meal: (typeof POPULAR_ROTATING_MEALS)[0]) => {
-    cart.add({
-      id: meal.id,
-      restaurant_id: meal.restaurantId,
-      name_ar: meal.nameAr,
-      name_en: meal.nameEn,
-      price: meal.price,
-    });
-    sounds.playSuccess();
-    toast.success(
-      lang === "ar"
-        ? `🔥 تمت إضافة "${meal.nameAr}" (${meal.restaurantAr}) إلى السلة!`
-        : `🔥 Added "${meal.nameEn}" (${meal.restaurantEn}) to cart!`
-    );
+  const handleViewDish = (dish: PreviewDish) => {
+    sounds.playClick();
+    setPreviewDish(dish);
   };
 
   const handleExploreBrand = (brand: FamousKsaRestaurant) => {
@@ -1400,9 +1428,20 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
         {/* Circular Floating Brand Logo Avatar */}
         <div className="absolute -bottom-3 start-4 flex items-center gap-2.5">
           <div
-            className={`flex size-14 items-center justify-center rounded-full text-2xl shadow-xl border-2 border-amber-400 ring-4 ring-slate-950 ${brand.avatarBg}`}
+            className={`flex size-14 items-center justify-center rounded-full text-2xl shadow-xl border-2 border-amber-400 ring-4 ring-slate-950 overflow-hidden ${brand.avatarBg}`}
           >
-            <span>{brand.logoIcon}</span>
+            {brand.logoImage ? (
+              <img
+                src={brand.logoImage}
+                alt={brand.nameEn}
+                className="size-full object-cover rounded-full"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <span>{brand.logoIcon}</span>
+            )}
           </div>
           <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/90 border border-slate-700/80 px-2.5 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-md shadow-md">
             <span>✓</span>
@@ -1830,7 +1869,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               return (
                 <div
                   key={`${meal.id}-${itemIdx}`}
-                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/60 hover:shadow-2xl hover:shadow-amber-500/10 animate-in fade-in zoom-in-95"
+                  onClick={() => handleViewDish(meal)}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/60 hover:shadow-2xl hover:shadow-amber-500/10 animate-in fade-in zoom-in-95 cursor-pointer"
                 >
                   {/* Photo Header Container */}
                   <div className="relative h-52 w-full overflow-hidden bg-slate-950">
@@ -1882,7 +1922,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                       <span className="text-emerald-500 font-bold">⚡ {meal.eta}</span>
                     </div>
 
-                    {/* Price & Add to Cart Footer */}
+                    {/* Price & View Dish Footer */}
                     <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
                       <div>
                         <div className="text-sm sm:text-base font-black text-slate-950 dark:text-amber-400">
@@ -1899,12 +1939,12 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAddToCartFromPopular(meal);
+                          handleViewDish(meal);
                         }}
-                        className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs h-9 px-3 rounded-xl gap-1.5 shadow-md shadow-amber-500/15 transition-transform active:scale-95"
+                        className="bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-300 font-bold text-xs h-9 px-3.5 rounded-xl gap-1.5 border border-amber-500/30 shadow-md transition-all active:scale-95"
                       >
-                        <Plus className="size-3.5" />
-                        <span>{lang === "ar" ? "أضف للسلة" : "Add to Cart"}</span>
+                        <Eye className="size-3.5" />
+                        <span>{lang === "ar" ? "استعراض الطبق" : "View Dish"}</span>
                       </Button>
                     </div>
                   </div>
@@ -2448,13 +2488,24 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   {/* Circular Logo Container */}
                   <div className="relative">
                     <div
-                      className={`flex size-14 sm:size-18 md:size-20 items-center justify-center rounded-full text-2xl sm:text-3xl shadow-xl transition-all duration-300 border-2 ${
+                      className={`flex size-14 sm:size-18 md:size-20 items-center justify-center rounded-full text-2xl sm:text-3xl shadow-xl transition-all duration-300 border-2 overflow-hidden ${
                         isActive
                           ? "border-amber-400 ring-4 ring-amber-400/40 shadow-amber-500/30"
                           : "border-slate-700 bg-slate-800/90 hover:border-amber-500/50"
                       } ${brand.avatarBg}`}
                     >
-                      <span>{brand.logoIcon}</span>
+                      {brand.logoImage ? (
+                        <img
+                          src={brand.logoImage}
+                          alt={brand.nameEn}
+                          className="size-full object-cover rounded-full transition-transform duration-300 group-hover/logo:scale-110"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <span>{brand.logoIcon}</span>
+                      )}
                     </div>
 
                     {/* Verified Gold Checkmark Badge */}
@@ -2843,7 +2894,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           {filteredDishes.map((dish) => (
             <div
               key={dish.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl"
+              onClick={() => handleViewDish(dish)}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/90 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl cursor-pointer"
             >
               {/* Dish Image */}
               <div className="relative h-36 w-full overflow-hidden">
@@ -2866,7 +2918,10 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                       ? "إضافة إلى المفضلة"
                       : "Add to favorites"
                   }
-                  onClick={() => toggleLike(dish.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleLike(dish.id);
+                  }}
                   className="absolute top-2.5 end-2.5 size-7 rounded-full bg-slate-950/80 backdrop-blur-md flex items-center justify-center text-slate-300 hover:text-rose-400 transition-colors"
                 >
                   <Heart className={`size-3.5 ${likedDishes[dish.id] ? "fill-rose-500 text-rose-500" : ""}`} />
@@ -2906,14 +2961,17 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   </span>
                 </div>
 
-                {/* Add to Cart button */}
+                {/* View Dish Specs button */}
                 <Button
                   size="sm"
-                  onClick={() => handleAddToCart(dish)}
-                  className="w-full h-8 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl text-xs gap-1 shadow-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewDish(dish);
+                  }}
+                  className="w-full h-8 bg-slate-800/90 hover:bg-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/30 font-bold rounded-xl text-xs gap-1.5 shadow-sm transition-all"
                 >
-                  <Plus className="size-3.5" />
-                  {t("addToCart")}
+                  <Eye className="size-3.5" />
+                  <span>{lang === "ar" ? "استعراض الوجبة والمكونات" : "View Dish Specs"}</span>
                 </Button>
               </div>
             </div>
@@ -3407,6 +3465,162 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           })}
         </div>
       </section>
+
+      {/* ============================================================ */}
+      {/* MEAL SPECIFICATION & MACROS INSPECTION PREVIEW MODAL */}
+      {/* ============================================================ */}
+      {previewDish && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setPreviewDish(null)}
+        >
+          <div
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 shadow-2xl shadow-slate-950 text-start animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Image Header with Badges */}
+            <div className="relative h-60 sm:h-64 w-full overflow-hidden bg-slate-950">
+              <img
+                src={previewDish.image}
+                alt={previewDish.nameEn}
+                className="size-full object-cover transition-transform duration-700 hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-slate-950/40" />
+
+              {/* Close Button Top-End */}
+              <button
+                type="button"
+                aria-label={lang === "ar" ? "إغلاق" : "Close"}
+                onClick={() => setPreviewDish(null)}
+                className="absolute top-4 end-4 z-10 flex size-9 items-center justify-center rounded-full bg-slate-950/80 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-800 transition-colors backdrop-blur-md shadow-lg"
+              >
+                <X className="size-5" />
+              </button>
+
+              {/* Badges Top-Start */}
+              <div className="absolute top-4 start-4 flex flex-wrap gap-2">
+                {previewDish.cuisineAr && (
+                  <span className="rounded-full bg-slate-950/90 border border-slate-700 px-3 py-1 text-xs font-bold text-amber-300 backdrop-blur-md shadow-md">
+                    {lang === "ar" ? previewDish.cuisineAr : previewDish.cuisineEn}
+                  </span>
+                )}
+                {previewDish.badgeAr && (
+                  <span className="rounded-full bg-amber-500 px-2.5 py-1 text-xs font-black text-slate-950 shadow-md">
+                    {lang === "ar" ? previewDish.badgeAr : previewDish.badgeEn}
+                  </span>
+                )}
+              </div>
+
+              {/* Title & Restaurant Overlay on Image Bottom */}
+              <div className="absolute bottom-3 start-4 end-4 space-y-0.5">
+                {previewDish.restaurantAr && (
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400 drop-shadow-md">
+                    <Store className="size-3.5" />
+                    <span>{lang === "ar" ? previewDish.restaurantAr : previewDish.restaurantEn}</span>
+                  </div>
+                )}
+                <h2 className="text-base sm:text-lg font-black text-white leading-snug drop-shadow-md">
+                  {lang === "ar" ? previewDish.nameAr : previewDish.nameEn}
+                </h2>
+              </div>
+            </div>
+
+            {/* Modal Body Info */}
+            <div className="p-5 sm:p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              {/* Description */}
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
+                {lang === "ar" ? previewDish.descAr : previewDish.descEn}
+              </p>
+
+              {/* Price & Rating Highlights */}
+              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800">
+                <div>
+                  <span className="text-[11px] text-slate-400 block font-medium">
+                    {lang === "ar" ? "السعر التقديري في المنيو:" : "Menu Estimated Price:"}
+                  </span>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl sm:text-2xl font-black text-amber-400">
+                      {previewDish.price} <span className="text-xs font-bold">{t("sar")}</span>
+                    </span>
+                    {previewDish.oldPrice && (
+                      <span className="text-xs text-slate-500 line-through">
+                        {previewDish.oldPrice} {t("sar")}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-end">
+                  <span className="text-[11px] text-slate-400 block font-medium">
+                    {lang === "ar" ? "تقييم الوجبة:" : "Dish Rating:"}
+                  </span>
+                  <div className="flex items-center gap-1 text-amber-400 font-bold text-base">
+                    <Star className="size-4 fill-amber-400 text-amber-400" />
+                    <span>{previewDish.rating}</span>
+                    {previewDish.ordersCount && (
+                      <span className="text-xs text-slate-400 font-normal">
+                        ({lang === "ar" ? previewDish.ordersCount : previewDish.ordersCountEn})
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Nutrition & Preparation Specs */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-center">
+                {previewDish.calories && (
+                  <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col items-center">
+                    <Flame className="size-4 text-amber-400 mb-1" />
+                    <span className="text-[10px] text-slate-400">{lang === "ar" ? "السعرات الحرارية" : "Calories"}</span>
+                    <span className="text-xs font-black text-white">{previewDish.calories} kcal</span>
+                  </div>
+                )}
+                {previewDish.protein && (
+                  <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col items-center">
+                    <Zap className="size-4 text-cyan-400 mb-1" />
+                    <span className="text-[10px] text-slate-400">{lang === "ar" ? "البروتين الصافي" : "Net Protein"}</span>
+                    <span className="text-xs font-black text-white">{previewDish.protein}g</span>
+                  </div>
+                )}
+                {previewDish.prepTime && (
+                  <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col items-center col-span-2 sm:col-span-1">
+                    <Clock className="size-4 text-emerald-400 mb-1" />
+                    <span className="text-[10px] text-slate-400">{lang === "ar" ? "وقت التحضير" : "Prep Time"}</span>
+                    <span className="text-xs font-black text-white">{previewDish.prepTime}</span>
+                  </div>
+                )}
+                {previewDish.eta && (
+                  <div className="p-2.5 rounded-xl bg-slate-800/60 border border-slate-700/60 flex flex-col items-center">
+                    <Clock className="size-4 text-emerald-400 mb-1" />
+                    <span className="text-[10px] text-slate-400">{lang === "ar" ? "وقت التوصيل" : "Delivery ETA"}</span>
+                    <span className="text-xs font-black text-white">{previewDish.eta}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Informative Visual Only Notice */}
+              <div className="flex items-start gap-2.5 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-slate-300 text-xs">
+                <span className="text-base shrink-0">✨</span>
+                <p className="leading-relaxed">
+                  {lang === "ar"
+                    ? "هذه الواجهة مخصصة للاستعراض والتصفح البصري للوجبات ومكوناتها وقيمتها الغذائية. للطلب المباشر يرجى تحميل تطبيق الجوال أو التواصل مع المطعم."
+                    : "This visual showcase is for viewing dish specifications, ingredients, and nutrition macros. For ordering, please download the mobile app."}
+                </p>
+              </div>
+
+              {/* Action Button */}
+              <div className="pt-2 flex items-center gap-3">
+                <Button
+                  onClick={() => setPreviewDish(null)}
+                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs h-10 border border-slate-700"
+                >
+                  {lang === "ar" ? "إغلاق الاستعراض" : "Close Preview"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
