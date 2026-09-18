@@ -2849,56 +2849,291 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 8. EXPLORE OPTIONS NEAR YOU (Zomato Accordion Guide) */}
+      {/* 8. EXPLORE ALL RESTAURANTS, CUISINES & CITIES NEAR YOU */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
-        <h2 className="text-lg sm:text-xl font-bold text-white">
-          {lang === "ar" ? "استكشف الخيارات القريبة منك" : "Explore options near you"}
-        </h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+              <span>🧭</span>
+              <span>{lang === "ar" ? "دليل استكشاف كافة مطابخ ومطاعم المملكة" : "Explore All Restaurants & Cuisines in KSA"}</span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              {lang === "ar"
+                ? "دليلك الشامل لكافة العلامات التجارية، المطابخ السحابية، الأصناف الشهيرة، وتغطية المدن عبر FoodHub"
+                : "Your comprehensive guide to all restaurant brands, cloud kitchens, cuisines, and cities covered by FoodHub"}
+            </p>
+          </div>
+          <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full self-start sm:self-auto">
+            {lang === "ar" ? "+500 مطعم وعلامة معتمدة" : "500+ Verified Restaurant Brands"}
+          </span>
+        </div>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           {[
             {
-              qAr: "المأكولات والأنظمة الغذائية الشائعة بالقرب منك",
-              qEn: "Popular cuisines & diets near you",
-              aAr: "مشويات صحية • وجبات كيتو دايت • سلطات كينوا عضوية • وجبات بحرية غنية بالأوميغا • سموذي بروتين • إفطار صحي متوازن.",
-              aEn: "Healthy Grills • Keto Diet Bowls • Organic Quinoa Salads • Omega-Rich Salmon • Protein Smoothies • Morning Energy Fuel.",
+              id: "chains",
+              icon: "🏪",
+              qAr: "أشهر سلاسل ومطاعم المملكة المعتمدة للطلب الفوري",
+              qEn: "Top Certified Restaurant Chains Available for Instant Delivery",
+              badgeAr: "30+ علامة كبرى",
+              badgeEn: "30+ Major Brands",
+              tagsAr: [
+                "🍗 البيك (ALBAIK)",
+                "🌯 شاورمر (Shawarmer)",
+                "🍛 الرومانسية (Al Romansiah)",
+                "🍔 ماكدونالدز (McDonald's)",
+                "🥪 كودو (Kudu)",
+                "🍕 مايسترو بيتزا (Maestro Pizza)",
+                "🍔 هرفي (Herfy)",
+                "🥩 برغرايززر (Burgerizzr)",
+                "🌯 ماما نورة (Mama Noura)",
+                "🍩 دانكن (Dunkin')",
+                "🍗 شواية الخليج (Shawaya Al Khaleej)",
+                "🍕 بيتزا هت (Pizza Hut)",
+                "☕ ستاربكس (Starbucks)",
+                "🍔 فايف جايز (Five Guys)",
+                "☕ تيم هورتونز (Tim Hortons)",
+                "🍩 كرسبي كريم (Krispy Kreme)",
+                "🍗 كنتاكي (KFC)",
+                "🍔 هارديز (Hardee's)",
+                "🥖 صب واي (Subway)",
+                "🍕 دومينوز بيتزا (Domino's)",
+                "🌯 بيت الشاورما",
+                "🌯 شاورما جليلة",
+                "🍛 مطاعم السدة",
+                "🍛 مطاعم الناضج",
+                "🍖 حاشي باشا",
+                "🥩 تكساس رودهاوس",
+                "🍔 شيك شاك (Shake Shack)",
+                "🍗 بوبايز (Popeyes)",
+                "🧁 سينابون (Cinnabon)",
+                "🍣 ماكي هاوس (Maki House)",
+              ],
+              tagsEn: [
+                "ALBAIK",
+                "Shawarmer",
+                "Al Romansiah",
+                "McDonald's",
+                "Kudu",
+                "Maestro Pizza",
+                "Herfy",
+                "Burgerizzr",
+                "Mama Noura",
+                "Dunkin'",
+                "Shawaya Al Khaleej",
+                "Pizza Hut",
+                "Starbucks",
+                "Five Guys",
+                "Tim Hortons",
+                "Krispy Kreme",
+                "KFC",
+                "Hardee's",
+                "Subway",
+                "Domino's Pizza",
+                "Bayt El Shawarma",
+                "Shawarma Jalilah",
+                "Al Seddah",
+                "Al Nadeg",
+                "Hashi Basha",
+                "Texas Roadhouse",
+                "Shake Shack",
+                "Popeyes",
+                "Cinnabon",
+                "Maki House",
+              ],
+              descAr:
+                "نوفر لك قائمة كاملة ومحدثة لأشهر سلاسل المطاعم المحلية والعالمية في المملكة العربية السعودية، مع إمكانية الطلب الموحد والسريع بشنطة FoodHub الحرارية الذكية.",
+              descEn:
+                "Order from top national and international restaurant chains across Saudi Arabia with single-cart unified delivery in FoodHub's smart thermal bags.",
             },
             {
-              qAr: "أنواع المطاعم والمطابخ السحابية المعتمدة",
-              qEn: "Popular restaurant types near you",
-              aAr: "مطابخ سحابية متخصصة • بارات العصير والأكاي • مطاعم المشويات الصحية • مخابز الشوفان والحلويات الصحية.",
-              aEn: "Gourmet Cloud Kitchens • Acai & Juice Bars • Healthy Steak & Grill Houses • Oat & Guilt-Free Bakeries.",
+              id: "cuisines",
+              icon: "🍽️",
+              qAr: "تصنيفات المطابخ والأنظمة الغذائية الشائعة بالقرب منك",
+              qEn: "Popular Cuisines, Diets & Food Specialties Near You",
+              badgeAr: "كافة الأذواق",
+              badgeEn: "All Diets & Cuisines",
+              tagsAr: [
+                "🇸🇦 شعبي وسعودي (كبسة، مندي، حنيذ، جريش، قرصان، سليق)",
+                "🍔 برجر وسماش برجر وكرسبي تشيكن ولحم بلدي",
+                "🌯 شاورما عربي وصاج وفطائر ومناقيش شامية",
+                "🍕 بيتزا إيطالية وباستا ولازانيا وستافد كراست",
+                "🥑 صحي وكيتو دايت وبروتين عالي وسلطات كينوا وأساي",
+                "🍣 مأكولات بحرية وسوشي وروبيان ديناميت وديناميت شريمب",
+                "🥩 مشاوي مشكلة وكباب وأوصال وستيك تندرلوين",
+                "☕ قهوة مختصة V60 ودونات وكوكيز ووافل وكريب وكيك",
+                "🌮 تاكو ومطبخ مكسيكي وفاهيتا وبوريتو",
+                "🍛 برياني هندي وتندوري وماسالا وبتر تشيكن",
+              ],
+              tagsEn: [
+                "Saudi Traditional (Kabsa, Mandi, Haneeth, Jareesh)",
+                "Artisan Burgers, Smashed Beef & Crispy Chicken",
+                "Arabi Shawarma, Saj Wraps & Levantine Pies",
+                "Italian Pizza, Stuffed Crust & Pasta Bowls",
+                "Healthy, Keto Diet, High-Protein & Acai Bowls",
+                "Seafood, Sushi Platters & Dynamite Shrimp",
+                "Mixed Grills, Shish Tawook & Tenderloin Steaks",
+                "Specialty Coffee V60, Gourmet Donuts & Pastries",
+                "Mexican Tacos, Burritos & Quesadillas",
+                "Indian Biryani, Butter Chicken & Tandoori",
+              ],
+              descAr:
+                "سواء كنت تبحث عن وجبة سعودية تراثية أصيلة، أو برجر طازج، أو وجبة صحية محسوبة السعرات والبروتين، يجمع لك تطبيق FoodHub أشهى الخيارات من كافة المطاعم في منصة واحدة.",
+              descEn:
+                "Whether craving authentic Saudi heritage dishes, gourmet burgers, macro-counted fitness meals, or specialty desserts, FoodHub connects you to all culinary varieties.",
             },
             {
-              qAr: "المدن والأحياء المغطاة بالتوصيل السريع",
-              qEn: "Cities & localities delivered by FoodHub",
-              aAr: "الرياض (العليا، السليمانية، حطين، الملقا، النرجس، الياسمين، التحلية، الروضة، الصحافة، الدرعية) وجدة قريباً.",
-              aEn: "Riyadh (Al Olaya, Sulimaniyah, Hittin, Malqa, Narjis, Yasmin, Tahlia, Rawdah, Sahafah, Diriyah) and Jeddah soon.",
+              id: "models",
+              icon: "🏭",
+              qAr: "أنواع المطاعم ونماذج المطابخ السحابية المعتمدة بالتطبيق",
+              qEn: "Types of Certified Restaurants & Cloud Kitchen Models",
+              badgeAr: "نماذج تشغيلية متطورة",
+              badgeEn: "Smart Operations",
+              tagsAr: [
+                "☁️ مطابخ سحابية ذكية (Cloud & Ghost Kitchens)",
+                "⚡ مطاعم الوجبات السريعة والتحضير الفوري (QSR)",
+                "🌟 مطاعم فاخرة وذواقة مع تغليف فندقي (Fine Dining)",
+                "🥗 مطابخ الدايت واشتراكات الوجبات الصحية اليومية",
+                "☕ كافيهات ومحامص القهوة المختصة والمخابز",
+                "🚚 عربات الطعام وفود تراك فعاليات ومواسم الترفيه",
+                "🤝 مطابخ التحالفات المشتركة للطلب الموحد (Multi-Brand Hubs)",
+              ],
+              tagsEn: [
+                "Smart Cloud & Ghost Kitchens",
+                "Quick Service & Express Prep Restaurants",
+                "Fine Dining & Gourmet Eateries",
+                "Diet Kitchens & Fitness Meal Prep Hubs",
+                "Specialty Roasteries, Cafes & Bakeries",
+                "Event Food Trucks & Seasonal Popups",
+                "Multi-Brand Collaborative Cooking Hubs",
+              ],
+              descAr:
+                "ندعم شراكات تشغيلية متكاملة مع مختلف نماذج المطاعم، بدءاً من المطابخ السحابية فائقة السرعة وحتى المطاعم الفاخرة، مع ربط رقمي فوري ومتابعة درجات الحرارة لحظياً.",
+              descEn:
+                "We partner with diverse restaurant formats from rapid cloud kitchens to gourmet dining, with direct POS integration and live temperature control.",
             },
-          ].map((item, index) => (
-            <div
-              key={index}
-              className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4 transition-colors"
-            >
-              <button
-                type="button"
-                onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                className="w-full flex items-center justify-between text-start text-xs sm:text-sm font-bold text-white hover:text-amber-400"
+            {
+              id: "coverage",
+              icon: "📍",
+              qAr: "تغطية كافة أحياء الرياض ومدن المملكة العربية السعودية",
+              qEn: "Full Coverage of Riyadh Districts & Major Saudi Cities",
+              badgeAr: "تغطية شاملة 100%",
+              badgeEn: "Nationwide Coverage",
+              tagsAr: [
+                "🟢 شمال الرياض: حطين، الملقا، الياسمين، النرجس، الصحافة، العقيق، الربيع، الغدير، القيروان، العارض",
+                "🟢 وسط الرياض: العليا، السليمانية، التحلية، الملز، المربع، الورود، الملك فهد، المروج، صلاح الدين",
+                "🟢 شرق الرياض: الروضة، قرطبة، اليرموك، غرناطة، الحمراء، الرمال، المونسية، إشبيلية، النسيم",
+                "🟢 غرب الرياض: الدرعية، النخيل، السفارات DQ، عرقة، ظهرة لبن، طويق، المهدية، البديعة",
+                "🟢 جنوب الرياض: السويدي، شبرا، الشفا، العزيزية، المنصورة، الخالدية، غبيراء",
+                "🚀 مدن قيد التوسع قريباً: جدة، مكة المكرمة، المدينة المنورة، الدمام، الخبر، الظهران، الأحساء، أبها، الطائف، تبوك، القصيم (بريدة وعنيزة)، حائل، الجبيل",
+              ],
+              tagsEn: [
+                "North Riyadh: Hittin, Malqa, Yasmin, Narjis, Sahafah, Aqiq, Rabi, Ghadir, Qairawan, Arid",
+                "Central Riyadh: Olaya, Sulimaniyah, Tahlia, Malaz, Murabba, Wurud, King Fahd, Muruj",
+                "East Riyadh: Rawdah, Qurtubah, Yarmouk, Granada, Hamra, Rimal, Munsiyah, Ishbiliyah, Naseem",
+                "West Riyadh: Diriyah, Nakheel, Diplomatic Quarter, Irqah, Laban, Tuwaiq, Mahdiyah",
+                "South Riyadh: Suwaidi, Shubra, Shifa, Aziziyah, Mansourah, Khalidiyah",
+                "Expanding Soon: Jeddah, Makkah, Madinah, Dammam, Khobar, Dhahran, Ahsa, Abha, Taif, Tabuk, Qassim, Hail, Jubail",
+              ],
+              descAr:
+                "يغطي أسطول FoodHub حالياً 54 حياً في كافة قطاعات الرياض مع شبكة مؤشرات توفر حية (🟢 متاح / 🔴 قيد التجهيز)، مع خطة توسع متسارعة لتغطية كافة مدن ومناطق المملكة.",
+              descEn:
+                "FoodHub currently covers 54 districts across Riyadh with live availability indicators (🟢 Available / 🔴 Coming Soon), expanding rapidly across all major Saudi regions.",
+            },
+            {
+              id: "services",
+              icon: "🛡️",
+              qAr: "مزايا وخدمات الطلب الموحد والضمان الذهبي لجميع المطاعم",
+              qEn: "Unified Multi-Restaurant Services & FoodHub Golden Guarantee",
+              badgeAr: "مزايا حصرية",
+              badgeEn: "Exclusive Perks",
+              tagsAr: [
+                "🛍️ السلة الموحدة: اطلب من عدة مطاعم مختلفة في فاتورة واحدة وكابتن واحد",
+                "🎒 شنطة FoodHub الحرارية الذكية: حفظ حراري 65°C لوجبات طازجة ومقرمشة",
+                "⏱️ توصيل راداري فائق السرعة: متوسط زمن التوصيل 18 دقيقة لباب المنزل",
+                "💳 دفع إلكتروني متعدد وآمن: مدى، Apple Pay، فيزا، ماستركارد، تمارا، تابي، والدفع عند الاستلام",
+                "🛡️ ختم أمان معقم 100%: شريط أمان لا يفتحه سوى العميل لضمان النظافة",
+                "🌟 ضمان استرجاع فوري: حرارة وطعم الوجبة مضمونة 100% أو تعويض مباشر",
+              ],
+              tagsEn: [
+                "Unified Single Cart: Order from multiple restaurants in one delivery",
+                "Smart FoodHub Thermal Bag: 65°C insulation for fresh, crispy meals",
+                "Rapid Radar Delivery: Average 18-minute arrival at your doorstep",
+                "Secure Multi-Payment: Mada, Apple Pay, Cards, Tamara, Tabby & Cash",
+                "100% Sanitized Security Seal: Tamper-evident packaging for safety",
+                "Golden Guarantee: 100% meal temperature satisfaction or instant refund",
+              ],
+              descAr:
+                "نقدم تجربة توصيل استثنائية لجميع المطاعم تضمن الجمع بين راحة الطلب الموحد، الحفاظ على جودة وحرارة الطعام، وتوفير خيارات دفع وتقسيط متنوعة.",
+              descEn:
+                "We provide an unparalleled dining delivery experience combining multi-restaurant cart flexibility, optimal meal temperature preservation, and seamless payments.",
+            },
+          ].map((item, index) => {
+            const isOpen = openFaq === index;
+            return (
+              <div
+                key={item.id}
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? "border-amber-500/50 bg-slate-900/90 shadow-xl shadow-amber-500/5"
+                    : "border-slate-800 bg-slate-900/60 hover:border-slate-700"
+                }`}
               >
-                <span>{lang === "ar" ? item.qAr : item.qEn}</span>
-                <ChevronDown
-                  className={`size-4 text-slate-400 transition-transform ${openFaq === index ? "rotate-180 text-amber-400" : ""}`}
-                />
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setOpenFaq(isOpen ? null : index);
+                  }}
+                  className="w-full flex items-center justify-between p-4 text-start text-xs sm:text-sm font-bold text-white hover:text-amber-400 transition-colors gap-3"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-lg shrink-0">{item.icon}</span>
+                    <span className="truncate">{lang === "ar" ? item.qAr : item.qEn}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="hidden sm:inline-block text-[10px] font-bold text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
+                      {lang === "ar" ? item.badgeAr : item.badgeEn}
+                    </span>
+                    <ChevronDown
+                      className={`size-4 text-slate-400 transition-transform duration-200 ${
+                        isOpen ? "rotate-180 text-amber-400" : ""
+                      }`}
+                    />
+                  </div>
+                </button>
 
-              {openFaq === index && (
-                <p className="pt-3 text-xs text-slate-400 leading-relaxed border-t border-slate-800/60 mt-3 animate-in fade-in">
-                  {lang === "ar" ? item.aAr : item.aEn}
-                </p>
-              )}
-            </div>
-          ))}
+                {isOpen && (
+                  <div className="p-4 pt-2 border-t border-slate-800/80 space-y-3 animate-in fade-in duration-200 bg-slate-950/40">
+                    <p className="text-xs text-slate-300 leading-relaxed font-medium">
+                      {lang === "ar" ? item.descAr : item.descEn}
+                    </p>
+
+                    {/* Interactive Tags / Chips */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {(lang === "ar" ? item.tagsAr : item.tagsEn).map((tag, tIdx) => (
+                        <span
+                          key={tIdx}
+                          onClick={() => {
+                            sounds.playClick();
+                            toast.info(
+                              lang === "ar"
+                                ? `✨ تم تحديد "${tag}" - تصفح الأطباق والمطاعم المتاحة للطلب!`
+                                : `✨ Selected "${tag}" - Explore available dishes and restaurants!`
+                            );
+                          }}
+                          className="cursor-pointer inline-flex items-center gap-1 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-400 hover:bg-slate-800 px-2.5 py-1 text-[11px] font-bold text-slate-200 hover:text-amber-400 transition-all shadow-sm"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
     </div>
