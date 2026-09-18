@@ -1518,12 +1518,10 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               poster={riderFrameImage}
               autoPlay
               muted
-              defaultMuted
               loop
               playsInline
-              // @ts-expect-error legacy iOS attribute
-              webkit-playsinline="true"
               controls={false}
+
               disablePictureInPicture
               preload="auto"
               aria-hidden="true"
