@@ -310,18 +310,43 @@ export function AppHeader() {
 
 export function AppFooter() {
   const { lang } = useI18n();
+  const navigate = useNavigate();
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinType, setJoinType] = useState<JoinAccountType>("customer");
+
+  const logoClicksRef = useRef<number>(0);
+  const logoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleFooterLogoClick = (e: React.MouseEvent) => {
+    sounds.playClick();
+    logoClicksRef.current += 1;
+
+    if (logoTimerRef.current) {
+      clearTimeout(logoTimerRef.current);
+    }
+
+    if (logoClicksRef.current >= 3) {
+      e.preventDefault();
+      logoClicksRef.current = 0;
+      sounds.playSuccess();
+      toast.success(
+        lang === "ar"
+          ? "🔐 جارٍ فتح بوابة تسجيل دخول الإدارة المركزية..."
+          : "🔐 Opening Admin Portal..."
+      );
+      void navigate({ to: "/auth" });
+      return;
+    }
+
+    logoTimerRef.current = setTimeout(() => {
+      logoClicksRef.current = 0;
+    }, 1200);
+  };
 
   const openJoinModal = (type: JoinAccountType) => {
     sounds.playClick();
     setJoinType(type);
     setJoinModalOpen(true);
-  };
-
-  const openCodeModal = () => {
-    sounds.playClick();
-    window.location.assign("/auth");
   };
 
   return (
@@ -332,7 +357,11 @@ export function AppFooter() {
             
             {/* 1. Brand & Description */}
             <div className="sm:col-span-2 lg:col-span-1 space-y-3">
-              <div className="flex items-center gap-2">
+              <div
+                onClick={handleFooterLogoClick}
+                className="flex items-center gap-2 cursor-pointer select-none active:scale-95 transition-transform inline-block"
+                title={lang === "ar" ? "FOODHUB" : "FOODHUB"}
+              >
                 <FoodHubLogo size={40} showText />
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">

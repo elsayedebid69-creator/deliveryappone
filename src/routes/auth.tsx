@@ -108,7 +108,7 @@ function AuthPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="ps-10 bg-slate-950 border-slate-800 text-slate-100 font-mono text-sm"
-                    placeholder="user@example.com"
+                    placeholder="admin@foodhub.sa"
                   />
                 </div>
               </div>
@@ -140,11 +140,11 @@ function AuthPage() {
                 {emailBusy ? (
                   <span className="flex items-center gap-2">
                     <span className="size-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
-                    جاري تسجيل الدخول...
+                    {lang === "ar" ? "جاري التحقق والدخول..." : "Verifying..."}
                   </span>
                 ) : (
                   <span className="flex items-center gap-2">
-                    {t("login")}
+                    <span>{lang === "ar" ? "دخول لوحة تحكم الإدارة" : "Access Admin Command Center"}</span>
                     <ArrowRight className="size-4" />
                   </span>
                 )}
@@ -152,7 +152,9 @@ function AuthPage() {
             </form>
 
             <p className="text-[11px] text-slate-400 text-center leading-relaxed">
-              حسابات المطاعم والمناديب تُنشأ من قبل الإدارة، وستصلك بيانات الدخول على بريدك الإلكتروني.
+              {lang === "ar"
+                ? "بوابة سرية مخصصة فقط لمدراء المنظومة لمتابعة العمليات والمبيعات وتفعيل الحسابات."
+                : "Secure portal strictly for platform administrators to monitor live operations, sales, and account approvals."}
             </p>
           </div>
         </div>
