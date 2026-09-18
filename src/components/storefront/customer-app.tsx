@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import deliveryHeroVideo from "@/assets/foodhub-rider-arrive-dismount-carry.mp4.asset.json";
-import riderFrameImage from "@/assets/foodhub-rider-approach-clean.png";
+import deliveryHeroVideo from "@/assets/foodhub-rider-original-restored.webm.asset.json";
+import deliveryHeroVideoMp4 from "@/assets/foodhub-rider-original-restored.mp4.asset.json";
+import riderFrameImageAsset from "@/assets/foodhub-rider-original-restored-poster.jpg.asset.json";
+
+const riderFrameImage = riderFrameImageAsset.url;
 import {
   Search,
   MapPin,
@@ -1538,7 +1541,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 el.addEventListener("canplay", tryPlay, { once: true });
               }}
             >
-              <source src={deliveryHeroVideo.url} type="video/mp4" />
+              <source src={deliveryHeroVideo.url} type="video/webm" />
+              <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
             </video>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
