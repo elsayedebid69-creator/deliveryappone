@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Search,
@@ -11,6 +11,7 @@ import {
   ShoppingBag,
   Sparkles,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   Filter,
   Percent,
@@ -32,6 +33,8 @@ import {
   Layers,
   UtensilsCrossed,
   ArrowUpRight,
+  Play,
+  Pause,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -68,55 +71,175 @@ const RIYADH_LOCALITIES = [
   { id: "loc-12", nameAr: "شبرا والشفاء", nameEn: "Shubra & Al Shifa", places: 88, region: "south", eta: "22-28 د", tagAr: "توصيل اقتصادي 💰", tagEn: "Budget Friendly 💰", rating: 4.6, icon: "🚚" },
 ];
 
-// Zomato Curated Collections
-const ZOMATO_COLLECTIONS = [
+// Popular Rotating Meals from All Restaurants (Carousel Data)
+const POPULAR_ROTATING_MEALS = [
   {
-    id: "col-1",
-    titleAr: "أعلى الوجبات طلباً وتقييماً 🏆",
-    titleEn: "Top Trending Meals 🏆",
-    descAr: "أكثر 25 وجبة حصدت تقييمات 5 نجوم هذا الأسبوع",
-    descEn: "25 trending dishes with top 5-star customer ratings",
-    placesAr: "25 صنف",
-    placesEn: "25 items",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop",
-    tagAr: "🔥 رائج الآن",
-    tagEn: "🔥 Trending",
+    id: "pop-1",
+    restaurantId: "rest-4",
+    restaurantAr: "ذا سماش برجر جورميه",
+    restaurantEn: "The Smash Gourmet Lab",
+    cuisineAr: "🍔 برجر وسماش",
+    cuisineEn: "🍔 Smash Burgers",
+    nameAr: "دبل أنجوس سماش برجر ذواقة",
+    nameEn: "Double Angus Gourmet Smash",
+    descAr: "شريحتين أنجوس مكرمل مع جبن شيدر ذائب وصوص سري بخبز بريوش طازج",
+    descEn: "Double Prime Angus patties, melted aged cheddar & secret sauce in brioche",
+    price: 39,
+    oldPrice: 49,
+    rating: 4.98,
+    ordersCount: "3.2k+ طلب",
+    ordersCountEn: "3.2k+ orders",
+    eta: "15 دقيقة",
+    badgeAr: "🔥 الأكثر مبيعاً",
+    badgeEn: "🔥 Best Seller",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=450&fit=crop",
   },
   {
-    id: "col-2",
-    titleAr: "مملكة الكيتو والبروتين الصافي 🥑",
-    titleEn: "Keto & Pure Protein Power 🥑",
-    descAr: "وجبات محسوبة الماكروز للرياضيين ومتبعي الكيتو",
-    descEn: "Macro-calculated meals for athletes & keto lifestyle",
-    placesAr: "18 صنف",
-    placesEn: "18 items",
-    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=400&fit=crop",
-    tagAr: "🥩 بروتين عالي",
-    tagEn: "🥩 High Protein",
+    id: "pop-2",
+    restaurantId: "rest-6",
+    restaurantAr: "مشاوي الملوك والتنور",
+    restaurantEn: "Royal Charcoal Grill House",
+    cuisineAr: "🥩 مشويات وكباب",
+    cuisineEn: "🥩 Grills & Kebabs",
+    nameAr: "مشكل كباب وتندرلوين على الفحم",
+    nameEn: "Charcoal Mixed Grill & Tenderloin",
+    descAr: "أسياخ كباب نعيمي فاخر مع أوصال تندرلوين متبلة على الفحم وخبز تنور ساخن",
+    descEn: "Charcoal-grilled premium lamb kebab, tenderloin cuts with fresh tandoor bread",
+    price: 64,
+    oldPrice: 78,
+    rating: 4.96,
+    ordersCount: "2.8k+ طلب",
+    ordersCountEn: "2.8k+ orders",
+    eta: "18 دقيقة",
+    badgeAr: "👑 اختيار الذواقة",
+    badgeEn: "👑 Gourmet Choice",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=450&fit=crop",
   },
   {
-    id: "col-3",
-    titleAr: "توصيل البرق فائق السرعة ⚡",
-    titleEn: "Lightning 15-Min Delivery ⚡",
-    descAr: "مطابخ سحابية جاهزة للتوصيل في أقل من 20 دقيقة",
-    descEn: "Cloud kitchens delivering hot & fresh in under 20 mins",
-    placesAr: "12 مطبخ",
-    placesEn: "12 kitchens",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop",
-    tagAr: "⚡ فائق السرعة",
-    tagEn: "⚡ Lightning Fast",
+    id: "pop-3",
+    restaurantId: "rest-5",
+    restaurantAr: "لا كازا بيتزا نابوليتانا",
+    restaurantEn: "La Casa Artisan Pizza",
+    cuisineAr: "🍕 بيتزا وإيطالي",
+    cuisineEn: "🍕 Pizza & Italian",
+    nameAr: "بيتزا الترفل والموزاريلا الطازجة",
+    nameEn: "Artisan Truffle & Mozzarella Pizza",
+    descAr: "عجينة مخمرة 48 ساعة على الحطب مع زيت الترفل الإيطالي والموزاريلا الطازجة",
+    descEn: "48h fermented wood-fired dough with Italian truffle glaze & buffalo mozzarella",
+    price: 48,
+    oldPrice: 60,
+    rating: 4.93,
+    ordersCount: "2.1k+ طلب",
+    ordersCountEn: "2.1k+ orders",
+    eta: "15 دقيقة",
+    badgeAr: "🍕 إيطالي أصيل",
+    badgeEn: "🍕 Authentic Italian",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&h=450&fit=crop",
   },
   {
-    id: "col-4",
-    titleAr: "سلطات وسموذي الديتوكس العضوي 🌱",
-    titleEn: "Organic Detox Bowls & Smoothies 🌱",
-    descAr: "أطباق كينوا وأكاي طازجة غنية بمضادات الأكسدة",
-    descEn: "Fresh antioxidant organic quinoa & acai bowls",
-    placesAr: "15 صنف",
-    placesEn: "15 items",
-    image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=600&h=400&fit=crop",
-    tagAr: "✨ صحي 100%",
-    tagEn: "✨ 100% Organic",
+    id: "pop-4",
+    restaurantId: "rest-1",
+    restaurantAr: "سالمون أند دايت كلوب",
+    restaurantEn: "Salmon & Clean Diet Club",
+    cuisineAr: "🐟 مأكولات بحرية ودايت",
+    cuisineEn: "🐟 Seafood & Diet",
+    nameAr: "وعاء السلمون البري والأفوكادو",
+    nameEn: "Avocado & Wild Salmon Power Bowl",
+    descAr: "فيليه سلمون نرويجي مشوي غني بالأوميغا 3 مع شرائح أفوكادو وكينوا عضوية",
+    descEn: "Omega-3 rich grilled salmon with creamy avocado, organic quinoa & glaze",
+    price: 54,
+    oldPrice: 68,
+    rating: 4.97,
+    ordersCount: "1.9k+ طلب",
+    ordersCountEn: "1.9k+ orders",
+    eta: "16 دقيقة",
+    badgeAr: "🥑 محسوب الماكروز",
+    badgeEn: "🥑 Exact Macros",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=450&fit=crop",
+  },
+  {
+    id: "pop-5",
+    restaurantId: "rest-8",
+    restaurantAr: "شاورما الأصالة والفرن",
+    restaurantEn: "Authentic Charcoal Shawarma",
+    cuisineAr: "🌯 شاورما وساندوتشات",
+    cuisineEn: "🌯 Shawarma Hub",
+    nameAr: "شاورما لحم عجل مدخن بالرمان",
+    nameEn: "Smoked Veal Shawarma Platter",
+    descAr: "شاورما لحم عجل بلدي مدخن مع دبس الرمان، طحينة خاصة، ومخللات منزلية",
+    descEn: "Smoked local veal shawarma with pomegranate molasses, tahini and pickles",
+    price: 34,
+    oldPrice: 44,
+    rating: 4.95,
+    ordersCount: "4.3k+ طلب",
+    ordersCountEn: "4.3k+ orders",
+    eta: "12 دقيقة",
+    badgeAr: "⚡ طلب سريع",
+    badgeEn: "⚡ Fast Order",
+    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&h=450&fit=crop",
+  },
+  {
+    id: "pop-6",
+    restaurantId: "rest-9",
+    restaurantAr: "قصر الضيافة والمأكولات الشرقية",
+    restaurantEn: "Oriental Heritage Feast",
+    cuisineAr: "🍛 أطباق شرقية وكبسة",
+    cuisineEn: "🍛 Traditional Rice",
+    nameAr: "كبسة لحم نعيمي بالزعفران والمكسرات",
+    nameEn: "Saffron Lamb Kabsa with Toasted Nuts",
+    descAr: "أرز بسمتي فاخر مطهو بمرق اللحم والزعفران مع لحم نعيمي طري ومكسرات محمصة",
+    descEn: "Fragrant saffron basmati rice with tender slow-cooked lamb and golden nuts",
+    price: 58,
+    oldPrice: 72,
+    rating: 4.94,
+    ordersCount: "1.8k+ طلب",
+    ordersCountEn: "1.8k+ orders",
+    eta: "20 دقيقة",
+    badgeAr: "🇸🇦 تراثي فاخر",
+    badgeEn: "🇸🇦 Heritage Feast",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&h=450&fit=crop",
+  },
+  {
+    id: "pop-7",
+    restaurantId: "rest-2",
+    restaurantAr: "جرين بار وأطباق البروتين",
+    restaurantEn: "Green Bar & Protein Kitchen",
+    cuisineAr: "🥗 دايت وسلطات",
+    cuisineEn: "🥗 Salads & Diet",
+    nameAr: "سلطة الكينوا بالفيتا والخضار المشوية",
+    nameEn: "Grilled Veggie Quinoa & Feta Bowl",
+    descAr: "كينوا عضوية مع خضار حقلية مشوية، جبن فيتا، وبذور اليقطين وصلصة الليمون",
+    descEn: "Organic quinoa with charred greens, Greek feta, pumpkin seeds & lemon dressing",
+    price: 36,
+    oldPrice: 46,
+    rating: 4.91,
+    ordersCount: "1.6k+ طلب",
+    ordersCountEn: "1.6k+ orders",
+    eta: "12 دقيقة",
+    badgeAr: "🌱 عضوي 100%",
+    badgeEn: "🌱 100% Organic",
+    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=450&fit=crop",
+  },
+  {
+    id: "pop-8",
+    restaurantId: "rest-7",
+    restaurantAr: "محمصة أروما ومخبز الفيت",
+    restaurantEn: "Aroma Artisan Roastery",
+    cuisineAr: "☕ كافيهات وحلى",
+    cuisineEn: "☕ Cafes & Desserts",
+    nameAr: "كولد برو مقطر وتشيزكيك الشوفان",
+    nameEn: "Cold Brew & Guilt-Free Cheesecake",
+    descAr: "قهوة مقطرة باردة 18 ساعة مع تشيزكيك الشوفان بالبروتين خالي من السكر المكرر",
+    descEn: "18h slow-dripped Ethiopian cold brew paired with sugar-free protein cheesecake",
+    price: 30,
+    oldPrice: 40,
+    rating: 4.99,
+    ordersCount: "3.6k+ طلب",
+    ordersCountEn: "3.6k+ orders",
+    eta: "10 دقيقة",
+    badgeAr: "⭐ الأكثر تقييماً",
+    badgeEn: "⭐ Top Rated",
+    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=600&h=450&fit=crop",
   },
 ];
 
@@ -487,7 +610,28 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [phoneOrEmailInput, setPhoneOrEmailInput] = useState("");
   const [sendType, setSendType] = useState<"phone" | "email">("phone");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const cart = useCart();
+
+  // Auto-rotating timer for popular meals carousel
+  useEffect(() => {
+    if (isCarouselPaused) return;
+    const timer = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % POPULAR_ROTATING_MEALS.length);
+    }, 3200);
+    return () => clearInterval(timer);
+  }, [isCarouselPaused]);
+
+  const nextCarouselSlide = () => {
+    sounds.playClick();
+    setCarouselIndex((prev) => (prev + 1) % POPULAR_ROTATING_MEALS.length);
+  };
+
+  const prevCarouselSlide = () => {
+    sounds.playClick();
+    setCarouselIndex((prev) => (prev - 1 + POPULAR_ROTATING_MEALS.length) % POPULAR_ROTATING_MEALS.length);
+  };
 
   const currentLoc = RIYADH_LOCALITIES.find((l) => l.id === selectedLocId) ?? RIYADH_LOCALITIES[0];
   const activeLocation = lang === "ar" ? `الرياض • ${currentLoc?.nameAr ?? ""}` : `Riyadh • ${currentLoc?.nameEn ?? ""}`;
@@ -510,6 +654,22 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       lang === "ar"
         ? `✨ تمت إضافة "${dish.nameAr}" إلى السلة!`
         : `✨ Added "${dish.nameEn}" to cart!`
+    );
+  };
+
+  const handleAddToCartFromPopular = (meal: (typeof POPULAR_ROTATING_MEALS)[0]) => {
+    cart.add({
+      id: meal.id,
+      restaurant_id: meal.restaurantId,
+      name_ar: meal.nameAr,
+      name_en: meal.nameEn,
+      price: meal.price,
+    });
+    sounds.playSuccess();
+    toast.success(
+      lang === "ar"
+        ? `🔥 تمت إضافة "${meal.nameAr}" (${meal.restaurantAr}) إلى السلة!`
+        : `🔥 Added "${meal.nameEn}" (${meal.restaurantEn}) to cart!`
     );
   };
 
@@ -856,61 +1016,181 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 3. ZOMATO CURATED COLLECTIONS CAROUSEL */}
+      {/* 3. LIVE ROTATING POPULAR MEALS FROM ALL RESTAURANTS (تدوير وجبات المطاعم الأكثر إقبالاً) */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-slate-800/80 pb-3">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <Award className="size-6 text-amber-400" />
-              <span>{lang === "ar" ? "المجموعات المختارة (Collections)" : "Curated Collections"}</span>
+      <section 
+        onMouseEnter={() => setIsCarouselPaused(true)}
+        onMouseLeave={() => setIsCarouselPaused(false)}
+        className="mx-auto max-w-6xl px-4 py-10 w-full space-y-6"
+      >
+        {/* Section Header with Carousel Controls */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-500 dark:text-amber-400">
+              <Flame className="size-3.5 text-amber-500 animate-pulse" />
+              <span>{lang === "ar" ? "الأكثر إقبالاً وطلباً • تدوير حي مستمر" : "Most Popular & Trending • Live Rotating"}</span>
+              <span className="flex size-2 rounded-full bg-amber-500 animate-ping" />
+            </div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white flex items-center gap-2">
+              <span>{lang === "ar" ? "أكثر الوجبات إقبالاً من كافة المطابخ والمطاعم" : "Most Popular Meals Across All Restaurants"}</span>
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl">
               {lang === "ar"
-                ? "استكشف قوائم منسقة لأفضل المطاعم والمطابخ والوجبات الرائجة هذا الأسبوع في منطقتك"
-                : "Explore curated lists of top-rated restaurants, cloud kitchens and trending meals"}
+                ? "أشهى الأطباق الأكثر طلباً وتقييماً في الرياض (برجر، مشويات، بيتزا، كبسة، شاورما، أكلات بحرية، ودايت صحي) مع إمكانية الإضافة الفورية للسلة."
+                : "Top-rated and most-ordered dishes across Riyadh (Burgers, Grills, Pizza, Kabsa, Shawarma, Seafood & Diet) ready to order."}
             </p>
           </div>
 
-          <span className="text-xs text-amber-400 font-semibold cursor-pointer hover:underline flex items-center gap-1">
-            {lang === "ar" ? "عرض جميع المجموعات (4)" : "All Collections (4)"}
-            <ChevronRight className={`size-3 ${lang === "ar" ? "rotate-180" : ""}`} />
-          </span>
+          {/* Carousel Navigation Arrows & Auto-play indicator */}
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-end">
+            <button
+              type="button"
+              aria-label={isCarouselPaused ? "تشغيل التدوير التلقائي" : "إيقاف التدوير مؤقتاً"}
+              onClick={() => setIsCarouselPaused(!isCarouselPaused)}
+              className="flex size-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-amber-400 hover:border-slate-700 transition-colors"
+              title={isCarouselPaused ? "تشغيل التدوير التلقائي" : "إيقاف التدوير"}
+            >
+              {isCarouselPaused ? <Play className="size-4" /> : <Pause className="size-4" />}
+            </button>
+            <button
+              type="button"
+              aria-label="السابق"
+              onClick={prevCarouselSlide}
+              className="flex size-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-white hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 transition-all shadow-md active:scale-90"
+            >
+              <ChevronRight className={`size-4 ${lang === "ar" ? "" : "rotate-180"}`} />
+            </button>
+            <button
+              type="button"
+              aria-label="التالي"
+              onClick={nextCarouselSlide}
+              className="flex size-9 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-white hover:bg-amber-500 hover:text-slate-950 hover:border-amber-500 transition-all shadow-md active:scale-90"
+            >
+              <ChevronLeft className={`size-4 ${lang === "ar" ? "" : "rotate-180"}`} />
+            </button>
+          </div>
         </div>
 
-        {/* Collections Cards Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ZOMATO_COLLECTIONS.map((col) => (
-            <div
-              key={col.id}
-              onClick={() => sounds.playClick()}
-              className="group relative cursor-pointer overflow-hidden rounded-2xl border border-slate-800 bg-slate-900 shadow-lg transition-all duration-300 hover:border-amber-500/50 hover:shadow-xl"
-            >
-              <div className="relative h-56 w-full overflow-hidden">
-                <img
-                  src={col.image}
-                  alt={col.titleEn}
-                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent" />
-                
-                {/* Badge */}
-                <span className="absolute top-2.5 start-2.5 rounded-lg bg-slate-950/80 border border-slate-700 px-2 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-md">
-                  {lang === "ar" ? col.tagAr : col.tagEn}
-                </span>
+        {/* Live Rotating Cards Slider */}
+        <div className="overflow-hidden rounded-3xl p-1">
+          <div 
+            className="flex transition-transform duration-700 ease-out gap-4"
+            style={{
+              transform: `translateX(${lang === "ar" ? "" : "-"}${carouselIndex * 100}%)`,
+            }}
+          >
+            {/* We map chunks or single slides */}
+          </div>
 
-                {/* Bottom Card Content */}
-                <div className="absolute bottom-3 start-3 end-3 space-y-1">
-                  <h3 className="text-sm font-bold text-white group-hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? col.titleAr : col.titleEn}
-                  </h3>
-                  <div className="flex items-center justify-between text-[11px] text-slate-300">
-                    <span className="text-slate-400">{lang === "ar" ? col.descAr : col.descEn}</span>
-                    <span className="font-bold text-amber-400 shrink-0 ms-2">{lang === "ar" ? col.placesAr : col.placesEn}</span>
+          {/* Desktop & Mobile Responsive Multi-Card Carousel Window */}
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            {[0, 1, 2, 3].map((offset) => {
+              const itemIdx = (carouselIndex + offset) % POPULAR_ROTATING_MEALS.length;
+              const meal = POPULAR_ROTATING_MEALS[itemIdx];
+              return (
+                <div
+                  key={`${meal.id}-${itemIdx}`}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/60 hover:shadow-2xl hover:shadow-amber-500/10 animate-in fade-in zoom-in-95"
+                >
+                  {/* Photo Header Container */}
+                  <div className="relative h-52 w-full overflow-hidden bg-slate-950">
+                    <img
+                      src={meal.image}
+                      alt={meal.nameEn}
+                      className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    {/* Deep contrast gradient overlay for crisp white text */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/20" />
+                    
+                    {/* Floating Top Badges */}
+                    <div className="absolute top-3 start-3 end-3 flex items-center justify-between">
+                      <span className="rounded-full bg-slate-950/90 border border-slate-700/90 px-2.5 py-1 text-[11px] font-bold text-amber-300 shadow-md backdrop-blur-md">
+                        {lang === "ar" ? meal.cuisineAr : meal.cuisineEn}
+                      </span>
+                      <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[10px] font-black text-slate-950 shadow-md">
+                        {lang === "ar" ? meal.badgeAr : meal.badgeEn}
+                      </span>
+                    </div>
+
+                    {/* Bottom overlay text on image */}
+                    <div className="absolute bottom-2.5 start-3 end-3 space-y-0.5 pointer-events-none">
+                      <div className="text-[10px] font-bold text-amber-400 flex items-center gap-1">
+                        <Store className="size-3 text-amber-400" />
+                        <span>{lang === "ar" ? meal.restaurantAr : meal.restaurantEn}</span>
+                      </div>
+                      <h3 className="text-sm sm:text-base font-black text-white leading-snug line-clamp-1 drop-shadow-md">
+                        {lang === "ar" ? meal.nameAr : meal.nameEn}
+                      </h3>
+                    </div>
+                  </div>
+
+                  {/* Body Details */}
+                  <div className="p-4 flex flex-col justify-between flex-1 gap-3 bg-white dark:bg-slate-900">
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal line-clamp-2">
+                      {lang === "ar" ? meal.descAr : meal.descEn}
+                    </p>
+
+                    {/* Quick Stats: Rating, Orders, ETA */}
+                    <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 font-semibold border-t border-slate-100 dark:border-slate-800/80 pt-2.5">
+                      <span className="flex items-center gap-1 text-amber-500 font-bold">
+                        <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                        <span>{meal.rating}</span>
+                      </span>
+                      <span className="text-slate-400">•</span>
+                      <span>{lang === "ar" ? meal.ordersCount : meal.ordersCountEn}</span>
+                      <span className="text-slate-400">•</span>
+                      <span className="text-emerald-500 font-bold">⚡ {meal.eta}</span>
+                    </div>
+
+                    {/* Price & Add to Cart Footer */}
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
+                      <div>
+                        <div className="text-sm sm:text-base font-black text-slate-950 dark:text-amber-400">
+                          {meal.price} <span className="text-xs">{t("sar")}</span>
+                        </div>
+                        {meal.oldPrice && (
+                          <div className="text-[10px] text-slate-400 line-through">
+                            {meal.oldPrice} {t("sar")}
+                          </div>
+                        )}
+                      </div>
+
+                      <Button
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddToCartFromPopular(meal);
+                        }}
+                        className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs h-9 px-3 rounded-xl gap-1.5 shadow-md shadow-amber-500/15 transition-transform active:scale-95"
+                      >
+                        <Plus className="size-3.5" />
+                        <span>{lang === "ar" ? "أضف للسلة" : "Add to Cart"}</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Carousel Indicator Dots */}
+        <div className="flex items-center justify-center gap-2 pt-2">
+          {POPULAR_ROTATING_MEALS.map((_, dotIdx) => (
+            <button
+              key={dotIdx}
+              type="button"
+              aria-label={`انتقل للوجبة ${dotIdx + 1}`}
+              onClick={() => {
+                sounds.playClick();
+                setCarouselIndex(dotIdx);
+              }}
+              className={`h-2 rounded-full transition-all duration-500 ${
+                carouselIndex === dotIdx
+                  ? "w-8 bg-amber-500 shadow-md shadow-amber-500/50"
+                  : "w-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-500"
+              }`}
+            />
           ))}
         </div>
       </section>
