@@ -1504,7 +1504,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* ============================================================ */}
       {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
       {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
+      <section className="relative isolate overflow-hidden bg-slate-950 border-b border-slate-800 min-h-[340px] sm:min-h-[460px] lg:min-h-[560px] flex items-center">
         {/* Cinematic FOODHUB delivery rider background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
