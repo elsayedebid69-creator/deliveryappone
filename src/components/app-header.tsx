@@ -57,14 +57,24 @@ export function AppHeader() {
     <>
       <header className="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl text-slate-100">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
-          {/* Logo */}
-          <Link
-            to="/"
-            onClick={() => sounds.playClick()}
-            className="flex items-center gap-2 group transition-transform active:scale-95"
-          >
-            <FoodHubLogo size={40} showText />
-          </Link>
+          {/* Logo & Speed Delivery Badge */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Link
+              to="/"
+              onClick={() => sounds.playClick()}
+              className="flex items-center gap-2 group transition-transform active:scale-95 shrink-0"
+            >
+              <FoodHubLogo size={40} showText />
+            </Link>
+
+            {/* Professional Fast Delivery Badge Pill */}
+            <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-amber-500/15 border border-amber-500/35 px-3.5 py-1 text-xs font-black text-amber-300 backdrop-blur-md shadow-sm shadow-amber-500/10">
+              <span className="flex size-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span>
+                ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at the lowest rates"}
+              </span>
+            </div>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="flex-1" />
@@ -189,6 +199,14 @@ export function AppHeader() {
               <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
                 <ThemeToggleDropdown />
                 <LanguageDropdown />
+              </div>
+
+              {/* Mobile Fast Delivery Badge */}
+              <div className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 px-3 py-2 text-xs font-black text-amber-300 text-center">
+                <span className="flex size-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span>
+                  ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at lowest rates"}
+                </span>
               </div>
 
               {/* Customer Only Links on Mobile */}
