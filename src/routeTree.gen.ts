@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCourierRouteImport } from './routes/_authenticated/courier'
@@ -40,6 +41,11 @@ const AuthRoute = AuthRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StoreRoute = StoreRouteImport.update({
@@ -92,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
@@ -106,6 +113,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/courier': typeof AuthenticatedCourierRoute
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/courier': typeof AuthenticatedCourierRoute
@@ -138,6 +147,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/register'
     | '/store'
     | '/admin'
     | '/courier'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/register'
     | '/store'
     | '/admin'
     | '/courier'
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/cart'
+    | '/register'
     | '/store'
     | '/_authenticated/admin'
     | '/_authenticated/courier'
@@ -183,6 +195,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  RegisterRoute: typeof RegisterRoute
   StoreRoute: typeof StoreRoute
   AuthSignupRoute: typeof AuthSignupRoute
   JoinCourierRoute: typeof JoinCourierRoute
@@ -218,6 +231,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/store': {
@@ -308,6 +328,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  RegisterRoute: RegisterRoute,
   StoreRoute: StoreRoute,
   AuthSignupRoute: AuthSignupRoute,
   JoinCourierRoute: JoinCourierRoute,

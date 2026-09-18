@@ -26,6 +26,8 @@ import { sounds } from "@/lib/sound-effects";
 import { PartnerJoinModal, JoinAccountType } from "@/components/partner-join-modal";
 import { AccessCodeModal } from "@/components/auth/access-code-modal";
 import { getActiveCodeSession, logoutCodeSession, AccessCodeAccount } from "@/lib/access-codes";
+import { ThemeToggleDropdown } from "@/components/theme-toggle-dropdown";
+import { LanguageDropdown } from "@/components/language-dropdown";
 
 export function AppHeader() {
   const { t, lang, setLang } = useI18n();
@@ -71,20 +73,11 @@ export function AppHeader() {
           {/* Desktop Navigation */}
           <div className="flex-1" />
           <div className="hidden items-center gap-2 md:flex">
-            {/* Language Switcher */}
-            <Button
-              variant="ghost"
-              size="sm"
-              aria-label={lang === "en" ? "تغيير اللغة إلى العربية" : "Switch language to English"}
-              className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900 border border-slate-800/80 rounded-xl"
-              onClick={() => {
-                sounds.playClick();
-                setLang(lang === "en" ? "ar" : "en");
-              }}
-            >
-              <Languages className="size-4 text-amber-400" />
-              <span className="font-semibold">{lang === "en" ? "العربية" : "English"}</span>
-            </Button>
+            {/* Theme & Brightness Dropdown */}
+            <ThemeToggleDropdown />
+
+            {/* Language Selector Dropdown */}
+            <LanguageDropdown />
 
             {/* Public Link: Store & Menu */}
             <Button asChild variant="ghost" size="sm" className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
@@ -195,18 +188,10 @@ export function AppHeader() {
         {mobileMenuOpen && (
           <div className="border-t border-slate-800 bg-slate-950 px-4 py-4 md:hidden animate-in slide-in-from-top-2">
             <div className="flex flex-col gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="justify-start gap-2 text-slate-300 hover:text-white border border-slate-800/80"
-                onClick={() => {
-                  sounds.playClick();
-                  setLang(lang === "en" ? "ar" : "en");
-                }}
-              >
-                <Languages className="size-4 text-amber-400" />
-                <span>{lang === "en" ? "العربية (Arabic)" : "English (الإنجليزية)"}</span>
-              </Button>
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+                <ThemeToggleDropdown />
+                <LanguageDropdown />
+              </div>
 
               <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)}>
@@ -341,31 +326,37 @@ export function AppFooter() {
               </h3>
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
-                  <button
-                    onClick={() => openJoinModal("customer")}
+                  <Link
+                    to="/register"
+                    search={{ role: "customer" }}
+                    onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
                     <User className="size-3.5 text-amber-400" />
-                    {lang === "ar" ? "طلب إنشاء حساب عميل جديد" : "Request Customer Account"}
-                  </button>
+                    {lang === "ar" ? "طلب إنشاء حساب عميل جديد (تفعيل فوري)" : "Request Customer Account (Instant)"}
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => openJoinModal("courier")}
+                  <Link
+                    to="/register"
+                    search={{ role: "courier" }}
+                    onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-cyan-400 transition-colors"
                   >
                     <Bike className="size-3.5 text-cyan-400" />
                     {lang === "ar" ? "طلب انضمام كابتن مندوب توصيل" : "Join as Delivery Courier"}
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button
-                    onClick={() => openJoinModal("restaurant")}
+                  <Link
+                    to="/register"
+                    search={{ role: "restaurant" }}
+                    onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-orange-400 transition-colors"
                   >
                     <Store className="size-3.5 text-orange-400" />
                     {lang === "ar" ? "طلب انضمام مطبخ سحابي / متجر" : "Join as Cloud Kitchen / Store"}
-                  </button>
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useI18n, type TKey } from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { useSession } from "@/lib/session";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,14 @@ import {
   type CodeRecoveryRequest,
   type AccountType,
 } from "@/lib/access-codes";
+import {
+  getAllOnboardingApplications,
+  saveOnboardingApplications,
+  sendOnboardingMessage,
+  adminApproveAndIssueCodeInChat,
+  type OnboardingApplication,
+  type ApplicantDocument,
+} from "@/lib/onboarding-chat";
 import {
   Dialog,
   DialogContent,
@@ -64,18 +72,22 @@ import {
   MessageSquare,
   PlusCircle,
   Search,
+  Send,
+  Building,
+  FileText,
+  IdCard,
+  Utensils,
+  ExternalLink,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
       { title: "لوحة الإدارة والمحاكاة المركزية (Master Admin) | FOODHUB" },
-      { name: "description", content: "إدارة الحسابات، طلبات انضمام الشركاء، نظام حماية IP الفردي ومحاكي التطبيقات في منصة FOODHUB." },
+      { name: "description", content: "إدارة الحسابات، مراجعة المستندات والمرفقات، المحادثة المباشرة مع المتقدمين، وإصدار أكواد الوصول في منظومة FOODHUB." },
       { property: "og:title", content: "لوحة الإدارة المركزية | FOODHUB" },
       { property: "og:description", content: "لوحة القيادة والمراقبة لمنظومة FOODHUB." },
       { property: "og:image", content: "/icons/icon-512.png" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -87,11 +99,17 @@ function AdminPage() {
   const { role } = useSession();
   const qc = useQueryClient();
 
-  // State for Access Codes & Recovery Inbox
+  // State for Access Codes, Recovery Inbox & Onboarding Applications
   const [accessAccounts, setAccessAccounts] = useState<AccessCodeAccount[]>(() => getAllAccessAccounts());
   const [recoveryRequests, setRecoveryRequests] = useState<CodeRecoveryRequest[]>(() => getCodeRecoveryRequests());
+  const [onboardingApps, setOnboardingApps] = useState<OnboardingApplication[]>(() => getAllOnboardingApplications());
   const [accountSearch, setAccountSearch] = useState("");
   const [selectedRoleFilter, setSelectedRoleFilter] = useState<string>("all");
+
+  // Selected Application for Live Chat / Document Review
+  const [selectedAppChat, setSelectedAppChat] = useState<OnboardingApplication | null>(null);
+  const [adminChatInput, setAdminChatInput] = useState("");
+  const [previewDoc, setPreviewDoc] = useState<ApplicantDocument | null>(null);
 
   // Issued Code Presentation Modal
   const [issuedCodeModal, setIssuedCodeModal] = useState<{
@@ -131,6 +149,7 @@ function AdminPage() {
     setSecurityRecords([...getPartnerSecurityRecords()]);
     setAccessAccounts([...getAllAccessAccounts()]);
     setRecoveryRequests([...getCodeRecoveryRequests()]);
+    setOnboardingApps([...getAllOnboardingApplications()]);
   };
 
   const restaurants = useQuery({
@@ -194,150 +213,52 @@ function AdminPage() {
     },
   });
 
-  const joinRequests = useQuery({
-    queryKey: ["join-requests"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("join_requests")
-        .select("*")
-        .order("created_at", { ascending: false });
-      if (error || !data?.length) {
-        return [
-          {
-            id: "req-1",
-            type: "restaurant",
-            status: "pending",
-            created_at: new Date().toISOString(),
-            data: {
-              business_name_ar: "مطعم فيتا هيلثي لايف",
-              business_name: "مطعم فيتا هيلثي لايف",
-              contact_name: "م. خالد العتيبي",
-              contact_phone: "0554433221",
-              phone: "0554433221",
-              email: "khaled@vitahealthy.com",
-              commercial_register: "1010892415",
-              address: "حي حطين، طريق الأمير تركي الأول - الرياض",
-            },
-          },
-          {
-            id: "req-2",
-            type: "courier",
-            status: "pending",
-            created_at: new Date(Date.now() - 30 * 60000).toISOString(),
-            data: {
-              full_name: "عبدالعزيز الغامدي",
-              contact_name: "عبدالعزيز الغامدي",
-              phone: "0501122334",
-              email: "abdulaziz.rider@gmail.com",
-              id_number: "1098273645",
-              vehicle_type: "motorcycle",
-              vehicle_plate: "أ ب د 1920",
-            },
-          },
-          {
-            id: "req-3",
-            type: "customer",
-            status: "pending",
-            created_at: new Date(Date.now() - 10 * 60000).toISOString(),
-            data: {
-              full_name: "نورة القحطاني",
-              phone: "0567788990",
-              email: "noura.q@gmail.com",
-              address: "حي النخيل - الرياض",
-            },
-          },
-        ];
-      }
-      return data;
-    },
-  });
-
-  const [selectedRequest, setSelectedRequest] = useState<any>(null);
-  const [showRequestDialog, setShowRequestDialog] = useState(false);
-
-  // Approve Request, Generate Code, and Setup Account
-  const approveRequest = useMutation({
-    mutationFn: async (request: any) => {
-      const rd = (request.data ?? {}) as {
-        business_name_ar?: string;
-        business_name?: string;
-        full_name?: string;
-        contact_name?: string;
-        contact_phone?: string;
-        phone?: string;
-        email?: string;
-        address?: string;
-      };
-      const partnerName = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name || "مستخدم جديد";
-      const email = rd.email ?? `user_${Date.now()}@foodhub.com`;
-      const phone = rd.contact_phone || rd.phone || "0500000000";
-      const reqType: AccountType = request.type === "restaurant" ? "restaurant" : request.type === "courier" ? "courier" : "customer";
-
-      // 1. Issue Access Code in Engine
-      const newAcc = issueAccountCode({
-        accountType: reqType,
-        fullName: partnerName,
-        email,
-        phone,
-        businessName: rd.business_name_ar || rd.business_name,
-        city: rd.address || "الرياض",
-      });
-
-      // 2. Register Anti-Fraud IP Lock if partner
-      if (reqType !== "customer") {
-        registerApprovedPartner({
-          partnerType: reqType as "restaurant" | "courier",
-          partnerName,
-          email,
-          initialIp: "156.204.18.92",
-        });
-      }
-
-      // 3. Update Supabase status
-      try {
-        await supabase
-          .from("join_requests")
-          .update({ status: "approved", reviewed_at: new Date().toISOString() })
-          .eq("id", request.id);
-      } catch {}
-
-      return newAcc;
-    },
-    onSuccess: (newAcc) => {
-      sounds.playSuccess();
+  // Approve Application from Live Onboarding Queue
+  const handleApproveApplication = (appId: string) => {
+    sounds.playSuccess();
+    const res = adminApproveAndIssueCodeInChat(appId);
+    if (res) {
       refreshData();
-      toast.success("تم اعتماد الحساب وإصدار كود الوصول بنجاح!");
+      toast.success(`تم اعتماد الطلب وإصدار كود الدخول: ${res.account.code}`);
       setIssuedCodeModal({
         open: true,
-        code: newAcc.code,
-        accountName: newAcc.fullName,
-        role: newAcc.accountType,
-        phone: newAcc.phone,
-        email: newAcc.email,
+        code: res.account.code,
+        accountName: res.account.fullName,
+        role: res.account.accountType,
+        phone: res.account.phone,
+        email: res.account.email,
       });
-      void qc.invalidateQueries({ queryKey: ["join-requests"] });
-      void qc.invalidateQueries({ queryKey: ["accounts"] });
-      setShowRequestDialog(false);
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+      if (selectedAppChat && selectedAppChat.id === appId) {
+        setSelectedAppChat({ ...res.application });
+      }
+    } else {
+      toast.error("تعذر اعتماد هذا الطلب.");
+    }
+  };
 
-  const rejectRequest = useMutation({
-    mutationFn: async (request: any) => {
-      const { error } = await supabase
-        .from("join_requests")
-        .update({ status: "rejected", reviewed_at: new Date().toISOString() })
-        .eq("id", request.id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      sounds.playClick();
-      toast.success(t("rejected"));
-      void qc.invalidateQueries({ queryKey: ["join-requests"] });
-      setShowRequestDialog(false);
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  // Send message in Admin Live Chat dialog
+  const handleSendAdminChatMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAppChat || !adminChatInput.trim()) return;
+
+    sounds.playClick();
+    const newMsg = sendOnboardingMessage(
+      selectedAppChat.id,
+      "admin",
+      "المدير العام (FOODHUB Master)",
+      adminChatInput.trim()
+    );
+
+    if (newMsg) {
+      const updated = {
+        ...selectedAppChat,
+        messages: [...selectedAppChat.messages, newMsg],
+      };
+      setSelectedAppChat(updated);
+      setAdminChatInput("");
+      refreshData();
+    }
+  };
 
   // Resolve Forgot Code Support Ticket
   const handleResolveRecovery = (reqId: string) => {
@@ -424,7 +345,7 @@ function AdminPage() {
   };
 
   const revenue = (orders.data ?? []).reduce((n, o) => n + Number(o.total || 0), 0);
-  const pendingRequests = (joinRequests.data ?? []).filter((r) => r.status === "pending");
+  const pendingApps = onboardingApps.filter((a) => a.status === "pending" || a.status === "draft");
   const pendingRecoveries = recoveryRequests.filter((r) => r.status === "pending");
 
   const filteredAccounts = accessAccounts.filter((acc) => {
@@ -458,8 +379,8 @@ function AdminPage() {
               </h1>
               <p className="text-xs text-slate-400">
                 {lang === "ar"
-                  ? "إدارة طلبات الانضمام، توليد أكواد الوصول للعملاء والمناديب والمطابخ، ورسائل دعم استرجاع الأكواد"
-                  : "Manage join requests, issue user/partner access codes, handle recovery tickets, and oversee multi-app simulation"}
+                  ? "مراجعة المستندات والمرفقات، المحادثة المباشرة مع المتقدمين، إصدار الأكواد وحماية IP الفردي"
+                  : "Review uploaded attachments, live chat with applicants, issue access codes, and oversee multi-app simulation"}
               </p>
             </div>
           </div>
@@ -484,10 +405,10 @@ function AdminPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
             <div className="flex items-center justify-between text-xs text-slate-400">
-              <span>{lang === "ar" ? "طلبات الحسابات المعلقة" : "Pending Join Requests"}</span>
-              <Clock className="size-4 text-amber-400" />
+              <span>{lang === "ar" ? "طلبات الانضمام والمرفقات" : "Pending Applications & Docs"}</span>
+              <ClipboardCheck className="size-4 text-amber-400" />
             </div>
-            <p className="text-2xl font-black text-amber-400 font-mono">{pendingRequests.length}</p>
+            <p className="text-2xl font-black text-amber-400 font-mono">{pendingApps.length}</p>
           </div>
 
           <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-5 space-y-2">
@@ -525,9 +446,9 @@ function AdminPage() {
 
             <TabsTrigger value="requests" className="gap-2 text-xs data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950 font-bold rounded-xl">
               <ClipboardCheck className="size-4" />
-              {lang === "ar" ? "طلبات الانضمام وتوليد الأكواد" : "Join Requests & Codes"}
-              {pendingRequests.length > 0 && (
-                <Badge className="ms-1 bg-slate-950 text-amber-300 text-[10px]">{pendingRequests.length}</Badge>
+              {lang === "ar" ? "طلبات الانضمام والمرفقات والمحادثة" : "Applications & Live Chat"}
+              {pendingApps.length > 0 && (
+                <Badge className="ms-1 bg-slate-950 text-amber-300 text-[10px]">{pendingApps.length}</Badge>
               )}
             </TabsTrigger>
 
@@ -568,71 +489,61 @@ function AdminPage() {
             </div>
           </TabsContent>
 
-          {/* 2. Join Requests Tab */}
+          {/* 2. Join Requests & Onboarding Attachments Tab */}
           <TabsContent value="requests" className="space-y-6">
             <div>
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
                   <h3 className="flex items-center gap-2 text-base font-bold text-white">
                     <Clock className="size-4 text-amber-400" />
-                    {lang === "ar" ? "طلبات إنشاء الحسابات الواردة من الهيدر السفلي" : "Incoming Account Registration Requests"}
-                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">{pendingRequests.length}</Badge>
+                    {lang === "ar" ? "طلبات الانضمام والمرفقات الرسمية والمحادثة المباشرة" : "Applications, Attachments & Live Chat"}
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">{onboardingApps.length}</Badge>
                   </h3>
                   <p className="text-xs text-slate-400 mt-1">
                     {lang === "ar"
-                      ? "عند الضغط على 'اعتماد وتوليد كود الوصول' يقوم النظام بإنشاء الحساب فوراً وتوليد كود مشفر يضعه المستخدم في واجهة الموقع ليفتح معه تطبيقه."
-                      : "Approving a request generates a unique encrypted access code that the user enters on the site to immediately launch their role interface."}
+                      ? "معاينة الوثائق والمرفقات (الهوية، الصورة الشخصية، التقرير الطبي، صورة المركبة، السجل التجاري، رخصة البلدية، المنيو) مع محادثة مباشرة مع المتقدم واعتماد الكود."
+                      : "Inspect applicant documents, engage in live concierge chat, and issue access codes directly."}
                   </p>
                 </div>
               </div>
 
-              {pendingRequests.length === 0 ? (
+              {onboardingApps.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-800 p-12 text-center text-slate-500 space-y-3">
                   <CheckCircle2 className="size-10 mx-auto text-emerald-400/60" />
                   <p className="text-sm font-bold text-slate-300">
-                    {lang === "ar" ? "لا توجد طلبات انضمام معلقة حالياً" : "No pending registration requests"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {lang === "ar" ? "أي طلب جديد يتم إرساله من الهيدر السفلي سيظهر هنا فوراً" : "New requests submitted from the footer will appear here."}
+                    {lang === "ar" ? "لا توجد طلبات انضمام حالياً" : "No onboarding applications yet"}
                   </p>
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {pendingRequests.map((request) => {
-                    const rd = (request.data ?? {}) as {
-                      business_name_ar?: string;
-                      business_name?: string;
-                      full_name?: string;
-                      contact_name?: string;
-                      contact_phone?: string;
-                      phone?: string;
-                      email?: string;
-                      address?: string;
-                      vehicle_type?: string;
-                    };
-                    const title = rd.business_name_ar || rd.business_name || rd.full_name || rd.contact_name || "طلب حساب جديد";
-                    const phone = rd.contact_phone || rd.phone || "";
-                    const email = rd.email || "";
+                  {onboardingApps.map((application) => {
+                    const title = application.businessName || application.fullName || "طلب جديد";
+                    const isApproved = application.status === "approved" || application.status === "auto_activated";
+                    const docEntries = Object.entries(application.documents || {});
 
                     return (
                       <div
-                        key={request.id}
-                        className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 space-y-4 shadow-xl"
+                        key={application.id}
+                        className={`rounded-2xl border p-5 space-y-4 shadow-xl transition-all ${
+                          isApproved
+                            ? "bg-slate-900/60 border-slate-800/80"
+                            : "bg-slate-900/90 border-amber-500/30 shadow-amber-950/10"
+                        }`}
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-center gap-3">
                             <div
                               className={`flex size-11 items-center justify-center rounded-2xl border ${
-                                request.type === "restaurant"
+                                application.role === "restaurant"
                                   ? "bg-amber-500/20 text-amber-400 border-amber-500/30"
-                                  : request.type === "courier"
+                                  : application.role === "courier"
                                   ? "bg-cyan-500/20 text-cyan-400 border-cyan-500/30"
                                   : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                               }`}
                             >
-                              {request.type === "restaurant" ? (
+                              {application.role === "restaurant" ? (
                                 <Store className="size-5" />
-                              ) : request.type === "courier" ? (
+                              ) : application.role === "courier" ? (
                                 <Bike className="size-5" />
                               ) : (
                                 <Users className="size-5" />
@@ -643,68 +554,95 @@ function AdminPage() {
                                 <p className="font-bold text-white text-sm">{title}</p>
                                 <Badge
                                   className={`text-[10px] ${
-                                    request.type === "restaurant"
+                                    application.role === "restaurant"
                                       ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                                      : request.type === "courier"
+                                      : application.role === "courier"
                                       ? "bg-cyan-500/20 text-cyan-300 border-cyan-500/30"
                                       : "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
                                   }`}
                                 >
-                                  {request.type === "restaurant"
+                                  {application.role === "restaurant"
                                     ? "مطبخ / متجر"
-                                    : request.type === "courier"
+                                    : application.role === "courier"
                                     ? "كابتن مندوب"
-                                    : "حساب عميل"}
+                                    : "عميل"}
                                 </Badge>
                               </div>
-                              <p className="text-xs text-slate-400 font-mono mt-0.5">{phone}</p>
-                              {email && <p className="text-[11px] text-slate-500 font-mono">{email}</p>}
+                              <p className="text-xs text-slate-400 font-mono mt-0.5">{application.phone || "بدون هاتف"}</p>
+                              {application.email && <p className="text-[11px] text-slate-500 font-mono">{application.email}</p>}
                             </div>
                           </div>
 
-                          <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
-                            بانتظار الموافقة
-                          </Badge>
+                          <div>
+                            {isApproved ? (
+                              <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px]">
+                                {application.status === "auto_activated" ? "تفعيل تلقائي فوري" : "معتمد ومفعل"}
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-[10px]">
+                                بانتظار المراجعة
+                              </Badge>
+                            )}
+                          </div>
                         </div>
 
-                        {rd.address && (
-                          <p className="text-xs text-slate-400 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
-                            📍 {rd.address}
-                          </p>
+                        {/* ATTACHED DOCUMENTS THUMBNAILS HUB */}
+                        {docEntries.length > 0 && (
+                          <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                            <span className="text-[10px] text-amber-300 font-bold block">
+                              📎 المرفقات المرفوعة ({docEntries.length}):
+                            </span>
+                            <div className="grid grid-cols-2 gap-2">
+                              {docEntries.map(([key, doc]) => (
+                                <button
+                                  type="button"
+                                  key={key}
+                                  onClick={() => setPreviewDoc(doc)}
+                                  className="flex items-center justify-between p-2 rounded-xl bg-slate-950/80 border border-slate-800 hover:border-amber-500/50 text-start group transition-all"
+                                >
+                                  <div className="flex items-center gap-1.5 truncate">
+                                    <FileText className="size-3 text-cyan-400 shrink-0" />
+                                    <span className="text-[10px] text-slate-300 truncate font-medium group-hover:text-white">
+                                      {doc.title}
+                                    </span>
+                                  </div>
+                                  <Eye className="size-3 text-slate-500 group-hover:text-amber-400 shrink-0" />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         )}
 
+                        {/* Issued Code Highlight if already approved */}
+                        {application.issuedCode && (
+                          <div className="bg-slate-950/90 p-2.5 rounded-xl border border-amber-500/30 flex items-center justify-between text-xs">
+                            <span className="text-slate-400 text-[10px]">كود الدخول الصادر:</span>
+                            <span className="font-mono font-black text-amber-400">{application.issuedCode}</span>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
                         <div className="flex gap-2 pt-2 border-t border-slate-800/80">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex-1 border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs"
-                            onClick={() => {
-                              sounds.playClick();
-                              setSelectedRequest(request);
-                              setShowRequestDialog(true);
-                            }}
+                            className="flex-1 border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700 text-xs gap-1.5"
+                            onClick={() => setSelectedAppChat(application)}
                           >
-                            <Eye className="size-3.5 me-1.5" />
-                            المعاينة
+                            <MessageSquare className="size-3.5 text-cyan-400" />
+                            المحادثة المباشرة ({application.messages.length})
                           </Button>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold hover:from-emerald-400 hover:to-teal-300 text-xs"
-                            onClick={() => approveRequest.mutate(request)}
-                            disabled={approveRequest.isPending}
-                          >
-                            <KeyRound className="size-3.5 me-1.5" />
-                            اعتماد وتوليد الكود
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-rose-400 hover:bg-rose-500/10 text-xs"
-                            onClick={() => rejectRequest.mutate(request)}
-                            disabled={rejectRequest.isPending}
-                          >
-                            <XCircle className="size-3.5" />
-                          </Button>
+
+                          {!isApproved && (
+                            <Button
+                              size="sm"
+                              className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold hover:from-emerald-400 hover:to-teal-300 text-xs gap-1.5"
+                              onClick={() => handleApproveApplication(application.id)}
+                            >
+                              <KeyRound className="size-3.5" />
+                              اعتماد وتوليد الكود
+                            </Button>
+                          )}
                         </div>
                       </div>
                     );
@@ -1156,65 +1094,137 @@ function AdminPage() {
         </Tabs>
       </main>
 
-      {/* 1. Request Details Review Dialog */}
-      <Dialog open={showRequestDialog} onOpenChange={setShowRequestDialog}>
-        <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-100 rounded-3xl">
+      {/* 1. Live Chat with Applicant Dialog */}
+      <Dialog open={Boolean(selectedAppChat)} onOpenChange={(open) => !open && setSelectedAppChat(null)}>
+        <DialogContent className="sm:max-w-xl bg-slate-950 border-slate-800 text-slate-100 rounded-3xl p-6">
           <DialogHeader>
-            <DialogTitle className="text-white font-bold">تفاصيل طلب الانضمام</DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-white font-bold flex items-center gap-2">
+                <MessageSquare className="size-5 text-cyan-400" />
+                المحادثة المباشرة مع المتقدم: {selectedAppChat?.fullName || selectedAppChat?.businessName}
+              </DialogTitle>
+              <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30 text-xs">
+                {selectedAppChat?.role === "restaurant" ? "مطبخ/متجر" : selectedAppChat?.role === "courier" ? "كابتن توصيل" : "عميل"}
+              </Badge>
+            </div>
             <DialogDescription className="text-slate-400 text-xs">
-              مراجعة وثائق وبيانات الحساب قبل إنشاء وتوليد كود الدخول
+              التواصل الفوري لمراجعة المرفقات، طلب استفسارات، وإصدار كود الدخول في المحادثة
             </DialogDescription>
           </DialogHeader>
 
-          {selectedRequest && (
-            <div className="space-y-3 rounded-2xl border border-slate-800 bg-slate-900/60 p-4 text-xs">
-              <div className="grid grid-cols-2 gap-2 text-slate-300">
-                <div>
-                  <span className="text-slate-500 block text-[10px]">الاسم / المنشأة:</span>
-                  <span className="font-bold text-white">
-                    {selectedRequest.data.business_name_ar ||
-                      selectedRequest.data.business_name ||
-                      selectedRequest.data.full_name ||
-                      selectedRequest.data.contact_name}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block text-[10px]">الهاتف:</span>
-                  <span className="font-mono text-amber-400">
-                    {selectedRequest.data.contact_phone || selectedRequest.data.phone}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block text-[10px]">البريد الإلكتروني:</span>
-                  <span className="font-mono text-cyan-400">{selectedRequest.data.email || "غير محدد"}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block text-[10px]">نوع الحساب:</span>
-                  <span className="font-bold text-emerald-400">
-                    {selectedRequest.type === "restaurant"
-                      ? "مطعم / مطبخ"
-                      : selectedRequest.type === "courier"
-                      ? "كابتن مندوب"
-                      : "عميل"}
-                  </span>
-                </div>
+          {selectedAppChat && (
+            <div className="space-y-4">
+              {/* Messages Box */}
+              <div className="h-72 overflow-y-auto p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 text-xs">
+                {selectedAppChat.messages.map((m) => {
+                  const isAdmin = m.sender === "admin";
+                  const isSystem = m.sender === "system";
+                  return (
+                    <div
+                      key={m.id}
+                      className={`flex flex-col ${isAdmin ? "items-end" : "items-start"} space-y-1`}
+                    >
+                      <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
+                        <span className="font-bold text-slate-400">{m.senderName}</span>
+                        <span>•</span>
+                        <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                      </div>
+                      <div
+                        className={`p-3 rounded-2xl max-w-[85%] leading-relaxed ${
+                          isAdmin
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold rounded-ee-none shadow-md"
+                            : isSystem
+                            ? "bg-slate-950 border border-slate-800 text-cyan-300 rounded-es-none"
+                            : "bg-amber-500/20 border border-amber-500/30 text-amber-200 rounded-es-none"
+                        }`}
+                      >
+                        <p className="whitespace-pre-line">{m.text}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Chat Input */}
+              <form onSubmit={handleSendAdminChatMessage} className="flex gap-2">
+                <Input
+                  placeholder="اكتب ردك للمتقدم هنا..."
+                  value={adminChatInput}
+                  onChange={(e) => setAdminChatInput(e.target.value)}
+                  className="bg-slate-900 border-slate-800 text-xs text-white"
+                />
+                <Button type="submit" className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs px-4">
+                  <Send className="size-4" />
+                </Button>
+              </form>
+
+              {/* Quick Actions in Chat */}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-800">
+                <span className="text-xs text-slate-400">
+                  📞 الهاتف: <strong className="text-amber-400 font-mono">{selectedAppChat.phone}</strong>
+                </span>
+
+                {selectedAppChat.status !== "approved" && selectedAppChat.status !== "auto_activated" && (
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold text-xs shadow-md"
+                    onClick={() => handleApproveApplication(selectedAppChat.id)}
+                  >
+                    <KeyRound className="size-3.5 me-1.5" />
+                    اعتماد وإصدار كود الدخول في الشات
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* 2. Document Preview Modal */}
+      <Dialog open={Boolean(previewDoc)} onOpenChange={(open) => !open && setPreviewDoc(null)}>
+        <DialogContent className="sm:max-w-2xl bg-slate-950 border-slate-800 text-slate-100 rounded-3xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-white font-bold flex items-center gap-2">
+              <FileText className="size-5 text-amber-400" />
+              {previewDoc?.title}
+            </DialogTitle>
+            <DialogDescription className="text-slate-400 text-xs">
+              معاينة المستند المرفق من قبل المتقدم ({previewDoc?.fileName})
+            </DialogDescription>
+          </DialogHeader>
+
+          {previewDoc && (
+            <div className="space-y-4">
+              <div className="rounded-2xl border border-slate-800 overflow-hidden bg-slate-900/60 p-2 flex items-center justify-center max-h-[450px]">
+                {previewDoc.dataUrl?.startsWith("data:image") || previewDoc.dataUrl?.includes("unsplash.com") || previewDoc.fileType?.startsWith("image") ? (
+                  <img
+                    src={previewDoc.dataUrl}
+                    alt={previewDoc.title}
+                    className="max-h-[420px] w-auto object-contain rounded-xl shadow-lg"
+                  />
+                ) : (
+                  <div className="p-12 text-center space-y-3">
+                    <FileText className="size-16 mx-auto text-cyan-400/70" />
+                    <p className="text-sm font-bold text-white">{previewDoc.fileName}</p>
+                    <p className="text-xs text-slate-400">مستند بصيغة PDF أو ملف منظم</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          <DialogFooter className="gap-2">
+          <DialogFooter>
             <Button
-              className="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold hover:from-emerald-400 hover:to-teal-300 w-full"
-              onClick={() => approveRequest.mutate(selectedRequest)}
-              disabled={approveRequest.isPending}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs"
+              onClick={() => setPreviewDoc(null)}
             >
-              اعتماد وإنشاء الحساب وتوليد كود الدخول
+              إغلاق المعاينة
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* 2. Success Modal Presenting Issued Code */}
+      {/* 3. Success Modal Presenting Issued Code */}
       <Dialog open={issuedCodeModal.open} onOpenChange={(open) => setIssuedCodeModal((prev) => ({ ...prev, open }))}>
         <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-100 rounded-3xl p-6 text-center space-y-4">
           <div className="mx-auto flex size-16 items-center justify-center rounded-3xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-xl shadow-amber-500/20">
@@ -1227,8 +1237,8 @@ function AdminPage() {
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-400 mt-1">
               {lang === "ar"
-                ? "تم تفعيل الحساب وتوليد الكود المشفر التالي. قم بإعطائه للمستخدم للدخول مباشرة:"
-                : "The account is active. Give this access code to the user to enter in the access login field:"}
+                ? "تم تفعيل الحساب وتوليد الكود المشفر التالي. تم إرساله أيضاً في المحادثة المباشرة:"
+                : "The account is active. Access code was generated and posted into the live chat:"}
             </DialogDescription>
           </div>
 
@@ -1282,7 +1292,7 @@ function AdminPage() {
         </DialogContent>
       </Dialog>
 
-      {/* 3. Manual Create Account & Code Dialog */}
+      {/* 4. Manual Create Account & Code Dialog */}
       <Dialog open={showManualCreateDialog} onOpenChange={setShowManualCreateDialog}>
         <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-100 rounded-3xl p-6">
           <DialogHeader>
