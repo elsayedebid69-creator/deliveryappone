@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -48,7 +49,6 @@ import {
 } from "@/components/ui/dialog";
 import { AppSimulatorWorkspace } from "@/components/dev-workspace/app-simulator";
 import {
-import { RoleGuard } from "@/components/auth/role-guard";
   ClipboardCheck,
   Clock,
   CheckCircle2,

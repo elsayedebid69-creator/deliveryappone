@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -13,7 +14,6 @@ import { Switch } from "@/components/ui/switch";
 import { AiDeliveryProof } from "@/components/courier/ai-delivery-proof";
 import { sounds } from "@/lib/sound-effects";
 import {
-import { RoleGuard } from "@/components/auth/role-guard";
   Bike,
   MapPin,
   Clock,

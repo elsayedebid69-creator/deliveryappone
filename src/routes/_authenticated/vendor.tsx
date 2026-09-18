@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -15,7 +16,6 @@ import { Switch } from "@/components/ui/switch";
 import { AiDishCreator } from "@/components/vendor/ai-dish-creator";
 import { sounds } from "@/lib/sound-effects";
 import {
-import { RoleGuard } from "@/components/auth/role-guard";
   Store,
   ClipboardCheck,
   UtensilsCrossed,
