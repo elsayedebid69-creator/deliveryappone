@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
+import deliveryHeroVideo from "@/assets/foodhub-delivery-hero.webm.asset.json";
 import {
   Search,
   MapPin,
@@ -1463,15 +1464,19 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
       {/* ============================================================ */}
       <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
-        {/* Cinematic Gourmet Food Feast Background Image with Vibrant Contrast */}
+        {/* Cinematic FOODHUB delivery film */}
         <div className="absolute inset-0 z-0">
-          <img
-            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=1080&fit=crop&q=85"
-            alt="FoodHub Gourmet Feast Background"
-            className="size-full object-cover object-center opacity-35 dark:opacity-45 scale-105 transition-transform duration-10000 hover:scale-100 filter brightness-95 contrast-105"
+          <video
+            className="size-full object-cover object-center opacity-55"
+            src={deliveryHeroVideo.url}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
           />
-          {/* Multi-layered dark vignette to ensure 100% crisp typography readability while showing the delicious food table */}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/50 to-slate-950/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
         </div>
 
         {/* Hero Content Container */}
