@@ -17,7 +17,7 @@ import {
   type OnboardingApplication,
   type OnboardingChatMessage,
 } from "@/lib/onboarding-chat";
-import { verifyAndLoginWithCode, type AccountType } from "@/lib/access-codes";
+import { type AccountType } from "@/lib/access-codes";
 import {
   User,
   Bike,
@@ -231,13 +231,10 @@ function RegisterPage() {
     setTimeout(() => setCodeCopied(false), 2000);
   };
 
-  const loginWithIssuedCode = (code: string) => {
-    sounds.playSuccess();
-    const res = verifyAndLoginWithCode(code);
-    if (res.success && res.targetRoute) {
-      toast.success("تم تسجيل الدخول بنجاح! جاري فتح الواجهة المخصصة...");
-      navigate({ to: res.targetRoute as any });
-    }
+  const loginWithIssuedCode = (_code: string) => {
+    sounds.playClick();
+    toast.info("سجّل الدخول ببريدك الإلكتروني وكلمة المرور المرسلة إليك من الإدارة.");
+    navigate({ to: "/auth" });
   };
 
   return (

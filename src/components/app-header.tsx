@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   ShoppingBag,
   Languages,
@@ -24,8 +24,6 @@ import { Button } from "@/components/ui/button";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import { sounds } from "@/lib/sound-effects";
 import { PartnerJoinModal, JoinAccountType } from "@/components/partner-join-modal";
-import { AccessCodeModal } from "@/components/auth/access-code-modal";
-import { getActiveCodeSession, logoutCodeSession, AccessCodeAccount } from "@/lib/access-codes";
 import { ThemeToggleDropdown } from "@/components/theme-toggle-dropdown";
 import { LanguageDropdown } from "@/components/language-dropdown";
 
@@ -36,27 +34,24 @@ export function AppHeader() {
   const navigate = useNavigate();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [accessCodeModalOpen, setAccessCodeModalOpen] = useState(false);
-  const [activeCodeSession, setActiveCodeSession] = useState<AccessCodeAccount | null>(null);
 
-  useEffect(() => {
-    setActiveCodeSession(getActiveCodeSession());
-  }, []);
+  const goToLogin = () => {
+    sounds.playClick();
+    void navigate({ to: "/auth" });
+  };
 
   const handleSignOut = async () => {
     sounds.playClick();
-    logoutCodeSession();
-    setActiveCodeSession(null);
     await supabase.auth.signOut();
     void navigate({ to: "/", replace: true });
     setMobileMenuOpen(false);
   };
 
-  const isCustomer = role === "customer" || activeCodeSession?.accountType === "customer";
-  const isAdmin = role === "admin" || activeCodeSession?.accountType === "admin";
-  const isRestaurant = role === "restaurant" || activeCodeSession?.accountType === "restaurant";
-  const isCourier = role === "courier" || activeCodeSession?.accountType === "courier";
-  const isLoggedIn = Boolean(user || activeCodeSession);
+  const isCustomer = role === "customer";
+  const isAdmin = role === "admin";
+  const isRestaurant = role === "restaurant";
+  const isCourier = role === "courier";
+  const isLoggedIn = Boolean(user);
 
   return (
     <>
@@ -157,16 +152,13 @@ export function AppHeader() {
               >
                 <LogOut className="size-4" />
                 <span className="hidden sm:inline">
-                  {activeCodeSession?.fullName ? activeCodeSession.fullName.split(" ")[0] : t("logout")}
+                  {t("logout")}
                 </span>
               </Button>
             ) : (
               <Button
                 size="sm"
-                onClick={() => {
-                  sounds.playClick();
-                  setAccessCodeModalOpen(true);
-                }}
+                onClick={goToLogin}
                 className="gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl shadow-md shadow-amber-500/20 px-4"
               >
                 <KeyRound className="size-4" />
@@ -270,7 +262,7 @@ export function AppHeader() {
                   size="sm"
                   onClick={() => {
                     setMobileMenuOpen(false);
-                    setAccessCodeModalOpen(true);
+                    goToLogin();
                   }}
                   className="justify-start gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold px-4"
                 >
@@ -283,11 +275,6 @@ export function AppHeader() {
         )}
       </header>
 
-      {/* Access Code Login & Forgot Recovery Modal */}
-      <AccessCodeModal
-        open={accessCodeModalOpen}
-        onOpenChange={setAccessCodeModalOpen}
-      />
     </>
   );
 }
@@ -296,7 +283,6 @@ export function AppFooter() {
   const { lang } = useI18n();
   const [joinModalOpen, setJoinModalOpen] = useState(false);
   const [joinType, setJoinType] = useState<JoinAccountType>("customer");
-  const [codeModalOpen, setCodeModalOpen] = useState(false);
 
   const openJoinModal = (type: JoinAccountType) => {
     sounds.playClick();
@@ -306,7 +292,7 @@ export function AppFooter() {
 
   const openCodeModal = () => {
     sounds.playClick();
-    setCodeModalOpen(true);
+    window.location.assign("/auth");
   };
 
   return (
@@ -449,11 +435,6 @@ export function AppFooter() {
         defaultType={joinType}
       />
 
-      {/* Access Code Modal */}
-      <AccessCodeModal
-        open={codeModalOpen}
-        onOpenChange={setCodeModalOpen}
-      />
     </>
   );
 }

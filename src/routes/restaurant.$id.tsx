@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { sounds } from "@/lib/sound-effects";
+import { safeJsonLd } from "@/lib/jsonld";
 
 export const Route = createFileRoute("/restaurant/$id")({
   ssr: false,
@@ -146,7 +147,7 @@ function RestaurantPage() {
       {schemaData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLd(schemaData) }}
         />
       )}
       <AppHeader />
