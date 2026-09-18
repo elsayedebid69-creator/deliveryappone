@@ -31,7 +31,6 @@ export interface CodeRecoveryRequest {
 
 const STORAGE_ACCOUNTS_KEY = "foodhub_access_code_accounts";
 const STORAGE_RECOVERY_KEY = "foodhub_code_recovery_requests";
-const ACTIVE_SESSION_CODE_KEY = "foodhub_active_code_session";
 
 // Default Initial Accounts Seeded with Valid Codes
 const DEFAULT_ACCOUNTS: AccessCodeAccount[] = [
@@ -118,62 +117,10 @@ export function saveAccessAccounts(accounts: AccessCodeAccount[]) {
   localStorage.setItem(STORAGE_ACCOUNTS_KEY, JSON.stringify(accounts));
 }
 
-// Validate and Login with Access Code
-export function verifyAndLoginWithCode(inputCode: string): {
-  success: boolean;
-  account?: AccessCodeAccount;
-  targetRoute?: string;
-  errorMessage?: string;
-} {
-  const cleanCode = inputCode.trim().toUpperCase();
-  const accounts = getAllAccessAccounts();
-  const account = accounts.find((a) => a.code.toUpperCase() === cleanCode && a.isActive);
-
-  if (!account) {
-    return {
-      success: false,
-      errorMessage: "كود الدخول غير صحيح أو غير مفعل. يرجى مراجعة الإدارة أو طلب كود جديد.",
-    };
-  }
-
-  // Update last used timestamp
-  account.lastUsedAt = new Date().toISOString();
-  saveAccessAccounts(accounts);
-
-  // Save active code session
-  if (typeof window !== "undefined") {
-    localStorage.setItem(ACTIVE_SESSION_CODE_KEY, JSON.stringify(account));
-  }
-
-  const routeMap: Record<AccountType, string> = {
-    customer: "/",
-    restaurant: "/vendor",
-    courier: "/courier",
-    admin: "/admin",
-  };
-
-  return {
-    success: true,
-    account,
-    targetRoute: routeMap[account.accountType] || "/",
-  };
-}
-
-// Get Active Code Session
-export function getActiveCodeSession(): AccessCodeAccount | null {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(ACTIVE_SESSION_CODE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return null;
-}
-
-// Logout Code Session
-export function logoutCodeSession() {
-  if (typeof window === "undefined") return;
-  localStorage.removeItem(ACTIVE_SESSION_CODE_KEY);
-}
+// NOTE: Access codes are administrative reference identifiers only.
+// They are NEVER credentials: all authentication happens through the backend
+// auth service (email + password) and all roles come from the server-side
+// user_roles table enforced by row-level security.
 
 // Admin: Create & Issue New Access Code for an Approved User
 export function issueAccountCode(data: {

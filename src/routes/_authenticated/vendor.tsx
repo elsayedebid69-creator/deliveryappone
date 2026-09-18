@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useMemo, useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -55,7 +56,11 @@ export const Route = createFileRoute("/_authenticated/vendor")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: VendorPage,
+  component: () => (
+    <RoleGuard allow={["restaurant", "admin"]}>
+      <VendorPage />
+    </RoleGuard>
+  ),
 });
 
 type OrderStatus = "pending" | "accepted" | "preparing" | "ready" | "on_the_way" | "delivered" | "cancelled";

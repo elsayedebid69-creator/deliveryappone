@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -91,7 +92,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminPage,
+  component: () => (
+    <RoleGuard allow={["admin"]}>
+      <AdminPage />
+    </RoleGuard>
+  ),
 });
 
 function AdminPage() {

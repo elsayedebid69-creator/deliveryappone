@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RoleGuard } from "@/components/auth/role-guard";
 import { useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -46,7 +47,11 @@ export const Route = createFileRoute("/_authenticated/courier")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: CourierPage,
+  component: () => (
+    <RoleGuard allow={["courier", "admin"]}>
+      <CourierPage />
+    </RoleGuard>
+  ),
 });
 
 type Section = "overview" | "available" | "mine";
