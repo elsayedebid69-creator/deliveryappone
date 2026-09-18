@@ -524,8 +524,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             </h1>
             <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-semibold">
               {lang === "ar"
-                ? "قوائم طعام من كافة المطابخ والمطاعم المعتمدة، وجبات صحية، دايت وكيتو وتوصيل راداري فائق السرعة."
-                : "Menus from all certified restaurants & cloud kitchens, healthy dining, keto macros and ultrafast live radar delivery."}
+                ? "أشهى الأطباق وقوائم الطعام من كافة المطاعم والمطابخ السحابية، خيارات متنوعة وصحية لكافة الأذواق، وتوصيل راداري فائق السرعة يصلك أينما كنت."
+                : "Delicious dishes and menus from all restaurants & cloud kitchens, diverse dining for every taste, with ultrafast live radar delivery right to you."}
             </p>
           </div>
 
@@ -593,8 +593,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
                     lang === "ar"
-                      ? "ابحث عن مطعم، وجبة صحية، كيتو، أو سموذي..."
-                      : "Search for restaurant, healthy meal, keto, or smoothie..."
+                      ? "ابحث عن مطعم، مطبخ سحابي، وجبة شهية، أو دايت..."
+                      : "Search for restaurant, cloud kitchen, dish, or diet..."
                   }
                   className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />

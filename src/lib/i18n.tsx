@@ -6,10 +6,10 @@ const dict = {
   brand: { ar: "FOODHUB", en: "FOODHUB" },
   tagline: { ar: "سريع. طازج. يوصلك.", en: "FAST. FRESH. DELIVERED." },
   heroSub: {
-    ar: "أشهى الأطباق الصحية توصلك لحظة بلحظة — اطلب الآن واستمتع بتجربة طعام صحية فريدة",
-    en: "Fresh healthy meals delivered to your door — order now and enjoy a unique healthy dining experience.",
+    ar: "أشهى الأطباق وقوائم الطعام من كافة المطاعم والمطابخ السحابية — اطلب الآن واستمتع بأسرع وأشهى تجربة طعام",
+    en: "Delicious dishes and menus from all restaurants & cloud kitchens — order now and enjoy the best dining experience.",
   },
-  searchPlaceholder: { ar: "ابحث عن وجبة صحيّة...", en: "Search healthy meals..." },
+  searchPlaceholder: { ar: "ابحث عن مطعم، مطبخ، أو وجبة شهية...", en: "Search restaurant, kitchen or dish..." },
   orders: { ar: "طلباتي", en: "My orders" },
   cart: { ar: "السلة", en: "Cart" },
   login: { ar: "تسجيل الدخول", en: "Sign in" },
