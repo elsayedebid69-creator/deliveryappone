@@ -1261,6 +1261,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [localityStatusFilter, setLocalityStatusFilter] = useState<"all" | "available" | "unavailable">("all");
   const [localityQuery, setLocalityQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLocId, setSelectedLocId] = useState<string | null>(null);
   const [brandCategory, setBrandCategory] = useState("all");
   const [brandReelIndex, setBrandReelIndex] = useState(0);
   const [isBrandReelPaused, setIsBrandReelPaused] = useState(false);
