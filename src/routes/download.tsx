@@ -433,14 +433,6 @@ export function DownloadPage() {
                   </li>
                 </ul>
               </div>
-
-              <Button
-                type="button"
-                onClick={() => handleStoreClick("appstore")}
-                className="w-full rounded-2xl bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-white font-bold text-xs transition-colors"
-              >
-                <span>{lang === "ar" ? "تصفح القوائم بالتطبيق" : "Browse in App"}</span>
-              </Button>
             </div>
 
             {/* Card 2: 🛰️ رادار تتبع الطلبات المباشر */}
@@ -480,14 +472,6 @@ export function DownloadPage() {
                   </li>
                 </ul>
               </div>
-
-              <Button
-                type="button"
-                onClick={() => handleStoreClick("appstore")}
-                className="w-full rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs transition-colors shadow-lg shadow-cyan-500/20"
-              >
-                <span>{lang === "ar" ? "تجربة الرادار بالتطبيق" : "Try Radar in App"}</span>
-              </Button>
             </div>
 
             {/* Card 3: 🛒 السلة وإتمام الطلب الفوري */}
@@ -527,14 +511,6 @@ export function DownloadPage() {
                   </li>
                 </ul>
               </div>
-
-              <Button
-                type="button"
-                onClick={() => handleStoreClick("appstore")}
-                className="w-full rounded-2xl bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-white font-bold text-xs transition-colors"
-              >
-                <span>{lang === "ar" ? "إتمام الطلب بالتطبيق" : "Checkout in App"}</span>
-              </Button>
             </div>
           </div>
         </section>
