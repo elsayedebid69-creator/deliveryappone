@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import deliveryHeroVideo from "@/assets/foodhub-delivery-hero-logo.webm.asset.json";
 import {
   Search,
   MapPin,
@@ -1258,12 +1257,10 @@ export interface PreviewDish {
 export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const { lang, t, setLang } = useI18n();
   const [selectedCat, setSelectedCat] = useState("all");
-  const [selectedLocId, setSelectedLocId] = useState("loc-c1");
   const [localityRegion, setLocalityRegion] = useState<string>("all");
   const [localityStatusFilter, setLocalityStatusFilter] = useState<"all" | "available" | "unavailable">("all");
   const [localityQuery, setLocalityQuery] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [brandCategory, setBrandCategory] = useState("all");
   const [brandReelIndex, setBrandReelIndex] = useState(0);
   const [isBrandReelPaused, setIsBrandReelPaused] = useState(false);
@@ -1315,9 +1312,6 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     sounds.playClick();
     setCarouselIndex((prev) => (prev - 1 + POPULAR_ROTATING_MEALS.length) % POPULAR_ROTATING_MEALS.length);
   };
-
-  const currentLoc = RIYADH_LOCALITIES.find((l) => l.id === selectedLocId) ?? RIYADH_LOCALITIES[0];
-  const activeLocation = lang === "ar" ? `الرياض • ${currentLoc?.nameAr ?? ""}` : `Riyadh • ${currentLoc?.nameEn ?? ""}`;
 
   const toggleLike = (id: string) => {
     sounds.playClick();
@@ -1500,193 +1494,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950 ${isEmbedded ? "text-sm" : ""}`}>
       {/* ============================================================ */}
-      {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
-      {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
-        {/* Cinematic FOODHUB delivery film */}
-        <div className="absolute inset-0 z-0">
-          <video
-            className="size-full object-cover object-center opacity-55"
-            src={deliveryHeroVideo.url}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            aria-hidden="true"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
-        </div>
-
-        {/* Hero Content Container */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:py-20 flex flex-col items-center text-center space-y-6">
-          {/* Brand Logo & Pill */}
-          <div className="flex flex-col items-center gap-3">
-            <FoodHubLogo size={56} showText />
-            <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-4 py-1.5 text-xs font-black text-amber-300 backdrop-blur-md shadow-lg shadow-amber-500/10">
-              ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at the lowest rates"}
-            </span>
-          </div>
-
-          {/* Zomato Headline */}
-          <div className="max-w-3xl space-y-3">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight drop-shadow-md">
-              {lang === "ar" ? (
-                <>
-                  اكتشف أفضل المطاعم والمطابخ السحابية والمأكولات في{" "}
-                  <span className="text-amber-400 drop-shadow-sm">
-                    الرياض
-                  </span>
-                </>
-              ) : (
-                <>
-                  Discover the best restaurants, cloud kitchens & dining in{" "}
-                  <span className="text-amber-400 drop-shadow-sm">
-                    Riyadh
-                  </span>
-                </>
-              )}
-            </h1>
-            <p className="text-xs sm:text-base text-slate-200 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow-sm">
-              {lang === "ar"
-                ? "أشهى الأطباق وقوائم الطعام من كافة المطاعم والمطابخ السحابية، خيارات متنوعة وصحية لكافة الأذواق، وتوصيل راداري فائق السرعة يصلك أينما كنت."
-                : "Delicious dishes and menus from all restaurants & cloud kitchens, diverse dining for every taste, with ultrafast live radar delivery right to you."}
-            </p>
-          </div>
-
-          {/* ============================================================ */}
-          {/* ZOMATO DUAL SEARCH BAR (Location Pill + Dish Search) */}
-          {/* ============================================================ */}
-          <div className="w-full max-w-3xl mt-4">
-            <div className="relative flex flex-col sm:flex-row items-center rounded-2xl sm:rounded-full bg-slate-900/95 border border-slate-700/80 p-1.5 sm:p-2 shadow-2xl shadow-slate-950 backdrop-blur-xl transition-all focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20">
-              
-              {/* Location Picker (Left on LTR / Right on RTL) */}
-              <div className="relative w-full sm:w-5/12">
-                <button
-                  type="button"
-                  aria-label={lang === "ar" ? "اختر حي ومنطقة التوصيل" : "Select delivery neighborhood"}
-                  onClick={() => {
-                    sounds.playClick();
-                    setIsLocationDropdownOpen(!isLocationDropdownOpen);
-                  }}
-                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl sm:rounded-full text-xs font-bold text-slate-200 hover:bg-slate-800/80 transition-colors"
-                >
-                  <div className="flex items-center gap-2 truncate">
-                    <MapPin className="size-4 text-rose-500 shrink-0 animate-bounce" />
-                    <span className="truncate">{activeLocation}</span>
-                  </div>
-                  <ChevronDown className="size-3.5 text-slate-400 shrink-0" />
-                </button>
-
-                {/* Location Dropdown */}
-                {isLocationDropdownOpen && (
-                  <div className="absolute top-full start-0 z-50 mt-2 w-72 rounded-2xl border border-slate-700 bg-slate-900 p-2 shadow-2xl animate-in fade-in zoom-in-95 text-start">
-                    <p className="px-3 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                      {lang === "ar" ? "اختر الحي / منطقة التوصيل:" : "Select Delivery Neighborhood:"}
-                    </p>
-                    <div className="max-h-56 overflow-y-auto space-y-1">
-                      {RIYADH_LOCALITIES.map((loc) => (
-                        <button
-                          key={loc.id}
-                          type="button"
-                          onClick={() => {
-                            sounds.playClick();
-                            if (loc.isAvailable) {
-                              setSelectedLocId(loc.id);
-                              setIsLocationDropdownOpen(false);
-                              toast.info(lang === "ar" ? `📍 تم تحديد: حي ${loc.nameAr} (متاح للتوصيل 🟢)` : `📍 Location set: ${loc.nameEn} (Available 🟢)`);
-                            } else {
-                              toast.info(lang === "ar" ? `🔔 حي ${loc.nameAr} غير متاح حالياً 🔴 - تم تسجيل طلبك للتوسع قريباً!` : `🔔 ${loc.nameEn} unavailable currently 🔴 - Demand logged for rollout!`);
-                            }
-                          }}
-                          className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                            loc.isAvailable
-                              ? "text-slate-200 hover:bg-emerald-500/10 hover:text-emerald-400"
-                              : "text-slate-500 hover:bg-rose-500/10 hover:text-rose-500"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className={`size-2 rounded-full shrink-0 ${loc.isAvailable ? "bg-emerald-500 shadow-sm shadow-emerald-500/50" : "bg-rose-500"}`} />
-                            <span className="font-medium">{lang === "ar" ? loc.nameAr : loc.nameEn}</span>
-                          </div>
-                          <span className="text-[10px] font-bold">
-                            {loc.isAvailable
-                              ? `${loc.places} ${lang === "ar" ? "مكان" : "places"}`
-                              : (lang === "ar" ? "قريباً 🔴" : "Soon 🔴")}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="hidden sm:block h-6 w-px bg-slate-700 mx-1" />
-
-              {/* Dish / Kitchen Search Input */}
-              <div className="relative flex-1 w-full flex items-center">
-                <Search className="absolute start-3.5 size-4 text-slate-400" />
-                <Input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={
-                    lang === "ar"
-                      ? "ابحث عن أي مطعم، كنتاكي، برجر، مشويات، بيتزا، كافيه، أو وجبة دايت..."
-                      : "Search any restaurant, KFC, burger, grills, pizza, cafe, or diet..."
-                  }
-                  className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-white placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    aria-label={lang === "ar" ? "مسح البحث" : "Clear search"}
-                    onClick={() => setSearchQuery("")}
-                    className="absolute end-3 text-xs text-slate-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Quick Trending Search Tags Covering All Restaurant Cuisines */}
-            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 text-xs">
-              <span className="text-slate-300 text-[11px] font-bold me-1 drop-shadow-sm">
-                {lang === "ar" ? "الأكثر بحثاً في المطاعم:" : "Trending in Restaurants:"}
-              </span>
-              {[
-                { ar: "🍗 دجاج كنتاكي ومقرمش", en: "🍗 KFC & Crispy", query: "كنتاكي", cat: "all" },
-                { ar: "🍔 برجر وهارديز", en: "🍔 Burgers & Hardees", query: "برجر", cat: "all" },
-                { ar: "🥩 مشويات وتكساس ستيك", en: "🥩 Grills & Steaks", query: "مشويات", cat: "all" },
-                { ar: "🍕 دومينوز ومايسترو بيتزا", en: "🍕 Dominos & Pizza", query: "بيتزا", cat: "all" },
-                { ar: "🌯 شاورمر وماما نورة", en: "🌯 Shawarma", query: "شاورمر", cat: "all" },
-                { ar: "🥗 دايت وكيتو وصب واي", en: "🥗 Diet & Subway", query: "صحي", cat: "healthy" },
-                { ar: "🧁 سينابون ودانكن كافيه", en: "🧁 Cinnabon & Cafes", query: "سينابون", cat: "all" },
-              ].map((pill, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => {
-                    sounds.playClick();
-                    setSearchQuery(pill.query);
-                    if (pill.cat) setSelectedCat(pill.cat);
-                    toast.info(lang === "ar" ? `🔎 تصفح: ${pill.ar}` : `🔎 Browsing: ${pill.en}`);
-                  }}
-                  className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3 py-1 text-[11px] font-bold text-slate-200 hover:border-amber-400 hover:text-amber-300 transition-all active:scale-95 shadow-md backdrop-blur-md"
-                >
-                  {lang === "ar" ? pill.ar : pill.en}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============================================================ */}
       {/* 2. FOODHUB EXCLUSIVE PLATFORM FEATURES (مميزات المنصة) */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-10 w-full space-y-6">
+      <section className="mx-auto max-w-6xl px-4 pt-8 pb-10 w-full space-y-6">
         {/* Section Header */}
         <div className="text-center space-y-2 max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-500 dark:text-amber-400 shadow-sm">
