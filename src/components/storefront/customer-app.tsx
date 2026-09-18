@@ -1545,15 +1545,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
-        </div>
-
-        {/* Hero Content Container */}
-        <div className="relative z-10 w-full mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
-          {/* Brand Logo */}
-          <div className="flex flex-col items-center">
-            <FoodHubLogo size={64} showText />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/80" />
         </div>
       </section>
 
