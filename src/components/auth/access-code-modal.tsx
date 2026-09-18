@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, Link } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,8 @@ import {
   Store,
   Bike,
   CheckCircle2,
+  ClipboardPaste,
+  UserPlus,
 } from "lucide-react";
 import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
@@ -31,6 +33,7 @@ import {
   AccountType,
 } from "@/lib/access-codes";
 import { useI18n } from "@/lib/i18n";
+import { FoodHubLogo } from "@/components/food-hub-logo";
 
 interface AccessCodeModalProps {
   open: boolean;
@@ -53,10 +56,23 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
   const [forgotReason, setForgotReason] = useState("");
   const [forgotSubmitted, setForgotSubmitted] = useState(false);
 
+  const handlePasteCode = async () => {
+    try {
+      sounds.playClick();
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        setAccessCode(text.trim().toUpperCase());
+        toast.info(lang === "ar" ? "تم لصق كود الدخول من الحافظة" : "Pasted access code from clipboard");
+      }
+    } catch {
+      toast.error(lang === "ar" ? "تعذر قراءة الحافظة تلقائياً" : "Unable to read clipboard");
+    }
+  };
+
   const handleLoginWithCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!accessCode.trim()) {
-      toast.error("يرجى إدخال كود الدخول المعتمد");
+      toast.error(lang === "ar" ? "يرجى إدخال كود الدخول المعتمد" : "Please enter your access code");
       return;
     }
 
@@ -64,18 +80,20 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
     sounds.playClick();
 
     setTimeout(() => {
-      const result = verifyAndLoginWithCode(accessCode);
+      const result = verifyAndLoginWithCode(accessCode.trim());
       setBusy(false);
 
       if (!result.success) {
-        toast.error(result.errorMessage || "كود الدخول غير صحيح.");
+        toast.error(result.errorMessage || (lang === "ar" ? "كود الدخول غير صحيح." : "Invalid access code."));
         return;
       }
 
       sounds.playSuccess();
       const acc = result.account!;
       toast.success(
-        `مرحباً بك يا ${acc.fullName}! تم التحقق من الكود (${acc.code}) بنجاح.`
+        lang === "ar"
+          ? `✨ مرحباً بك يا ${acc.fullName}! تم التحقق من الكود بنجاح.`
+          : `✨ Welcome ${acc.fullName}! Verified successfully.`
       );
       onOpenChange(false);
       void navigate({ to: result.targetRoute || "/", replace: true });
@@ -85,7 +103,7 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
   const handleForgotSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!forgotPhone.trim() && !forgotEmail.trim()) {
-      toast.error("يرجى إدخال رقم الهاتف أو البريد الإلكتروني للتحقق");
+      toast.error(lang === "ar" ? "يرجى إدخال رقم الهاتف أو البريد الإلكتروني للتحقق" : "Please enter phone or email");
       return;
     }
 
@@ -94,17 +112,17 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
 
     setTimeout(() => {
       submitForgotCodeRequest({
-        fullName: forgotName.trim() || "مستخدم مسجل",
+        fullName: forgotName.trim() || (lang === "ar" ? "مستخدم مسجل" : "Registered User"),
         phone: forgotPhone.trim(),
         email: forgotEmail.trim(),
         accountType: forgotType,
-        reason: forgotReason.trim() || "طلب كود جديد بسبب نسيان الكود السابق",
+        reason: forgotReason.trim() || (lang === "ar" ? "طلب كود جديد بسبب نسيان الكود السابق" : "Forgot previous access code"),
       });
 
       setBusy(false);
       setForgotSubmitted(true);
       sounds.playSuccess();
-      toast.success("تم إرسال طلب استعادة الكود إلى الإدارة المركزية بنجاح!");
+      toast.success(lang === "ar" ? "تم إرسال طلب استعادة الكود إلى الإدارة بنجاح!" : "Code recovery request sent to Admin successfully!");
     }, 400);
   };
 
@@ -126,35 +144,56 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
         if (!val) setTimeout(resetModal, 300);
       }}
     >
-      <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-100 p-6 sm:p-8 rounded-3xl shadow-2xl">
-        <DialogHeader className="space-y-2 text-start">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs">
-              <ShieldCheck className="size-3.5 me-1 text-amber-400" />
-              منظومة الدخول الآمن المشفر | FOODHUB
+      <DialogContent className="sm:max-w-md bg-slate-950 border-slate-800 text-slate-100 p-6 sm:p-8 rounded-3xl shadow-2xl backdrop-blur-xl">
+        <DialogHeader className="space-y-3 text-start">
+          {/* Top Branding & Security Badge */}
+          <div className="flex items-center justify-between">
+            <FoodHubLogo size={32} showText />
+            <Badge className="bg-amber-500/15 text-amber-400 border-amber-500/30 text-[10px] font-bold px-2.5 py-1">
+              <ShieldCheck className="size-3 me-1 text-amber-400" />
+              {lang === "ar" ? "دخول آمن ومشفر 100%" : "100% Encrypted Login"}
             </Badge>
           </div>
 
           <DialogTitle className="text-xl sm:text-2xl font-black text-white">
             {mode === "login"
-              ? "الدخول بكود الوصول المعتمد"
-              : "طلب كود دخول جديد من الإدارة"}
+              ? lang === "ar"
+                ? "تسجيل الدخول بكود المرور"
+                : "Access Code Sign In"
+              : lang === "ar"
+              ? "طلب استعادة كود الدخول"
+              : "Recover Access Code"}
           </DialogTitle>
 
-          <DialogDescription className="text-xs text-slate-400 leading-relaxed">
+          <DialogDescription className="text-xs text-slate-400 leading-relaxed font-normal">
             {mode === "login"
-              ? "أدخل كود الدخول الخاص بك (للعميل، المطبخ، المندوب، أو الإدارة) لفتح الواجهة المخصصة فوراً."
-              : "أرسل بياناتك المسجلة للتحقق وسيقوم الأدمن بتوليد وتزويدك بكود دخول جديد صالح."}
+              ? lang === "ar"
+                ? "أدخل كود المرور المخصص لحسابك (للعميل، المندوب، المطبخ، أو الإدارة) لفتح واجهتك فوراً."
+                : "Enter your account access code (customer, courier, kitchen, or admin) to open your dashboard."
+              : lang === "ar"
+              ? "أرسل بياناتك المسجلة للتحقق وسيقوم مسؤول الإدارة بمراجعة الحساب وتزويدك بكود صالح جديد."
+              : "Submit your details and the admin team will verify your account and provide a valid code."}
           </DialogDescription>
         </DialogHeader>
 
         {/* 1. LOGIN WITH CODE VIEW */}
         {mode === "login" && (
           <form onSubmit={handleLoginWithCode} className="space-y-4 pt-2">
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-300">
-                كود الدخول المشفر (Access Code)
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-bold text-slate-200">
+                  {lang === "ar" ? "كود الدخول المعتمد (Access Code)" : "Authorized Access Code"}
+                </Label>
+                <button
+                  type="button"
+                  onClick={handlePasteCode}
+                  className="text-[11px] text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition-colors"
+                >
+                  <ClipboardPaste className="size-3" />
+                  <span>{lang === "ar" ? "لصق الكود" : "Paste"}</span>
+                </button>
+              </div>
+
               <div className="relative">
                 <KeyRound className="absolute start-3.5 top-1/2 -translate-y-1/2 size-4 text-amber-400" />
                 <Input
@@ -162,80 +201,66 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
                   autoFocus
                   value={accessCode}
                   onChange={(e) => setAccessCode(e.target.value.toUpperCase())}
-                  placeholder="مثال: FH-CUST-1044 أو FH-REST-9482"
-                  className="ps-10 bg-slate-900 border-slate-700 text-amber-400 font-mono text-sm sm:text-base font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal placeholder:text-xs uppercase"
+                  placeholder="FH-CUST-XXXX / FH-REST-XXXX"
+                  className="ps-10 pe-4 bg-slate-900/90 border-slate-700 text-amber-400 font-mono text-sm sm:text-base font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal placeholder:text-xs uppercase h-12 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
                 />
               </div>
-              <p className="text-[11px] text-slate-400">
-                * يتم إعطاء الكود من قبل إدارة FOODHUB بعد إنشاء واعتماد الحساب.
+
+              <p className="text-[11px] text-slate-400 leading-relaxed">
+                {lang === "ar"
+                  ? "* يتم إصدار كود الدخول الخاص بك بعد إنشاء واعتماد الحساب من إدارة FOODHUB."
+                  : "* Your access code is generated once your account is created and verified by admin."}
               </p>
             </div>
 
             <Button
               type="submit"
               disabled={busy}
-              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black hover:from-amber-400 hover:to-yellow-300 py-5 text-sm rounded-xl shadow-lg shadow-amber-500/20"
+              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black hover:from-amber-400 hover:to-yellow-300 h-12 text-sm rounded-xl shadow-lg shadow-amber-500/20 gap-2 transition-all active:scale-[0.99]"
             >
               {busy ? (
                 <span className="flex items-center gap-2">
                   <span className="size-4 animate-spin rounded-full border-2 border-slate-950 border-t-transparent" />
-                  جاري التحقق والدخول...
+                  {lang === "ar" ? "جاري التحقق والدخول..." : "Verifying & Signing in..."}
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  دخول فوري بالتطبيق
-                  <ArrowRight className="size-4" />
+                  <span>{lang === "ar" ? "دخول إلى حسابي" : "Sign In to Account"}</span>
+                  <ArrowRight className={`size-4 ${lang === "ar" ? "rotate-180" : ""}`} />
                 </span>
               )}
             </Button>
 
-            {/* Quick Demo Helpers */}
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-3 text-[11px] space-y-1.5">
-              <span className="text-amber-400 font-bold block">
-                💡 أكواد معتمدة جاهزة للاختبار السريع:
-              </span>
-              <div className="flex flex-wrap gap-1.5 font-mono text-[10px]">
-                <button
-                  type="button"
-                  onClick={() => setAccessCode("FH-CUST-1044")}
-                  className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-amber-300 hover:border-amber-500"
-                >
-                  👤 عميل: FH-CUST-1044
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccessCode("FH-REST-9482")}
-                  className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-orange-300 hover:border-orange-500"
-                >
-                  👨‍🍳 مطبخ: FH-REST-9482
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccessCode("FH-RIDE-3129")}
-                  className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-cyan-300 hover:border-cyan-500"
-                >
-                  🛵 مندوب: FH-RIDE-3129
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAccessCode("FH-ADMIN-777")}
-                  className="px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-purple-300 hover:border-purple-500"
-                >
-                  🛡️ أدمن: FH-ADMIN-777
-                </button>
-              </div>
-            </div>
-
-            {/* Forgot Code Switch */}
-            <div className="text-center pt-1 border-t border-slate-800/80">
+            {/* Forgot Code & Create Account Options */}
+            <div className="space-y-3 pt-2 border-t border-slate-800/80">
               <button
                 type="button"
-                onClick={() => setMode("forgot")}
-                className="text-xs text-amber-400 hover:text-amber-300 underline font-medium flex items-center justify-center gap-1 mx-auto"
+                onClick={() => {
+                  sounds.playClick();
+                  setMode("forgot");
+                }}
+                className="w-full text-center text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center justify-center gap-1.5 transition-colors"
               >
                 <HelpCircle className="size-3.5" />
-                نسيت كود الدخول؟ اطلب كوداً جديداً من الدعم
+                <span>{lang === "ar" ? "نسيت كود الدخول؟ اطلب كوداً جديداً من الدعم" : "Forgot access code? Request recovery"}</span>
               </button>
+
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/60 p-3 flex items-center justify-between gap-2 text-xs">
+                <span className="text-slate-400">
+                  {lang === "ar" ? "ليس لديك حساب مسجل؟" : "Don't have an account yet?"}
+                </span>
+                <Link
+                  to="/register"
+                  onClick={() => {
+                    sounds.playClick();
+                    onOpenChange(false);
+                  }}
+                  className="font-bold text-amber-400 hover:text-amber-300 underline flex items-center gap-1 shrink-0"
+                >
+                  <UserPlus className="size-3.5" />
+                  <span>{lang === "ar" ? "إنشاء حساب ومحادثة الإدارة" : "Create Account & Chat"}</span>
+                </Link>
+              </div>
             </div>
           </form>
         )}
@@ -249,109 +274,130 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
                   <CheckCircle2 className="size-7" />
                 </div>
                 <h3 className="text-base font-bold text-white">
-                  تم استلام طلبك بنجاح!
+                  {lang === "ar" ? "تم استلام طلبك بنجاح!" : "Request Received Successfully!"}
                 </h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
-                  سيقوم مسؤولو الإدارة في FOODHUB بالتحقق من بياناتك وإصدار كود
-                  جديد وتفعيله لحسابك.
+                  {lang === "ar"
+                    ? "سيقوم مسؤولو الإدارة في FOODHUB بالتحقق من بياناتك وإصدار كود جديد وإرساله لك فوراً."
+                    : "Admin team will review your registered information and issue a new access code."}
                 </p>
                 <Button
                   size="sm"
                   onClick={() => {
+                    sounds.playClick();
                     setForgotSubmitted(false);
                     setMode("login");
                   }}
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs"
+                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs rounded-xl"
                 >
-                  العودة لنافذة تسجيل الدخول
+                  {lang === "ar" ? "العودة لتسجيل الدخول" : "Back to Sign In"}
                 </Button>
               </div>
             ) : (
               <form onSubmit={handleForgotSubmit} className="space-y-3.5">
-                <div className="space-y-1">
-                  <Label className="text-xs text-slate-300">نوع الحساب</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-slate-300 font-bold">
+                    {lang === "ar" ? "نوع الحساب" : "Account Type"}
+                  </Label>
                   <div className="grid grid-cols-3 gap-2">
                     <button
                       type="button"
-                      onClick={() => setForgotType("customer")}
-                      className={`p-2 rounded-xl text-xs font-bold border text-center transition-all ${
+                      onClick={() => {
+                        sounds.playClick();
+                        setForgotType("customer");
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-bold border text-center transition-all ${
                         forgotType === "customer"
-                          ? "bg-amber-500 text-slate-950 border-amber-500"
-                          : "bg-slate-900 border-slate-800 text-slate-300"
+                          ? "bg-amber-500 text-slate-950 border-amber-500 shadow-md"
+                          : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
                       }`}
                     >
                       <User className="size-3.5 mx-auto mb-1" />
-                      عميل
+                      <span>{lang === "ar" ? "عميل" : "Customer"}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setForgotType("courier")}
-                      className={`p-2 rounded-xl text-xs font-bold border text-center transition-all ${
+                      onClick={() => {
+                        sounds.playClick();
+                        setForgotType("courier");
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-bold border text-center transition-all ${
                         forgotType === "courier"
-                          ? "bg-cyan-500 text-slate-950 border-cyan-500"
-                          : "bg-slate-900 border-slate-800 text-slate-300"
+                          ? "bg-cyan-500 text-slate-950 border-cyan-500 shadow-md"
+                          : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
                       }`}
                     >
                       <Bike className="size-3.5 mx-auto mb-1" />
-                      مندوب
+                      <span>{lang === "ar" ? "مندوب" : "Courier"}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setForgotType("restaurant")}
-                      className={`p-2 rounded-xl text-xs font-bold border text-center transition-all ${
+                      onClick={() => {
+                        sounds.playClick();
+                        setForgotType("restaurant");
+                      }}
+                      className={`p-2.5 rounded-xl text-xs font-bold border text-center transition-all ${
                         forgotType === "restaurant"
-                          ? "bg-orange-500 text-slate-950 border-orange-500"
-                          : "bg-slate-900 border-slate-800 text-slate-300"
+                          ? "bg-orange-500 text-slate-950 border-orange-500 shadow-md"
+                          : "bg-slate-900 border-slate-800 text-slate-300 hover:border-slate-700"
                       }`}
                     >
                       <Store className="size-3.5 mx-auto mb-1" />
-                      مطبخ / متجر
+                      <span>{lang === "ar" ? "مطبخ / متجر" : "Kitchen"}</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <Label className="text-xs text-slate-300">الاسم الكامل / اسم المتجر</Label>
+                  <Label className="text-xs text-slate-300 font-medium">
+                    {lang === "ar" ? "الاسم الكامل / اسم المتجر" : "Full Name / Store Name"}
+                  </Label>
                   <Input
                     required
                     value={forgotName}
                     onChange={(e) => setForgotName(e.target.value)}
-                    placeholder="مثال: سعد العتيبي أو مطبخ الرياض"
-                    className="bg-slate-900 border-slate-800 text-xs"
+                    placeholder={lang === "ar" ? "مثال: سعد العتيبي أو مطبخ الرياض" : "e.g. Saad Al-Otaibi"}
+                    className="bg-slate-900 border-slate-800 text-xs text-white rounded-xl"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <Label className="text-xs text-slate-300">رقم الجوال المسجل</Label>
+                    <Label className="text-xs text-slate-300 font-medium">
+                      {lang === "ar" ? "رقم الجوال المسجل" : "Registered Phone"}
+                    </Label>
                     <Input
                       required
                       type="tel"
                       value={forgotPhone}
                       onChange={(e) => setForgotPhone(e.target.value)}
                       placeholder="05xxxxxxxx"
-                      className="bg-slate-900 border-slate-800 text-xs font-mono"
+                      className="bg-slate-900 border-slate-800 text-xs font-mono text-white rounded-xl"
                     />
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs text-slate-300">البريد الإلكتروني</Label>
+                    <Label className="text-xs text-slate-300 font-medium">
+                      {lang === "ar" ? "البريد الإلكتروني" : "Email"}
+                    </Label>
                     <Input
                       type="email"
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
                       placeholder="name@example.com"
-                      className="bg-slate-900 border-slate-800 text-xs font-mono"
+                      className="bg-slate-900 border-slate-800 text-xs font-mono text-white rounded-xl"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <Label className="text-xs text-slate-300">سبب طلب الكود الجديد / ملاحظات</Label>
+                  <Label className="text-xs text-slate-300 font-medium">
+                    {lang === "ar" ? "سبب طلب الكود الجديد / ملاحظات" : "Reason / Notes"}
+                  </Label>
                   <Input
                     value={forgotReason}
                     onChange={(e) => setForgotReason(e.target.value)}
-                    placeholder="مثال: تم تغيير الهاتف أو نسيان الكود السابق"
-                    className="bg-slate-900 border-slate-800 text-xs"
+                    placeholder={lang === "ar" ? "مثال: تم تغيير الهاتف أو نسيان الكود السابق" : "e.g. Changed phone or forgot code"}
+                    className="bg-slate-900 border-slate-800 text-xs text-white rounded-xl"
                   />
                 </div>
 
@@ -359,18 +405,21 @@ export function AccessCodeModal({ open, onOpenChange }: AccessCodeModalProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setMode("login")}
-                    className="border-slate-800 bg-slate-900 text-xs text-slate-300"
+                    onClick={() => {
+                      sounds.playClick();
+                      setMode("login");
+                    }}
+                    className="border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-white rounded-xl"
                   >
-                    إلغاء
+                    {lang === "ar" ? "إلغاء" : "Cancel"}
                   </Button>
                   <Button
                     type="submit"
                     disabled={busy}
-                    className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 text-xs gap-1.5"
+                    className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 text-xs gap-1.5 rounded-xl shadow-md"
                   >
                     <Send className="size-3.5" />
-                    إرسال طلب استرجاع الكود للإدارة
+                    <span>{lang === "ar" ? "إرسال طلب الاسترجاع للإدارة" : "Send Recovery Request"}</span>
                   </Button>
                 </div>
               </form>
