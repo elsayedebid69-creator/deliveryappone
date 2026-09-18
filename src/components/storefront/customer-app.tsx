@@ -409,132 +409,392 @@ const FOODHUB_PLATFORM_FEATURES = [
   },
 ];
 
-// Partnership Filter Categories
-const PARTNERSHIP_CATEGORIES = [
-  { id: "all", labelAr: "جميع الشراكات", labelEn: "All Partnerships", icon: "🤝" },
-  { id: "protein", labelAr: "البروتين والشواء الصحي", labelEn: "Protein & Healthy Grills", icon: "🥩" },
-  { id: "keto", labelAr: "الكيتو والبرجر الصحي", labelEn: "Keto & Fit Burgers", icon: "🥑" },
-  { id: "coffee", labelAr: "القهوة والمخبوزات", labelEn: "Specialty Coffee & Bakery", icon: "☕" },
-  { id: "seafood", labelAr: "المأكولات البحرية والآسيوية", labelEn: "Seafood & Asian Poke", icon: "🐟" },
+// Famous KSA Restaurant Brand Categories
+const FAMOUS_BRAND_CATEGORIES = [
+  { id: "all", labelAr: "جميع أشهر المطاعم", labelEn: "All Famous Brands", icon: "👑" },
+  { id: "burger", labelAr: "برجر وسريع", labelEn: "Burgers & Fast Food", icon: "🍔" },
+  { id: "shawarma", labelAr: "شاورما وفطائر", labelEn: "Shawarma & Wraps", icon: "🌯" },
+  { id: "traditional", labelAr: "كبسة وشعبي سعودي", labelEn: "Saudi Traditional", icon: "🍛" },
+  { id: "pizza", labelAr: "بيتزا وإيطالي", labelEn: "Pizza & Italian", icon: "🍕" },
+  { id: "cafe", labelAr: "كافيهات ودونات", labelEn: "Cafes & Desserts", icon: "☕" },
 ];
 
-// Strategic Restaurant & Kitchen Partnerships (Multi-Brand Collaborations)
-const RESTAURANT_PARTNERSHIPS = [
+// Iconic Famous Restaurant Brands in Saudi Arabia
+export interface FamousKsaRestaurant {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  category: "burger" | "shawarma" | "traditional" | "pizza" | "cafe" | "fastfood";
+  logoIcon: string;
+  logoColor: string;
+  avatarBg: string;
+  signatureDishAr: string;
+  signatureDishEn: string;
+  branchesAr: string;
+  branchesEn: string;
+  rating: number;
+  ordersCountAr: string;
+  ordersCountEn: string;
+  eta: string;
+  discountBadgeAr: string;
+  discountBadgeEn: string;
+  verifiedBadgeAr: string;
+  verifiedBadgeEn: string;
+  image: string;
+}
+
+const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
   {
-    id: "part-1",
-    titleAr: "تحالف الشواء الماسي & السلطات العضوية",
-    titleEn: "Diamond Grills ✕ Organic Bowls Collaboration",
-    partner1Ar: "جريل ماستر ستيك هاوس",
-    partner1En: "Grill Master Steakhouse",
-    partner2Ar: "أورجانيك بول & سموذي بار",
-    partner2En: "Organic Bowls & Smoothie Bar",
-    category: "protein",
-    descAr: "شراكة طهي تجمع بين أرقى شرائح الستيك المشوي والسموذي العضوي الطازج في طلب وسلة واحدة.",
-    descEn: "Culinary synergy combining tenderloin steaks with fresh antioxidant smoothies in a single unified order.",
-    comboDishAr: "وجبة شواء تندرلوين + طبق كينوا وسموذي توت",
-    comboDishEn: "Tenderloin Steak + Organic Quinoa & Berry Smoothie",
-    comboPrice: 68,
-    oldPrice: 85,
-    discountBadgeAr: "وفر 20% على الطلب المشترك",
-    discountBadgeEn: "Save 20% on Combined Order",
-    rating: 4.95,
-    ordersCount: "1.8k+ طلب مشترك",
-    ordersCountEn: "1.8k+ joint orders",
-    eta: "15-20 دقيقة",
-    deliveryFeeAr: "توصيل موحد مجاني",
-    deliveryFeeEn: "Free unified delivery",
-    tagAr: "🥩 تحالف بروتين وصحي",
-    tagEn: "🥩 Protein & Health Alliance",
-    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=500&fit=crop",
-    partner1Logo: "🥩",
-    partner2Logo: "🥗",
-  },
-  {
-    id: "part-2",
-    titleAr: "تحالف البرجر الذواقة & المطبخ الكيتوني",
-    titleEn: "Gourmet Smash ✕ Keto Diet Hub",
-    partner1Ar: "ذا سماش برجر جورميه",
-    partner1En: "The Smash Gourmet Lab",
-    partner2Ar: "مملكة الكيتو للرياضيين",
-    partner2En: "Athletes Keto Kingdom",
-    category: "keto",
-    descAr: "برجر أنجوس فاخر بخبز الكيتو الحصري خالي من الجلوتين مع بطاطا الشوفان المحمصة الصحية.",
-    descEn: "Premium Angus smash burger on gluten-free keto buns paired with baked guilt-free sweet potato wedges.",
-    comboDishAr: "دبل برجر أنجوس كيتو + بطاطا حلوة مشوية ومشروب دايت",
-    comboDishEn: "Double Angus Keto Burger + Baked Fries & Diet Drink",
-    comboPrice: 48,
-    oldPrice: 62,
-    discountBadgeAr: "عرض الشراكة الحصري",
-    discountBadgeEn: "Exclusive Partnership Deal",
-    rating: 4.9,
-    ordersCount: "950+ طلب مشترك",
-    ordersCountEn: "950+ joint orders",
-    eta: "15-20 دقيقة",
-    deliveryFeeAr: "توصيل موحد 5 ر.س",
-    deliveryFeeEn: "5 SAR Unified Delivery",
-    tagAr: "🥑 كيتو برجر معتمد",
-    tagEn: "🥑 Certified Keto Burger",
-    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=500&fit=crop",
-    partner1Logo: "🍔",
-    partner2Logo: "🥑",
-  },
-  {
-    id: "part-3",
-    titleAr: "تحالف القهوة المختصة & المخبوزات الصحية",
-    titleEn: "Artisan Roastery ✕ Fit Oat Bakery",
-    partner1Ar: "محمصة أروما المختصة",
-    partner1En: "Aroma Specialty Roasters",
-    partner2Ar: "مخبز الفيت بيكري الصحي",
-    partner2En: "Fit Protein Oat Bakery",
-    category: "coffee",
-    descAr: "بداية صباحية استثنائية تجمع بين محاصيل القهوة المختصة وتشيزكيك الشوفان المحسوب السعرات.",
-    descEn: "Signature morning fuel pairing specialty V60 Ethiopian brew with macro-calculated protein oat cheesecake.",
-    comboDishAr: "قهوة V60 إثيوبية فاخرة + تشيزكيك الشوفان والبروتين",
-    comboDishEn: "V60 Ethiopian Brew + Protein Oat Guilt-Free Cheesecake",
-    comboPrice: 34,
-    oldPrice: 45,
-    discountBadgeAr: "باقة الصباح المتكاملة",
-    discountBadgeEn: "Signature Morning Bundle",
+    id: "brand-albaik",
+    nameAr: "البيك",
+    nameEn: "ALBAIK",
+    category: "fastfood",
+    logoIcon: "🍗",
+    logoColor: "#E11D48",
+    avatarBg: "bg-red-600",
+    signatureDishAr: "مسحب دجاج حراق 7 قطع + بطاطس مقرمشة وثوم أصلي",
+    signatureDishEn: "7-pc Spicy Chicken Nuggets + Fries & Original Garlic",
+    branchesAr: "+160 فرع بالمملكة",
+    branchesEn: "160+ KSA Branches",
     rating: 4.98,
-    ordersCount: "2.4k+ طلب مشترك",
-    ordersCountEn: "2.4k+ joint orders",
-    eta: "10-15 دقيقة",
-    deliveryFeeAr: "توصيل موحد مجاني",
-    deliveryFeeEn: "Free unified delivery",
-    tagAr: "☕ قهوة ومخبوزات صحية",
-    tagEn: "☕ Coffee & Fit Bakery",
-    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=500&fit=crop",
-    partner1Logo: "☕",
-    partner2Logo: "🥐",
+    ordersCountAr: "+45k طلب",
+    ordersCountEn: "+45k orders",
+    eta: "15 د",
+    discountBadgeAr: "الأكثر شهرة 🔥",
+    discountBadgeEn: "Most Iconic 🔥",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&h=350&fit=crop",
   },
   {
-    id: "part-4",
-    titleAr: "تحالف المأكولات البحرية & البوكي الآسيوي",
-    titleEn: "Tokyo Poke ✕ Pacific Salmon Hub",
-    partner1Ar: "طوكيو بوكي بول آسيان",
-    partner1En: "Tokyo Asian Poke Bowls",
-    partner2Ar: "سالمون أوميغا سي فود",
-    partner2En: "Salmon Omega Seafood",
-    category: "seafood",
-    descAr: "أطباق السلمون النرويجي الطازج مع خضار الإدامامي وصلصات البوكي الغنية بأوميغا 3 والألياف.",
-    descEn: "Fresh Norwegian salmon fillets with Japanese steamed edamame, avocado slices, and omega-rich poke glaze.",
-    comboDishAr: "سالمون بوكي بول فاخر + إدامامي وصوص الميزو",
-    comboDishEn: "Gourmet Salmon Poke Bowl + Steamed Edamame & Miso",
-    comboPrice: 59,
-    oldPrice: 75,
-    discountBadgeAr: "وفر 22% مع كود: OMEGA",
-    discountBadgeEn: "Save 22% with code: OMEGA",
+    id: "brand-shawarmer",
+    nameAr: "شاورمر",
+    nameEn: "Shawarmer",
+    category: "shawarma",
+    logoIcon: "🌯",
+    logoColor: "#F97316",
+    avatarBg: "bg-orange-500",
+    signatureDishAr: "وجبة عربي دبل دجاج مع صوص ثوم ودبس الرمان وبطاطا",
+    signatureDishEn: "Double Arabi Chicken Shawarma & Pomegranate Dip",
+    branchesAr: "+130 فرع بالمملكة",
+    branchesEn: "130+ KSA Branches",
+    rating: 4.92,
+    ordersCountAr: "+38k طلب",
+    ordersCountEn: "+38k orders",
+    eta: "15 د",
+    discountBadgeAr: "شاورما سعودية مبتكرة 🌯",
+    discountBadgeEn: "Signature Shawarma 🌯",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-romansiah",
+    nameAr: "الرومانسية",
+    nameEn: "Al Romansiah",
+    category: "traditional",
+    logoIcon: "🍛",
+    logoColor: "#B91C1C",
+    avatarBg: "bg-red-800",
+    signatureDishAr: "كبسة لحم نعيمي بالزعفران والمكسرات مع جريش وقرصان",
+    signatureDishEn: "Signature Naimi Meat Kabsa, Jareesh & Qursan",
+    branchesAr: "+48 فرع بالمملكة",
+    branchesEn: "48+ KSA Branches",
+    rating: 4.96,
+    ordersCountAr: "+32k طلب",
+    ordersCountEn: "+32k orders",
+    eta: "20 د",
+    discountBadgeAr: "أصالة المائدة السعودية 🇸🇦",
+    discountBadgeEn: "Saudi Heritage 🇸🇦",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-mcdonalds",
+    nameAr: "ماكدونالدز",
+    nameEn: "McDonald's",
+    category: "burger",
+    logoIcon: "🍔",
+    logoColor: "#EAB308",
+    avatarBg: "bg-yellow-500",
+    signatureDishAr: "وجبة بيج ماك دبل لحم مع بطاطس ذهبية وماك فلوري أوريو",
+    signatureDishEn: "Double Big Mac Meal + Golden Fries & Oreo McFlurry",
+    branchesAr: "+350 فرع بالمملكة",
+    branchesEn: "350+ KSA Branches",
+    rating: 4.90,
+    ordersCountAr: "+50k طلب",
+    ordersCountEn: "+50k orders",
+    eta: "15 د",
+    discountBadgeAr: "العلامة العالمية 🍟",
+    discountBadgeEn: "Global Icon 🍟",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-kudu",
+    nameAr: "كودو",
+    nameEn: "Kudu",
+    category: "fastfood",
+    logoIcon: "🥪",
+    logoColor: "#10B981",
+    avatarBg: "bg-emerald-600",
+    signatureDishAr: "وجبة كودو دجاج على الصاج مع توست مكرمل وبطاطس",
+    signatureDishEn: "Signature Kudu Chicken on Toast & Fries",
+    branchesAr: "+320 فرع بالمملكة",
+    branchesEn: "320+ KSA Branches",
     rating: 4.88,
-    ordersCount: "1.1k+ طلب مشترك",
-    ordersCountEn: "1.1k+ joint orders",
-    eta: "18-22 دقيقة",
-    deliveryFeeAr: "توصيل موحد مجاني",
-    deliveryFeeEn: "Free unified delivery",
-    tagAr: "🐟 أوميغا 3 طازج",
-    tagEn: "🐟 Fresh Omega-3",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=500&fit=crop",
-    partner1Logo: "🥢",
-    partner2Logo: "🐟",
+    ordersCountAr: "+29k طلب",
+    ordersCountEn: "+29k orders",
+    eta: "15 د",
+    discountBadgeAr: "على طريقتك 🥪",
+    discountBadgeEn: "Your Way 🥪",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-maestro",
+    nameAr: "مايسترو بيتزا",
+    nameEn: "Maestro Pizza",
+    category: "pizza",
+    logoIcon: "🍕",
+    logoColor: "#EF4444",
+    avatarBg: "bg-red-600",
+    signatureDishAr: "بيتزا رانش دجاج كبيرة + أصابع جبن موزاريلا وصوصات",
+    signatureDishEn: "Large Chicken Ranch Pizza + Cheese Sticks",
+    branchesAr: "+180 فرع بالمملكة",
+    branchesEn: "180+ KSA Branches",
+    rating: 4.89,
+    ordersCountAr: "+24k طلب",
+    ordersCountEn: "+24k orders",
+    eta: "18 د",
+    discountBadgeAr: "بيتزا سعودية 100% 🍕",
+    discountBadgeEn: "100% Saudi Pizza 🍕",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-herfy",
+    nameAr: "هرفي",
+    nameEn: "Herfy",
+    category: "burger",
+    logoIcon: "🍔",
+    logoColor: "#2563EB",
+    avatarBg: "bg-blue-600",
+    signatureDishAr: "وجبة سوبر هرفي دبل مع حلقات بصل ذهبية ومشروب",
+    signatureDishEn: "Super Herfy Double Burger & Crispy Onion Rings",
+    branchesAr: "+380 فرع بالمملكة",
+    branchesEn: "380+ KSA Branches",
+    rating: 4.86,
+    ordersCountAr: "+27k طلب",
+    ordersCountEn: "+27k orders",
+    eta: "15 د",
+    discountBadgeAr: "رواد البرجر السعودي 👑",
+    discountBadgeEn: "Saudi Burger Pioneer 👑",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-burgerizzr",
+    nameAr: "برغرايززر",
+    nameEn: "Burgerizzr",
+    category: "burger",
+    logoIcon: "🍔",
+    logoColor: "#059669",
+    avatarBg: "bg-emerald-700",
+    signatureDishAr: "برجر لحم بلدي طازج يومياً مع صوص رمان وبطاطا مقرمشة",
+    signatureDishEn: "Fresh Daily Beef Burger & Pomegranate Glaze",
+    branchesAr: "+100 فرع بالمملكة",
+    branchesEn: "100+ KSA Branches",
+    rating: 4.91,
+    ordersCountAr: "+22k طلب",
+    ordersCountEn: "+22k orders",
+    eta: "15 د",
+    discountBadgeAr: "لحم طازج يومياً 🥩",
+    discountBadgeEn: "Fresh Daily Meat 🥩",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-mamanoura",
+    nameAr: "ماما نورة",
+    nameEn: "Mama Noura",
+    category: "shawarma",
+    logoIcon: "🌯",
+    logoColor: "#D97706",
+    avatarBg: "bg-amber-600",
+    signatureDishAr: "صحن شاورما عربي دجاج مميز مع عصير طبقات طازج وفطائر",
+    signatureDishEn: "Mama Noura Arabi Plate + Fresh Layered Cocktail",
+    branchesAr: "+35 فرع بالرياض",
+    branchesEn: "35+ Riyadh Branches",
+    rating: 4.97,
+    ordersCountAr: "+35k طلب",
+    ordersCountEn: "+35k orders",
+    eta: "15 د",
+    discountBadgeAr: "أسطورة الشاورما 👑",
+    discountBadgeEn: "Shawarma Legend 👑",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-dunkin",
+    nameAr: "دانكن",
+    nameEn: "Dunkin'",
+    category: "cafe",
+    logoIcon: "🍩",
+    logoColor: "#EC4899",
+    avatarBg: "bg-pink-600",
+    signatureDishAr: "بوكس 6 حبات دونات متنوعة + قهوة دانكن أوريجينال مثلجة",
+    signatureDishEn: "6-Pack Assorted Donuts + Original Iced Coffee",
+    branchesAr: "+600 فرع بالمملكة",
+    branchesEn: "600+ KSA Branches",
+    rating: 4.93,
+    ordersCountAr: "+48k طلب",
+    ordersCountEn: "+48k orders",
+    eta: "10 د",
+    discountBadgeAr: "القهوة والدونات ☕",
+    discountBadgeEn: "Coffee & Donuts ☕",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-shawaya",
+    nameAr: "شواية الخليج",
+    nameEn: "Shawaya Al Khaleej",
+    category: "traditional",
+    logoIcon: "🍗",
+    logoColor: "#EA580C",
+    avatarBg: "bg-orange-600",
+    signatureDishAr: "نصف حبة دجاج شواية ذهبي مع أرز شعبي أحمر ومكسرات",
+    signatureDishEn: "Half Rotisserie Chicken with Red Rice & Nuts",
+    branchesAr: "+90 فرع بالمملكة",
+    branchesEn: "90+ KSA Branches",
+    rating: 4.88,
+    ordersCountAr: "+26k طلب",
+    ordersCountEn: "+26k orders",
+    eta: "18 د",
+    discountBadgeAr: "طعم الشواية الأصلي 🍗",
+    discountBadgeEn: "Original Rotisserie 🍗",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-pizzahut",
+    nameAr: "بيتزا هت",
+    nameEn: "Pizza Hut",
+    category: "pizza",
+    logoIcon: "🍕",
+    logoColor: "#DC2626",
+    avatarBg: "bg-red-700",
+    signatureDishAr: "بيتزا سوبريم ستافد كراست محشوة الأطراف بالجبن المذاب",
+    signatureDishEn: "Stuffed Crust Supreme Pizza & Seasoned Wedges",
+    branchesAr: "+220 فرع بالمملكة",
+    branchesEn: "220+ KSA Branches",
+    rating: 4.87,
+    ordersCountAr: "+21k طلب",
+    ordersCountEn: "+21k orders",
+    eta: "20 د",
+    discountBadgeAr: "ستافد كراست الشهيرة 🧀",
+    discountBadgeEn: "Famous Stuffed Crust 🧀",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-starbucks",
+    nameAr: "ستاربكس",
+    nameEn: "Starbucks",
+    category: "cafe",
+    logoIcon: "☕",
+    logoColor: "#047857",
+    avatarBg: "bg-emerald-800",
+    signatureDishAr: "آيسد وايت موكا مع كراميل دريزل وكرواسون لوز فرنسي",
+    signatureDishEn: "Iced White Chocolate Mocha & French Almond Croissant",
+    branchesAr: "+400 فرع بالمملكة",
+    branchesEn: "400+ KSA Branches",
+    rating: 4.92,
+    ordersCountAr: "+41k طلب",
+    ordersCountEn: "+41k orders",
+    eta: "12 د",
+    discountBadgeAr: "القهوة العالمية ☕",
+    discountBadgeEn: "Global Coffee ☕",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-fiveguys",
+    nameAr: "فايف جايز",
+    nameEn: "Five Guys",
+    category: "burger",
+    logoIcon: "🍔",
+    logoColor: "#991B1B",
+    avatarBg: "bg-red-800",
+    signatureDishAr: "دبل تشيز برجر مع إضافات غير محدودة وبطاطس كاجون",
+    signatureDishEn: "Double Bacon Cheeseburger & Cajun Peanut Oil Fries",
+    branchesAr: "+25 فرع بالمملكة",
+    branchesEn: "25+ KSA Branches",
+    rating: 4.95,
+    ordersCountAr: "+18k طلب",
+    ordersCountEn: "+18k orders",
+    eta: "15 د",
+    discountBadgeAr: "البرجر الأمريكي الطازج 🇺🇸",
+    discountBadgeEn: "Fresh Artisan Burger 🇺🇸",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-timhortons",
+    nameAr: "تيم هورتونز",
+    nameEn: "Tim Hortons",
+    category: "cafe",
+    logoIcon: "☕",
+    logoColor: "#B91C1C",
+    avatarBg: "bg-red-700",
+    signatureDishAr: "آيسد فرنش فانيلا الشهيرة مع علبة 10 حبات تمبتس",
+    signatureDishEn: "Signature Iced French Vanilla & 10-Pack Timbits",
+    branchesAr: "+120 فرع بالمملكة",
+    branchesEn: "120+ KSA Branches",
+    rating: 4.91,
+    ordersCountAr: "+23k طلب",
+    ordersCountEn: "+23k orders",
+    eta: "10 د",
+    discountBadgeAr: "كندا الأصلية 🍁",
+    discountBadgeEn: "Canadian Original 🍁",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-krispykreme",
+    nameAr: "كرسبي كريم",
+    nameEn: "Krispy Kreme",
+    category: "cafe",
+    logoIcon: "🍩",
+    logoColor: "#059669",
+    avatarBg: "bg-emerald-600",
+    signatureDishAr: "دزينة أوريجينال جليزد الساخنة مع كابتشينو غني بالرغوة",
+    signatureDishEn: "Dozen Hot Original Glazed Donuts + Frothy Cappuccino",
+    branchesAr: "+190 فرع بالمملكة",
+    branchesEn: "190+ KSA Branches",
+    rating: 4.94,
+    ordersCountAr: "+31k طلب",
+    ordersCountEn: "+31k orders",
+    eta: "10 د",
+    discountBadgeAr: "تذوب بالفم 🍩",
+    discountBadgeEn: "Melt in Mouth 🍩",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=500&h=350&fit=crop",
   },
 ];
 
@@ -682,7 +942,10 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [localityStatusFilter, setLocalityStatusFilter] = useState<"all" | "available" | "unavailable">("all");
   const [localityQuery, setLocalityQuery] = useState("");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
-  const [partnerCategory, setPartnerCategory] = useState("all");
+  const [brandCategory, setBrandCategory] = useState("all");
+  const [brandReelIndex, setBrandReelIndex] = useState(0);
+  const [isBrandReelPaused, setIsBrandReelPaused] = useState(false);
+  const [selectedBrandId, setSelectedBrandId] = useState<string>("brand-albaik");
   const [likedDishes, setLikedDishes] = useState<Record<string, boolean>>({});
   const [showAllLocalities, setShowAllLocalities] = useState(false);
   const [phoneOrEmailInput, setPhoneOrEmailInput] = useState("");
@@ -691,6 +954,25 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const cart = useCart();
+
+  // Auto-rotating timer for famous KSA restaurants circular carousel
+  useEffect(() => {
+    if (isBrandReelPaused) return;
+    const timer = setInterval(() => {
+      setBrandReelIndex((prev) => (prev + 1) % FAMOUS_KSA_RESTAURANTS.length);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [isBrandReelPaused]);
+
+  const nextBrandSlide = () => {
+    sounds.playClick();
+    setBrandReelIndex((prev) => (prev + 1) % FAMOUS_KSA_RESTAURANTS.length);
+  };
+
+  const prevBrandSlide = () => {
+    sounds.playClick();
+    setBrandReelIndex((prev) => (prev - 1 + FAMOUS_KSA_RESTAURANTS.length) % FAMOUS_KSA_RESTAURANTS.length);
+  };
 
   // Auto-rotating timer for popular meals carousel
   useEffect(() => {
@@ -751,19 +1033,13 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     );
   };
 
-  const handleAddComboToCart = (p: (typeof RESTAURANT_PARTNERSHIPS)[0]) => {
-    cart.add({
-      id: `combo-${p.id}`,
-      restaurant_id: p.id,
-      name_ar: `[عرض شراكة] ${p.comboDishAr}`,
-      name_en: `[Partnership] ${p.comboDishEn}`,
-      price: p.comboPrice,
-    });
-    sounds.playSuccess();
-    toast.success(
+  const handleExploreBrand = (brand: FamousKsaRestaurant) => {
+    sounds.playClick();
+    setSelectedBrandId(brand.id);
+    toast.info(
       lang === "ar"
-        ? `🤝 تمت إضافة وجبة الشراكة الموحدة "${p.comboDishAr}" إلى السلة!`
-        : `🤝 Added partnership combo "${p.comboDishEn}" to cart!`
+        ? `✨ استعراض أطباق وفروع ${brand.nameAr} (${brand.branchesAr})`
+        : `✨ Browsing dishes and branches for ${brand.nameEn} (${brand.branchesEn})`
     );
   };
 
@@ -816,8 +1092,87 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const isFilteringActive = localityQuery.trim() !== "" || localityRegion !== "all" || localityStatusFilter !== "all";
   const visibleLocalities = showAllLocalities || isFilteringActive ? filteredLocalities : filteredLocalities.slice(0, 12);
 
-  const filteredPartnerships = RESTAURANT_PARTNERSHIPS.filter(
-    (p) => partnerCategory === "all" || p.category === partnerCategory
+  const filteredFamousBrands = FAMOUS_KSA_RESTAURANTS.filter(
+    (b) => brandCategory === "all" || b.category === brandCategory
+  );
+
+  const renderBrandCard = (brand: FamousKsaRestaurant) => (
+    <div
+      key={brand.id}
+      className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl transition-all duration-300 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
+    >
+      {/* Photo & Floating Circular Logo Avatar Header */}
+      <div className="relative h-44 w-full overflow-hidden bg-slate-950">
+        <img
+          src={brand.image}
+          alt={brand.nameEn}
+          className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+        {/* Feature / Discount Badge */}
+        <span className="absolute top-3 end-3 rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-black text-slate-950 shadow-lg">
+          {lang === "ar" ? brand.discountBadgeAr : brand.discountBadgeEn}
+        </span>
+
+        {/* Circular Floating Brand Logo Avatar */}
+        <div className="absolute -bottom-3 start-4 flex items-center gap-2.5">
+          <div
+            className={`flex size-14 items-center justify-center rounded-full text-2xl shadow-xl border-2 border-amber-400 ring-4 ring-slate-950 ${brand.avatarBg}`}
+          >
+            <span>{brand.logoIcon}</span>
+          </div>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-950/90 border border-slate-700/80 px-2.5 py-0.5 text-[10px] font-bold text-amber-400 backdrop-blur-md shadow-md">
+            <span>✓</span>
+            <span>{lang === "ar" ? brand.verifiedBadgeAr : brand.verifiedBadgeEn}</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Brand Card Content */}
+      <div className="p-4 pt-5 flex flex-col justify-between flex-1 gap-3.5">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between gap-1">
+            <h3 className="text-base font-black text-white group-hover:text-amber-400 transition-colors truncate">
+              {lang === "ar" ? brand.nameAr : brand.nameEn}
+            </h3>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">
+              {lang === "ar" ? brand.branchesAr : brand.branchesEn}
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+            <span className="text-amber-400 font-bold">🍽️ {lang === "ar" ? "الطبق الأشهر:" : "Signature:"}</span>{" "}
+            {lang === "ar" ? brand.signatureDishAr : brand.signatureDishEn}
+          </p>
+        </div>
+
+        {/* Key Metrics Row */}
+        <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+          <div className="flex items-center gap-1 text-slate-300 font-medium">
+            <Clock className="size-3.5 text-amber-400" />
+            <span>{brand.eta}</span>
+          </div>
+          <div className="flex items-center gap-1 text-amber-400 font-bold">
+            <Star className="size-3.5 fill-amber-400 text-amber-400" />
+            <span>{brand.rating}</span>
+            <span className="text-[10px] text-slate-500 font-normal">
+              ({lang === "ar" ? brand.ordersCountAr : brand.ordersCountEn})
+            </span>
+          </div>
+        </div>
+
+        {/* Explore Button */}
+        <Button
+          size="sm"
+          onClick={() => handleExploreBrand(brand)}
+          className="w-full bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-100 font-bold rounded-xl text-xs gap-1.5 shadow-md h-9 transition-all"
+        >
+          <Store className="size-3.5" />
+          <span>{lang === "ar" ? "تصفح منيو المطعم" : "Browse Menu"}</span>
+          <ArrowUpRight className="size-3.5" />
+        </Button>
+      </div>
+    </div>
   );
 
   return (
@@ -1692,97 +2047,161 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 5. RESTAURANT PARTNERSHIPS & MULTI-BRAND COLLABORATIVE HUBS */}
+      {/* 5. FAMOUS KSA RESTAURANTS ROTATING CIRCULAR LOGOS CAROUSEL */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-6">
-        {/* Header with Title and Partner Join Link */}
+        {/* Header with Title and Rotation Controls */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800/80 pb-4">
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-400">
-              <Handshake className="size-3.5" />
-              <span>{lang === "ar" ? "تحالفات استراتيجية • طلب موحد من عدة مطابخ في سلة واحدة" : "Strategic Alliances • Multi-Brand Single Cart Delivery"}</span>
+              <Sparkles className="size-3.5 animate-spin" />
+              <span>
+                {lang === "ar"
+                  ? "لوجو المطاعم المشهورة في المملكة جنباً إلى جنب • دوران دائري حي"
+                  : "Famous KSA Restaurant Brands Side-by-Side • Live Circular Reel"}
+              </span>
             </div>
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white flex items-center gap-2.5">
-              <span>{lang === "ar" ? "شراكات المطاعم والمطابخ السحابية" : "Restaurant Partnerships & Shared Kitchens"}</span>
+              <span>
+                {lang === "ar"
+                  ? "أشهر مطاعم المملكة جنباً إلى جنب"
+                  : "Famous KSA Restaurant Brands"}
+              </span>
             </h2>
             <p className="text-xs sm:text-sm text-slate-400">
               {lang === "ar"
-                ? "اطلب من عدة علامات تجارية شريكة في سلة واحدة، بكيس حراري موحد، وتوصيل فوري بأقل تكلفة"
-                : "Combine dishes from multiple partner brands in a single order, delivered together with unified fees"}
+                ? "لوجو أشهر سلاسل المطابخ والمطاعم المعتمدة في المملكة تدور في شكل دائري حي مع تصفح فوري لأفضل أطباقها وفروعها"
+                : "Iconic restaurant brand logos rotating in a continuous circular reel with instant menu & branch exploration"}
             </p>
           </div>
 
-          <Link
-            to="/register"
-            onClick={() => sounds.playClick()}
-            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-amber-500/40 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shrink-0 self-start md:self-auto"
-          >
-            <Store className="size-3.5" />
-            <span>{lang === "ar" ? "انضمام مطعم جديد للشراكة" : "Join as Restaurant Partner"}</span>
-            <ArrowUpRight className="size-3.5" />
-          </Link>
-        </div>
-
-        {/* Partnership Perks Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          {[
-            {
-              icon: "🛍️",
-              titleAr: "سلة موحدة",
-              titleEn: "Single Cart",
-              descAr: "اطلب من مطعمين في فاتورة واحدة",
-              descEn: "Order 2+ brands in 1 bill",
-            },
-            {
-              icon: "💰",
-              titleAr: "توفير 50% بالرسوم",
-              titleEn: "Save on Delivery",
-              descAr: "كابتن واحد يوصل كل الأصناف",
-              descEn: "One courier delivers all items",
-            },
-            {
-              icon: "🛡️",
-              titleAr: "جودة وتوريد معتمد",
-              titleEn: "Certified Quality",
-              descAr: "فحص ورقابة بلدية وصحية مشتركة",
-              descEn: "Unified hygiene inspections",
-            },
-            {
-              icon: "⚡",
-              titleAr: "تجهيز متزامن فوري",
-              titleEn: "Sync Kitchen Prep",
-              descAr: "تصل الأطباق ساخنة وطازجة معاً",
-              descEn: "Meals arrive piping hot together",
-            },
-          ].map((perk, idx) => (
-            <div
-              key={idx}
-              className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 flex items-center gap-2.5 hover:border-slate-700 transition-colors"
+          {/* Reel Navigation & Play/Pause Controls */}
+          <div className="flex items-center gap-2 shrink-0 self-start md:self-auto">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                sounds.playClick();
+                setIsBrandReelPaused((prev) => !prev);
+              }}
+              className="border-slate-700 bg-slate-900/90 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl text-xs gap-1.5 h-9"
             >
-              <span className="text-xl shrink-0">{perk.icon}</span>
-              <div className="space-y-0.5 min-w-0">
-                <h4 className="text-xs font-bold text-white truncate">
-                  {lang === "ar" ? perk.titleAr : perk.titleEn}
-                </h4>
-                <p className="text-[10px] text-slate-400 truncate">
-                  {lang === "ar" ? perk.descAr : perk.descEn}
-                </p>
-              </div>
+              {isBrandReelPaused ? (
+                <>
+                  <Play className="size-3.5 text-emerald-400 fill-emerald-400" />
+                  <span>{lang === "ar" ? "تشغيل الدوران" : "Play Reel"}</span>
+                </>
+              ) : (
+                <>
+                  <Pause className="size-3.5 text-amber-400 fill-amber-400" />
+                  <span>{lang === "ar" ? "إيقاف مؤقت" : "Pause"}</span>
+                </>
+              )}
+            </Button>
+
+            <div className="flex items-center gap-1 bg-slate-900/90 border border-slate-700 p-0.5 rounded-xl">
+              <button
+                type="button"
+                onClick={prevBrandSlide}
+                className="size-8 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                title={lang === "ar" ? "السابق" : "Previous"}
+              >
+                {lang === "ar" ? <ChevronRight className="size-4" /> : <ChevronLeft className="size-4" />}
+              </button>
+              <button
+                type="button"
+                onClick={nextBrandSlide}
+                className="size-8 flex items-center justify-center rounded-lg hover:bg-slate-800 text-slate-300 hover:text-white transition-colors"
+                title={lang === "ar" ? "التالي" : "Next"}
+              >
+                {lang === "ar" ? <ChevronLeft className="size-4" /> : <ChevronRight className="size-4" />}
+              </button>
             </div>
-          ))}
+          </div>
         </div>
 
-        {/* Partnership Category Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
-          {PARTNERSHIP_CATEGORIES.map((cat) => {
-            const isSelected = partnerCategory === cat.id;
+        {/* 1. THE CIRCULAR ROTATING LOGO STRIP (Logos Side-by-Side in Circular Format) */}
+        <div
+          className="relative rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900/90 via-slate-900 to-slate-950 p-4 sm:p-5 shadow-2xl overflow-hidden"
+          onMouseEnter={() => setIsBrandReelPaused(true)}
+          onMouseLeave={() => setIsBrandReelPaused(false)}
+        >
+          {/* Subtle ambient decorative lighting */}
+          <div className="absolute -top-12 -left-12 size-40 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-12 -right-12 size-40 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-slate-800/60">
+            <div className="flex items-center gap-2">
+              <span className="flex size-2 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-xs font-bold text-slate-300">
+                {lang === "ar" ? "شريط اللوجوهات الدائري المباشر (16 علامة تجارية):" : "Live Circular Brand Logos (16 Brands):"}
+              </span>
+            </div>
+            <span className="text-[11px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+              {brandReelIndex + 1} / {FAMOUS_KSA_RESTAURANTS.length}
+            </span>
+          </div>
+
+          {/* Scrolling Circular Badges Row */}
+          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto py-2 px-1 scrollbar-none snap-x">
+            {FAMOUS_KSA_RESTAURANTS.map((brand, idx) => {
+              const isActive = idx === brandReelIndex;
+              return (
+                <button
+                  key={brand.id}
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    setBrandReelIndex(idx);
+                    setSelectedBrandId(brand.id);
+                  }}
+                  className={`group/logo flex flex-col items-center gap-2 shrink-0 transition-all duration-300 snap-center focus:outline-none ${
+                    isActive ? "scale-110" : "opacity-75 hover:opacity-100 hover:scale-105"
+                  }`}
+                >
+                  {/* Circular Logo Container */}
+                  <div className="relative">
+                    <div
+                      className={`flex size-14 sm:size-18 md:size-20 items-center justify-center rounded-full text-2xl sm:text-3xl shadow-xl transition-all duration-300 border-2 ${
+                        isActive
+                          ? "border-amber-400 ring-4 ring-amber-400/40 shadow-amber-500/30"
+                          : "border-slate-700 bg-slate-800/90 hover:border-amber-500/50"
+                      } ${brand.avatarBg}`}
+                    >
+                      <span>{brand.logoIcon}</span>
+                    </div>
+
+                    {/* Verified Gold Checkmark Badge */}
+                    <span className="absolute -bottom-1 -end-1 flex size-5 sm:size-6 items-center justify-center rounded-full bg-amber-500 text-slate-950 font-black text-[10px] sm:text-xs shadow-md border-2 border-slate-950">
+                      ✓
+                    </span>
+                  </div>
+
+                  {/* Brand Name Text */}
+                  <span
+                    className={`text-[11px] sm:text-xs font-black truncate max-w-[80px] sm:max-w-[90px] text-center transition-colors ${
+                      isActive ? "text-amber-400 font-black" : "text-slate-300 group-hover/logo:text-white"
+                    }`}
+                  >
+                    {lang === "ar" ? brand.nameAr : brand.nameEn}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. Category Filter Pills for Brand Showcase */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+          {FAMOUS_BRAND_CATEGORIES.map((cat) => {
+            const isSelected = brandCategory === cat.id;
             return (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => {
                   sounds.playClick();
-                  setPartnerCategory(cat.id);
+                  setBrandCategory(cat.id);
                 }}
                 className={`flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                   isSelected
@@ -1797,122 +2216,63 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           })}
         </div>
 
-        {/* Partnerships Grid */}
-        <div className="grid gap-5 md:grid-cols-2">
-          {filteredPartnerships.map((p) => (
-            <div
-              key={p.id}
-              className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl transition-all duration-300 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
-            >
-              {/* Photo & Brand Logos Banner */}
-              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-950">
-                <img
-                  src={p.image}
-                  alt={p.titleEn}
-                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+        {/* 3. Featured Rotating Brand Cards Grid (Circular Window of 4 Brands or Filtered Selection) */}
+        <div
+          className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+          onMouseEnter={() => setIsBrandReelPaused(true)}
+          onMouseLeave={() => setIsBrandReelPaused(false)}
+        >
+          {(() => {
+            // When filtering by specific category, show all matched brands
+            if (brandCategory !== "all") {
+              return filteredFamousBrands.map((b) => renderBrandCard(b));
+            }
+            // When showing "all", show a circular rotating window of 4 cards starting at brandReelIndex
+            const displayCount = Math.min(4, FAMOUS_KSA_RESTAURANTS.length);
+            const cards = [];
+            for (let i = 0; i < displayCount; i++) {
+              const brandIndex = (brandReelIndex + i) % FAMOUS_KSA_RESTAURANTS.length;
+              cards.push(FAMOUS_KSA_RESTAURANTS[brandIndex]);
+            }
+            return cards.map((b) => renderBrandCard(b));
+          })()}
+        </div>
 
-                {/* Floating Discount Badge */}
-                <span className="absolute top-3 end-3 rounded-full bg-amber-500 px-3 py-1 text-xs font-black text-slate-950 shadow-lg">
-                  {lang === "ar" ? p.discountBadgeAr : p.discountBadgeEn}
-                </span>
-
-                {/* Partner Brands Badge in Header */}
-                <div className="absolute bottom-3 start-3 end-3 flex flex-wrap items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-xl bg-slate-950/90 border border-slate-700/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md shadow-md">
-                    <span>{p.partner1Logo}</span>
-                    <span>{lang === "ar" ? p.partner1Ar : p.partner1En}</span>
-                  </span>
-                  <span className="flex size-5 items-center justify-center rounded-full bg-amber-500 text-slate-950 text-[10px] font-black shadow-sm">
-                    ✕
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-xl bg-slate-950/90 border border-slate-700/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md shadow-md">
-                    <span>{p.partner2Logo}</span>
-                    <span>{lang === "ar" ? p.partner2Ar : p.partner2En}</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Partnership Body Content */}
-              <div className="p-5 flex flex-col justify-between flex-1 gap-4">
-                <div className="space-y-1.5">
-                  <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? p.titleAr : p.titleEn}
-                  </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    {lang === "ar" ? p.descAr : p.descEn}
-                  </p>
-                </div>
-
-                {/* Highlighted Combined Combo Meal Card */}
-                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3.5 space-y-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                        {lang === "ar" ? "🍽️ الوجبة المشتركة الحصرية" : "🍽️ Exclusive Combined Combo"}
-                      </span>
-                      <h4 className="text-xs sm:text-sm font-black text-white">
-                        {lang === "ar" ? p.comboDishAr : p.comboDishEn}
-                      </h4>
-                    </div>
-                    <div className="text-end shrink-0">
-                      <div className="text-sm sm:text-base font-black text-amber-400">
-                        {p.comboPrice} {t("sar")}
-                      </div>
-                      <div className="text-[10px] text-slate-500 line-through">
-                        {p.oldPrice} {t("sar")}
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button
-                    size="sm"
-                    onClick={() => handleAddComboToCart(p)}
-                    className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl text-xs gap-1.5 shadow-md h-9"
-                  >
-                    <Plus className="size-3.5" />
-                    <span>{lang === "ar" ? "أضف وجبة الشراكة إلى السلة (طلب موحد)" : "Add Combo to Cart (Unified Order)"}</span>
-                  </Button>
-                </div>
-
-                {/* Footer Meta Row */}
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-                  <div className="flex items-center gap-1.5 text-slate-300 font-medium">
-                    <Clock className="size-3.5 text-amber-400" />
-                    <span>{p.eta}</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
-                    <Bike className="size-3.5" />
-                    <span>{lang === "ar" ? p.deliveryFeeAr : p.deliveryFeeEn}</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-amber-400 font-bold">
-                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
-                    <span>{p.rating}</span>
-                    <span className="text-[10px] text-slate-500 font-normal">
-                      ({lang === "ar" ? p.ordersCount : p.ordersCountEn})
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* 4. 16-Brand Circular Indicator Dots */}
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+          {FAMOUS_KSA_RESTAURANTS.map((brand, idx) => (
+            <button
+              key={brand.id}
+              type="button"
+              onClick={() => {
+                sounds.playClick();
+                setBrandReelIndex(idx);
+                setSelectedBrandId(brand.id);
+              }}
+              className={`transition-all rounded-full flex items-center justify-center ${
+                brandReelIndex === idx
+                  ? "w-8 h-3 bg-amber-500 shadow-md shadow-amber-500/30"
+                  : "size-3 bg-slate-800 hover:bg-slate-700"
+              }`}
+              title={lang === "ar" ? brand.nameAr : brand.nameEn}
+            />
           ))}
         </div>
 
-        {/* Partner With FoodHub Callout Card */}
+        {/* 5. Partner With FoodHub Callout Card */}
         <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-4">
             <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-2xl shrink-0">
-              🤝
+              🏪
             </div>
             <div className="space-y-1">
               <h4 className="text-sm sm:text-base font-black text-white">
-                {lang === "ar" ? "هل تملك مطعماً أو مطبخاً سحابياً؟" : "Own a Restaurant or Cloud Kitchen?"}
+                {lang === "ar" ? "هل تملك مطعماً أو علامة تجارية في المملكة؟" : "Own a Restaurant or Food Brand in KSA?"}
               </h4>
               <p className="text-xs text-slate-400 max-w-xl">
                 {lang === "ar"
-                  ? "انضم إلى شبكة تحالفات FoodHub، شارك مساحات التجهيز، وضاعف مبيعاتك عبر توفير خيارات الطلب الموحد للعملاء."
-                  : "Join FoodHub's partner network, share kitchen operations, and multiply your orders with unified single-cart delivery."}
+                  ? "انضم إلى شبكة FoodHub المعتمدة، اعرض لوجو مطعمك وأطباقك الشهيرة أمام آلاف العملاء يومياً، وضاعف مبيعاتك فورياً."
+                  : "Join FoodHub's verified network, showcase your iconic dishes to thousands of daily customers, and boost sales instantly."}
               </p>
             </div>
           </div>
@@ -1922,7 +2282,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             onClick={() => sounds.playClick()}
             className="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 hover:bg-amber-400 transition-all shadow-md gap-2 flex items-center"
           >
-            <span>{lang === "ar" ? "تقديم طلب شراكة مطعم" : "Apply for Partnership"}</span>
+            <span>{lang === "ar" ? "انضمام كشريك مطعم" : "Join as Restaurant Partner"}</span>
             <ArrowRight className={`size-3.5 ${lang === "ar" ? "rotate-180" : ""}`} />
           </Link>
         </div>
