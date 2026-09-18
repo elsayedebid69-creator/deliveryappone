@@ -1537,13 +1537,6 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             </span>
           </div>
 
-          {/* Subtitle / Description (Headline removed as requested) */}
-          <p className="text-xs sm:text-base text-slate-200 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow-md">
-            {lang === "ar"
-              ? "أشهى الأطباق وقوائم الطعام من كافة المطاعم والمطابخ السحابية، خيارات متنوعة وصحية لكافة الأذواق، وتوصيل راداري فائق السرعة يصلك أينما كنت."
-              : "Delicious dishes and menus from all restaurants & cloud kitchens, diverse dining for every taste, with ultrafast live radar delivery right to you."}
-          </p>
-
           {/* ============================================================ */}
           {/* ZOMATO DUAL SEARCH BAR (White Pill Container: Location + Dish Search) */}
           {/* ============================================================ */}
