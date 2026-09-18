@@ -378,8 +378,7 @@ export function AppFooter() {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "customer" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
@@ -389,8 +388,7 @@ export function AppFooter() {
                 </li>
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "courier" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-cyan-400 transition-colors"
                   >
@@ -400,8 +398,7 @@ export function AppFooter() {
                 </li>
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "restaurant" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-orange-400 transition-colors"
                   >
