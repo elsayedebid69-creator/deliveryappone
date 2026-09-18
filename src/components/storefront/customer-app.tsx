@@ -412,11 +412,12 @@ const FOODHUB_PLATFORM_FEATURES = [
 // Famous KSA Restaurant Brand Categories
 const FAMOUS_BRAND_CATEGORIES = [
   { id: "all", labelAr: "جميع أشهر المطاعم", labelEn: "All Famous Brands", icon: "👑" },
-  { id: "burger", labelAr: "برجر وسريع", labelEn: "Burgers & Fast Food", icon: "🍔" },
-  { id: "shawarma", labelAr: "شاورما وفطائر", labelEn: "Shawarma & Wraps", icon: "🌯" },
-  { id: "traditional", labelAr: "كبسة وشعبي سعودي", labelEn: "Saudi Traditional", icon: "🍛" },
-  { id: "pizza", labelAr: "بيتزا وإيطالي", labelEn: "Pizza & Italian", icon: "🍕" },
-  { id: "cafe", labelAr: "كافيهات ودونات", labelEn: "Cafes & Desserts", icon: "☕" },
+  { id: "fastfood", labelAr: "كنتاكي والبيك وسريع", labelEn: "Fast Food & Crispy Chicken", icon: "🍗" },
+  { id: "burger", labelAr: "برجر وهارديز وسماش", labelEn: "Burgers & Smashed", icon: "🍔" },
+  { id: "shawarma", labelAr: "شاورمر وماما نورة", labelEn: "Shawarma & Wraps", icon: "🌯" },
+  { id: "traditional", labelAr: "كبسة ورومانسية وتكساس", labelEn: "Saudi & Prime Dining", icon: "🍛" },
+  { id: "pizza", labelAr: "دومينوز ومايسترو وبيتزا", labelEn: "Pizza & Italian", icon: "🍕" },
+  { id: "cafe", labelAr: "كافيهات وسينابون وحلى", labelEn: "Cafes & Desserts", icon: "🧁" },
 ];
 
 // Iconic Famous Restaurant Brands in Saudi Arabia
@@ -445,6 +446,28 @@ export interface FamousKsaRestaurant {
 
 const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
   {
+    id: "brand-kfc",
+    nameAr: "دجاج كنتاكي (KFC)",
+    nameEn: "KFC",
+    category: "fastfood",
+    logoIcon: "🍗",
+    logoColor: "#E4002B",
+    avatarBg: "bg-red-600",
+    signatureDishAr: "بوكس الزنجر سوبريم الحار + بطاطس وقطع دجاج مقرمش وكول سلو",
+    signatureDishEn: "Spicy Zinger Supreme Box + Crispy Strips & Coleslaw",
+    branchesAr: "+240 فرع بالمملكة",
+    branchesEn: "240+ KSA Branches",
+    rating: 4.93,
+    ordersCountAr: "+46k طلب",
+    ordersCountEn: "+46k orders",
+    eta: "15 د",
+    discountBadgeAr: "الدجاج المقرمش الأصلي 🍗",
+    discountBadgeEn: "Original Crispy 🍗",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1513639776629-7b61b0ac49cb?w=500&h=350&fit=crop",
+  },
+  {
     id: "brand-albaik",
     nameAr: "البيك",
     nameEn: "ALBAIK",
@@ -467,6 +490,160 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     image: "https://images.unsplash.com/photo-1626645738196-c2a7c87a8f58?w=500&h=350&fit=crop",
   },
   {
+    id: "brand-hardees",
+    nameAr: "هارديز",
+    nameEn: "Hardee's",
+    category: "burger",
+    logoIcon: "⭐",
+    logoColor: "#EAB308",
+    avatarBg: "bg-amber-600",
+    signatureDishAr: "برجر سوبر ستار أنجوس مشوي على اللهب + بطاطس كيرلي المقرمشة",
+    signatureDishEn: "Super Star Flame-Grilled Angus Burger & Curly Fries",
+    branchesAr: "+95 فرع بالمملكة",
+    branchesEn: "95+ KSA Branches",
+    rating: 4.88,
+    ordersCountAr: "+28k طلب",
+    ordersCountEn: "+28k orders",
+    eta: "15 د",
+    discountBadgeAr: "مشوي على اللهب 🔥",
+    discountBadgeEn: "Flame-Grilled 🔥",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-subway",
+    nameAr: "صب واي",
+    nameEn: "Subway",
+    category: "fastfood",
+    logoIcon: "🥖",
+    logoColor: "#16A34A",
+    avatarBg: "bg-emerald-600",
+    signatureDishAr: "فوت لونج دجاج ترياكي بالخبز المحمص الطازج مع الخضار الحقلية",
+    signatureDishEn: "Footlong Chicken Teriyaki Sub with Fresh Crisp Veggies",
+    branchesAr: "+145 فرع بالمملكة",
+    branchesEn: "145+ KSA Branches",
+    rating: 4.90,
+    ordersCountAr: "+25k طلب",
+    ordersCountEn: "+25k orders",
+    eta: "15 د",
+    discountBadgeAr: "طازج وصحي 🥪",
+    discountBadgeEn: "Eat Fresh 🥪",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1509722747041-616f39b57569?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-dominos",
+    nameAr: "دومينوز بيتزا",
+    nameEn: "Domino's Pizza",
+    category: "pizza",
+    logoIcon: "🍕",
+    logoColor: "#0284C7",
+    avatarBg: "bg-sky-700",
+    signatureDishAr: "بيتزا دجاج أسطورة بالرانش + أصابع الخبز بالجبن وكيكة الشوكولاتة",
+    signatureDishEn: "Legend Chicken Ranch Pizza + Cheesy Bread & Choco Lava",
+    branchesAr: "+310 فرع بالمملكة",
+    branchesEn: "310+ KSA Branches",
+    rating: 4.91,
+    ordersCountAr: "+39k طلب",
+    ordersCountEn: "+39k orders",
+    eta: "15 د",
+    discountBadgeAr: "توصيل دومينوز السريع 🍕",
+    discountBadgeEn: "Fast Delivery 🍕",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-texas",
+    nameAr: "تكساس رودهاوس",
+    nameEn: "Texas Roadhouse",
+    category: "traditional",
+    logoIcon: "🥩",
+    logoColor: "#B45309",
+    avatarBg: "bg-amber-800",
+    signatureDishAr: "ستيك ريب آي مشوي طازج مع خبز الزبدة بالعسل والفول السوداني",
+    signatureDishEn: "Hand-Cut Ribeye Steak with Warm Fresh Rolls & Honey Butter",
+    branchesAr: "+18 فرع بالمملكة",
+    branchesEn: "18+ KSA Branches",
+    rating: 4.97,
+    ordersCountAr: "+19k طلب",
+    ordersCountEn: "+19k orders",
+    eta: "22 د",
+    discountBadgeAr: "ستيك فاخر 🥩",
+    discountBadgeEn: "Prime Steakhouse 🥩",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-shakeshack",
+    nameAr: "شيك شاك",
+    nameEn: "Shake Shack",
+    category: "burger",
+    logoIcon: "🍔",
+    logoColor: "#15803D",
+    avatarBg: "bg-green-700",
+    signatureDishAr: "شاك برجر لحم أنجوس 100% مع بطاطس كرينكل وشيك فانيلا كاسترد",
+    signatureDishEn: "100% Angus ShackBurger + Crinkle Cut Fries & Custard Shake",
+    branchesAr: "+22 فرع بالمملكة",
+    branchesEn: "22+ KSA Branches",
+    rating: 4.96,
+    ordersCountAr: "+21k طلب",
+    ordersCountEn: "+21k orders",
+    eta: "16 د",
+    discountBadgeAr: "برجر الذواقة 🍔",
+    discountBadgeEn: "Gourmet Burgers 🍔",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-popeyes",
+    nameAr: "بوبايز",
+    nameEn: "Popeyes",
+    category: "fastfood",
+    logoIcon: "🍗",
+    logoColor: "#EA580C",
+    avatarBg: "bg-orange-600",
+    signatureDishAr: "ساندوتش الدجاج المقرمش الكلاسيكي مع بطاطس كاجون وبسكويت الزبدة",
+    signatureDishEn: "Famous Chicken Sandwich + Cajun Fries & Buttermilk Biscuit",
+    branchesAr: "+45 فرع بالمملكة",
+    branchesEn: "45+ KSA Branches",
+    rating: 4.91,
+    ordersCountAr: "+20k طلب",
+    ordersCountEn: "+20k orders",
+    eta: "15 د",
+    discountBadgeAr: "توابل لويزيانا 🍗",
+    discountBadgeEn: "Louisiana Crunch 🍗",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-cinnabon",
+    nameAr: "سينابون",
+    nameEn: "Cinnabon",
+    category: "cafe",
+    logoIcon: "🧁",
+    logoColor: "#0284C7",
+    avatarBg: "bg-cyan-700",
+    signatureDishAr: "رول القرفة الكلاسيكية المغمورة بصوص الفروستينج وجوز البيكان",
+    signatureDishEn: "Classic Makara Cinnamon Roll with Cream Cheese Frosting",
+    branchesAr: "+115 فرع بالمملكة",
+    branchesEn: "115+ KSA Branches",
+    rating: 4.95,
+    ordersCountAr: "+27k طلب",
+    ordersCountEn: "+27k orders",
+    eta: "12 د",
+    discountBadgeAr: "رولات القرفة الساحرة 🧁",
+    discountBadgeEn: "World Famous Rolls 🧁",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=500&h=350&fit=crop",
+  },
+  {
     id: "brand-shawarmer",
     nameAr: "شاورمر",
     nameEn: "Shawarmer",
@@ -474,7 +651,7 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     logoIcon: "🌯",
     logoColor: "#F97316",
     avatarBg: "bg-orange-500",
-    signatureDishAr: "وجبة عربي دبل دجاج مع صوص ثوم ودبس الرمان وبطاطا",
+    signatureDishAr: "وجبة عربي دبل دجاج مع صصوص ثوم ودبس الرمان وبطاطا",
     signatureDishEn: "Double Arabi Chicken Shawarma & Pomegranate Dip",
     branchesAr: "+130 فرع بالمملكة",
     branchesEn: "130+ KSA Branches",
@@ -795,6 +972,94 @@ const FAMOUS_KSA_RESTAURANTS: FamousKsaRestaurant[] = [
     verifiedBadgeAr: "علامة موثقة 100%",
     verifiedBadgeEn: "100% Verified",
     image: "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-baytshawarma",
+    nameAr: "بيت الشاورما",
+    nameEn: "Bayt El Shawarma",
+    category: "shawarma",
+    logoIcon: "🌯",
+    logoColor: "#B45309",
+    avatarBg: "bg-amber-700",
+    signatureDishAr: "صحن عربي شاورما دجاج مميز مع حمص وبطاطا مقلية وصوصات خاصة",
+    signatureDishEn: "Arabi Shawarma Platter with Hummus, Fries & Secret Dip",
+    branchesAr: "+40 فرع بالمملكة",
+    branchesEn: "40+ KSA Branches",
+    rating: 4.93,
+    ordersCountAr: "+33k طلب",
+    ordersCountEn: "+33k orders",
+    eta: "15 د",
+    discountBadgeAr: "شاورما الملوك 🌯",
+    discountBadgeEn: "Kings Shawarma 🌯",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-alnadeg",
+    nameAr: "مطاعم الناضج",
+    nameEn: "Al Nadeg",
+    category: "traditional",
+    logoIcon: "🍛",
+    logoColor: "#991B1B",
+    avatarBg: "bg-red-800",
+    signatureDishAr: "مندي لحم حري طازج مع أرز شعبي مدخن وسلطات حارة",
+    signatureDishEn: "Fresh Mandi Meat with Smoked Rice & Spicy Dips",
+    branchesAr: "+55 فرع بالمملكة",
+    branchesEn: "55+ KSA Branches",
+    rating: 4.94,
+    ordersCountAr: "+30k طلب",
+    ordersCountEn: "+30k orders",
+    eta: "20 د",
+    discountBadgeAr: "مندي سعودي أصيل 🇸🇦",
+    discountBadgeEn: "Authentic Mandi 🇸🇦",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-hashibasha",
+    nameAr: "حاشي باشا",
+    nameEn: "Hashi Basha",
+    category: "traditional",
+    logoIcon: "🍖",
+    logoColor: "#78350F",
+    avatarBg: "bg-amber-900",
+    signatureDishAr: "مضغوط لحم حاشي بلدي طازج متبل بالبهارات السعودية الفاخرة",
+    signatureDishEn: "Fresh Local Hashi Meat Madghout with Saudi Spices",
+    branchesAr: "+110 فرع بالمملكة",
+    branchesEn: "110+ KSA Branches",
+    rating: 4.95,
+    ordersCountAr: "+36k طلب",
+    ordersCountEn: "+36k orders",
+    eta: "20 د",
+    discountBadgeAr: "مضغوط حاشي أصلي 🍖",
+    discountBadgeEn: "Original Hashi 🍖",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=350&fit=crop",
+  },
+  {
+    id: "brand-makihouse",
+    nameAr: "ماكي هاوس",
+    nameEn: "Maki House",
+    category: "fastfood",
+    logoIcon: "🍣",
+    logoColor: "#0F766E",
+    avatarBg: "bg-teal-700",
+    signatureDishAr: "بوكس ماكي رول مشكل 16 قطعة + ديناميت شريمب بالصوص الحار",
+    signatureDishEn: "16-pc Mixed Maki Platter + Hot Dynamite Shrimp",
+    branchesAr: "+35 فرع بالمملكة",
+    branchesEn: "35+ KSA Branches",
+    rating: 4.92,
+    ordersCountAr: "+22k طلب",
+    ordersCountEn: "+22k orders",
+    eta: "18 د",
+    discountBadgeAr: "سوشي ياباني فاخر 🍣",
+    discountBadgeEn: "Premium Sushi 🍣",
+    verifiedBadgeAr: "علامة موثقة 100%",
+    verifiedBadgeEn: "100% Verified",
+    image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&h=350&fit=crop",
   },
 ];
 
@@ -1196,47 +1461,48 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* ============================================================ */}
       {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
       {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-slate-50 dark:bg-slate-950">
-        {/* Cinematic Foodie Background Image with High-Contrast Gradients */}
+      <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
+        {/* Cinematic Gourmet Food Feast Background Image with Vibrant Contrast */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&h=800&fit=crop"
-            alt="FoodHub Background"
-            className="size-full object-cover object-center opacity-10 dark:opacity-30 scale-105 transition-transform duration-10000 hover:scale-100"
+            src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&h=1080&fit=crop&q=85"
+            alt="FoodHub Gourmet Feast Background"
+            className="size-full object-cover object-center opacity-35 dark:opacity-45 scale-105 transition-transform duration-10000 hover:scale-100 filter brightness-95 contrast-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-50/90 via-slate-50/95 to-slate-50 dark:from-slate-950/80 dark:via-slate-950/90 dark:to-slate-950" />
+          {/* Multi-layered dark vignette to ensure 100% crisp typography readability while showing the delicious food table */}
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/75 via-slate-950/50 to-slate-950/90" />
         </div>
 
         {/* Hero Content Container */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-12 sm:py-20 flex flex-col items-center text-center space-y-6">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 py-14 sm:py-20 flex flex-col items-center text-center space-y-6">
           {/* Brand Logo & Pill */}
           <div className="flex flex-col items-center gap-3">
             <FoodHubLogo size={56} showText />
-            <span className="rounded-full bg-amber-500/15 border border-amber-500/30 px-4 py-1.5 text-xs font-black text-amber-900 dark:text-amber-300 backdrop-blur-md shadow-sm">
+            <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-4 py-1.5 text-xs font-black text-amber-300 backdrop-blur-md shadow-lg shadow-amber-500/10">
               ⚡ {lang === "ar" ? "أسرع توصيل في 15 دقيقة بأقل سعر" : "Fastest 15-min delivery at the lowest rates"}
             </span>
           </div>
 
           {/* Zomato Headline */}
           <div className="max-w-3xl space-y-3">
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-950 dark:text-white leading-tight">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-white leading-tight drop-shadow-md">
               {lang === "ar" ? (
                 <>
                   اكتشف أفضل المطاعم والمطابخ السحابية والمأكولات في{" "}
-                  <span className="text-amber-600 dark:text-amber-400">
+                  <span className="text-amber-400 drop-shadow-sm">
                     الرياض
                   </span>
                 </>
               ) : (
                 <>
                   Discover the best restaurants, cloud kitchens & dining in{" "}
-                  <span className="text-amber-600 dark:text-amber-400">
+                  <span className="text-amber-400 drop-shadow-sm">
                     Riyadh
                   </span>
                 </>
               )}
             </h1>
-            <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-semibold">
+            <p className="text-xs sm:text-base text-slate-200 max-w-2xl mx-auto leading-relaxed font-semibold drop-shadow-sm">
               {lang === "ar"
                 ? "أشهى الأطباق وقوائم الطعام من كافة المطاعم والمطابخ السحابية، خيارات متنوعة وصحية لكافة الأذواق، وتوصيل راداري فائق السرعة يصلك أينما كنت."
                 : "Delicious dishes and menus from all restaurants & cloud kitchens, diverse dining for every taste, with ultrafast live radar delivery right to you."}
@@ -1247,7 +1513,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           {/* ZOMATO DUAL SEARCH BAR (Location Pill + Dish Search) */}
           {/* ============================================================ */}
           <div className="w-full max-w-3xl mt-4">
-            <div className="relative flex flex-col sm:flex-row items-center rounded-2xl sm:rounded-full bg-white dark:bg-slate-900/95 border border-slate-300 dark:border-slate-700/80 p-1.5 sm:p-2 shadow-xl dark:shadow-2xl shadow-slate-200/50 dark:shadow-slate-950 backdrop-blur-xl transition-all focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20">
+            <div className="relative flex flex-col sm:flex-row items-center rounded-2xl sm:rounded-full bg-slate-900/95 border border-slate-700/80 p-1.5 sm:p-2 shadow-2xl shadow-slate-950 backdrop-blur-xl transition-all focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-500/20">
               
               {/* Location Picker (Left on LTR / Right on RTL) */}
               <div className="relative w-full sm:w-5/12">
@@ -1258,19 +1524,19 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                     sounds.playClick();
                     setIsLocationDropdownOpen(!isLocationDropdownOpen);
                   }}
-                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl sm:rounded-full text-xs font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-colors"
+                  className="w-full flex items-center justify-between gap-2 px-3.5 py-2 rounded-xl sm:rounded-full text-xs font-bold text-slate-200 hover:bg-slate-800/80 transition-colors"
                 >
                   <div className="flex items-center gap-2 truncate">
                     <MapPin className="size-4 text-rose-500 shrink-0 animate-bounce" />
                     <span className="truncate">{activeLocation}</span>
                   </div>
-                  <ChevronDown className="size-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+                  <ChevronDown className="size-3.5 text-slate-400 shrink-0" />
                 </button>
 
                 {/* Location Dropdown */}
                 {isLocationDropdownOpen && (
-                  <div className="absolute top-full start-0 z-50 mt-2 w-72 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-2xl animate-in fade-in zoom-in-95 text-start">
-                    <p className="px-3 py-1.5 text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  <div className="absolute top-full start-0 z-50 mt-2 w-72 rounded-2xl border border-slate-700 bg-slate-900 p-2 shadow-2xl animate-in fade-in zoom-in-95 text-start">
+                    <p className="px-3 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                       {lang === "ar" ? "اختر الحي / منطقة التوصيل:" : "Select Delivery Neighborhood:"}
                     </p>
                     <div className="max-h-56 overflow-y-auto space-y-1">
@@ -1290,8 +1556,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                           }}
                           className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
                             loc.isAvailable
-                              ? "text-slate-800 dark:text-slate-200 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400"
-                              : "text-slate-400 dark:text-slate-500 hover:bg-rose-500/10 hover:text-rose-500"
+                              ? "text-slate-200 hover:bg-emerald-500/10 hover:text-emerald-400"
+                              : "text-slate-500 hover:bg-rose-500/10 hover:text-rose-500"
                           }`}
                         >
                           <div className="flex items-center gap-2">
@@ -1311,28 +1577,28 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               </div>
 
               {/* Divider */}
-              <div className="hidden sm:block h-6 w-px bg-slate-300 dark:bg-slate-700 mx-1" />
+              <div className="hidden sm:block h-6 w-px bg-slate-700 mx-1" />
 
               {/* Dish / Kitchen Search Input */}
               <div className="relative flex-1 w-full flex items-center">
-                <Search className="absolute start-3.5 size-4 text-slate-500 dark:text-slate-400" />
+                <Search className="absolute start-3.5 size-4 text-slate-400" />
                 <Input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
                     lang === "ar"
-                      ? "ابحث عن أي مطعم، مطبخ، برجر، مشويات، بيتزا، كافيه، أو وجبة دايت..."
-                      : "Search any restaurant, kitchen, burger, grills, pizza, cafe, or diet..."
+                      ? "ابحث عن أي مطعم، كنتاكي، برجر، مشويات، بيتزا، كافيه، أو وجبة دايت..."
+                      : "Search any restaurant, KFC, burger, grills, pizza, cafe, or diet..."
                   }
-                  className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-white placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     aria-label={lang === "ar" ? "مسح البحث" : "Clear search"}
                     onClick={() => setSearchQuery("")}
-                    className="absolute end-3 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                    className="absolute end-3 text-xs text-slate-400 hover:text-white"
                   >
                     ✕
                   </button>
@@ -1342,17 +1608,17 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
 
             {/* Quick Trending Search Tags Covering All Restaurant Cuisines */}
             <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 text-xs">
-              <span className="text-slate-600 dark:text-slate-400 text-[11px] font-bold me-1">
+              <span className="text-slate-300 text-[11px] font-bold me-1 drop-shadow-sm">
                 {lang === "ar" ? "الأكثر بحثاً في المطاعم:" : "Trending in Restaurants:"}
               </span>
               {[
-                { ar: "🍔 برجر وساندوتشات", en: "🍔 Burgers", query: "برجر", cat: "all" },
-                { ar: "🥩 مشويات وشاورما", en: "🥩 Grills & Shawarma", query: "مشويات", cat: "all" },
-                { ar: "🍕 بيتزا وإيطالي", en: "🍕 Pizza & Pasta", query: "بيتزا", cat: "all" },
-                { ar: "🥗 دايت وكيتو صحي", en: "🥗 Healthy & Keto", query: "صحي", cat: "healthy" },
-                { ar: "☕ كافيهات ومخبوزات", en: "☕ Cafes & Bakery", query: "قهوة", cat: "all" },
-                { ar: "🍣 مأكولات بحرية وآسيوية", en: "🍣 Seafood & Asian", query: "سالمون", cat: "all" },
-                { ar: "🍛 أطباق شرقية وشعبية", en: "🍛 Traditional Rice", query: "شواء", cat: "all" },
+                { ar: "🍗 دجاج كنتاكي ومقرمش", en: "🍗 KFC & Crispy", query: "كنتاكي", cat: "all" },
+                { ar: "🍔 برجر وهارديز", en: "🍔 Burgers & Hardees", query: "برجر", cat: "all" },
+                { ar: "🥩 مشويات وتكساس ستيك", en: "🥩 Grills & Steaks", query: "مشويات", cat: "all" },
+                { ar: "🍕 دومينوز ومايسترو بيتزا", en: "🍕 Dominos & Pizza", query: "بيتزا", cat: "all" },
+                { ar: "🌯 شاورمر وماما نورة", en: "🌯 Shawarma", query: "شاورمر", cat: "all" },
+                { ar: "🥗 دايت وكيتو وصب واي", en: "🥗 Diet & Subway", query: "صحي", cat: "healthy" },
+                { ar: "🧁 سينابون ودانكن كافيه", en: "🧁 Cinnabon & Cafes", query: "سينابون", cat: "all" },
               ].map((pill, idx) => (
                 <button
                   key={idx}
@@ -1362,7 +1628,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                     if (pill.cat) setSelectedCat(pill.cat);
                     toast.info(lang === "ar" ? `🔎 تصفح: ${pill.ar}` : `🔎 Browsing: ${pill.en}`);
                   }}
-                  className="rounded-full bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800 px-3 py-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition-all active:scale-95 shadow-sm"
+                  className="rounded-full bg-slate-900/80 border border-slate-700/80 px-3 py-1 text-[11px] font-bold text-slate-200 hover:border-amber-400 hover:text-amber-300 transition-all active:scale-95 shadow-md backdrop-blur-md"
                 >
                   {lang === "ar" ? pill.ar : pill.en}
                 </button>
@@ -2150,7 +2416,9 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             <div className="flex items-center gap-2">
               <span className="flex size-2 rounded-full bg-emerald-500 animate-ping" />
               <span className="text-xs font-bold text-slate-300">
-                {lang === "ar" ? "شريط اللوجوهات الدائري المباشر (16 علامة تجارية):" : "Live Circular Brand Logos (16 Brands):"}
+                {lang === "ar"
+                  ? `شريط اللوجوهات الدائري المباشر (${FAMOUS_KSA_RESTAURANTS.length} علامة تجارية):`
+                  : `Live Circular Brand Logos (${FAMOUS_KSA_RESTAURANTS.length} Brands):`}
               </span>
             </div>
             <span className="text-[11px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
