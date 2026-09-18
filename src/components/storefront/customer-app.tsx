@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import deliveryHeroVideo from "@/assets/foodhub-delivery-hero-logo.webm.asset.json";
+import deliveryHeroVideoMp4 from "@/assets/foodhub-delivery-hero-logo.mp4.asset.json";
 import riderFrameImage from "@/assets/foodhub-rider-logo-frame.jpg";
 import {
   Search,
@@ -1514,17 +1515,36 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           {deliveryHeroVideo?.url && (
             <video
               className="absolute inset-0 size-full object-cover object-center opacity-65"
-              src={deliveryHeroVideo.url}
               poster={riderFrameImage}
               autoPlay
               muted
               loop
               playsInline
-              preload="metadata"
+              controls={false}
+
+              disablePictureInPicture
+              preload="auto"
               aria-hidden="true"
-            />
+              tabIndex={-1}
+              ref={(el) => {
+                if (!el) return;
+                el.muted = true;
+                el.defaultMuted = true;
+                const tryPlay = () => {
+                  const p = el.play();
+                  if (p && typeof p.catch === "function") p.catch(() => undefined);
+                };
+                tryPlay();
+                el.addEventListener("loadeddata", tryPlay, { once: true });
+                el.addEventListener("canplay", tryPlay, { once: true });
+              }}
+            >
+              <source src={deliveryHeroVideo.url} type="video/webm" />
+              <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
+            </video>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/40 to-slate-950/85" />
+
         </div>
 
         {/* Hero Content Container */}
