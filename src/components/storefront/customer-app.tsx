@@ -297,7 +297,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const exploreSectionRef = useRef<HTMLDivElement>(null);
 
   const currentLoc = RIYADH_LOCALITIES.find((l) => l.id === selectedLocId) ?? RIYADH_LOCALITIES[0];
-  const activeLocation = lang === "ar" ? `الرياض • ${currentLoc.nameAr}` : `Riyadh • ${currentLoc.nameEn}`;
+  const activeLocation = lang === "ar" ? `الرياض • ${currentLoc?.nameAr ?? ""}` : `Riyadh • ${currentLoc?.nameEn ?? ""}`;
 
   const scrollToExplore = () => {
     exploreSectionRef.current?.scrollIntoView({ behavior: "smooth" });
