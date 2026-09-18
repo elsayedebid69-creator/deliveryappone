@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { AiDeliveryProof } from "@/components/courier/ai-delivery-proof";
 import { sounds } from "@/lib/sound-effects";
 import {
+import { RoleGuard } from "@/components/auth/role-guard";
   Bike,
   MapPin,
   Clock,
@@ -46,7 +47,11 @@ export const Route = createFileRoute("/_authenticated/courier")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: CourierPage,
+  component: () => (
+    <RoleGuard allow={["courier", "admin"]}>
+      <CourierPage />
+    </RoleGuard>
+  ),
 });
 
 type Section = "overview" | "available" | "mine";

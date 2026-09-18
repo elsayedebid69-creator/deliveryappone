@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/dialog";
 import { AppSimulatorWorkspace } from "@/components/dev-workspace/app-simulator";
 import {
+import { RoleGuard } from "@/components/auth/role-guard";
   ClipboardCheck,
   Clock,
   CheckCircle2,
@@ -91,7 +92,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AdminPage,
+  component: () => (
+    <RoleGuard allow={["admin"]}>
+      <AdminPage />
+    </RoleGuard>
+  ),
 });
 
 function AdminPage() {

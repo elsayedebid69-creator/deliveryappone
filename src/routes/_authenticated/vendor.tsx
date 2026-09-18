@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { AiDishCreator } from "@/components/vendor/ai-dish-creator";
 import { sounds } from "@/lib/sound-effects";
 import {
+import { RoleGuard } from "@/components/auth/role-guard";
   Store,
   ClipboardCheck,
   UtensilsCrossed,
@@ -55,7 +56,11 @@ export const Route = createFileRoute("/_authenticated/vendor")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: VendorPage,
+  component: () => (
+    <RoleGuard allow={["restaurant", "admin"]}>
+      <VendorPage />
+    </RoleGuard>
+  ),
 });
 
 type OrderStatus = "pending" | "accepted" | "preparing" | "ready" | "on_the_way" | "delivered" | "cancelled";
