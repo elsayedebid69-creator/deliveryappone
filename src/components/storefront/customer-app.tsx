@@ -26,6 +26,7 @@ import {
   Utensils,
   Award,
   ChevronUp,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -37,17 +38,30 @@ import { Badge } from "@/components/ui/badge";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import { AiFoodAssistant } from "@/components/customer/ai-food-assistant";
 
+// Region filter options for Riyadh localities
+const REGION_FILTERS = [
+  { id: "all", labelAr: "جميع الأحياء", labelEn: "All Districts", icon: "📍" },
+  { id: "north", labelAr: "شمال الرياض", labelEn: "North Riyadh", icon: "🧭" },
+  { id: "central", labelAr: "وسط الرياض", labelEn: "Central Riyadh", icon: "🏙️" },
+  { id: "east", labelAr: "شرق الرياض", labelEn: "East Riyadh", icon: "🌅" },
+  { id: "west", labelAr: "غرب الرياض", labelEn: "West Riyadh", icon: "🌴" },
+  { id: "south", labelAr: "جنوب الرياض", labelEn: "South Riyadh", icon: "🚚" },
+];
+
 // Zomato Popular Localities in Riyadh / Saudi Arabia
 const RIYADH_LOCALITIES = [
-  { id: "loc-1", nameAr: "العليا والسليمانية", nameEn: "Al Olaya & As Sulimaniyah", places: 184 },
-  { id: "loc-2", nameAr: "حطين والملقا", nameEn: "Hittin & Al Malqa", places: 210 },
-  { id: "loc-3", nameAr: "النرجس والياسمين", nameEn: "An Narjis & Al Yasmin", places: 145 },
-  { id: "loc-4", nameAr: "التحلية والزهراء", nameEn: "Tahlia & Az Zahra", places: 168 },
-  { id: "loc-5", nameAr: "الروضة والربوة", nameEn: "Ar Rawdah & Ar Rabwah", places: 98 },
-  { id: "loc-6", nameAr: "الصحافة والملز", nameEn: "As Sahafah & Al Malaz", places: 124 },
-  { id: "loc-7", nameAr: "الدرعية والخزامى", nameEn: "Diriyah & Al Khuzama", places: 92 },
-  { id: "loc-8", nameAr: "السويدي والبديعة", nameEn: "As Suwaidi & Al Badi'ah", places: 86 },
-  { id: "loc-9", nameAr: "قرطبة واليرموك", nameEn: "Qurtubah & Al Yarmuk", places: 115 },
+  { id: "loc-1", nameAr: "العليا والسليمانية", nameEn: "Al Olaya & As Sulimaniyah", places: 184, region: "central", eta: "15-20 د", tagAr: "الأكثر حيوية 🔥", tagEn: "Most Vibrant 🔥", rating: 4.9, icon: "🏙️" },
+  { id: "loc-2", nameAr: "حطين والملقا", nameEn: "Hittin & Al Malqa", places: 210, region: "north", eta: "15-20 د", tagAr: "مطابخ فاخرة ⭐", tagEn: "Fine Dining ⭐", rating: 4.9, icon: "✨" },
+  { id: "loc-3", nameAr: "النرجس والياسمين", nameEn: "An Narjis & Al Yasmin", places: 145, region: "north", eta: "18-22 د", tagAr: "نمو سريع 🚀", tagEn: "Fast Growing 🚀", rating: 4.8, icon: "🌱" },
+  { id: "loc-4", nameAr: "التحلية والزهراء", nameEn: "Tahlia & Az Zahra", places: 168, region: "central", eta: "15-20 د", tagAr: "كافيهات ودايت 🥑", tagEn: "Cafes & Diet 🥑", rating: 4.9, icon: "☕" },
+  { id: "loc-5", nameAr: "الروضة والربوة", nameEn: "Ar Rawdah & Ar Rabwah", places: 118, region: "east", eta: "20-25 د", tagAr: "توصيل عائلي 🏡", tagEn: "Family Dining 🏡", rating: 4.7, icon: "🍕" },
+  { id: "loc-6", nameAr: "الصحافة والعقيق", nameEn: "As Sahafah & Al Aqiq", places: 156, region: "north", eta: "15-20 د", tagAr: "مفضل للرياضيين 🥩", tagEn: "Fitness Hub 🥩", rating: 4.8, icon: "⚡" },
+  { id: "loc-7", nameAr: "الدرعية والخزامى", nameEn: "Diriyah & Al Khuzama", places: 94, region: "west", eta: "20-25 د", tagAr: "تراثي وصحي 🏛️", tagEn: "Heritage & Health 🏛️", rating: 4.8, icon: "🌴" },
+  { id: "loc-8", nameAr: "السويدي والبديعة", nameEn: "As Suwaidi & Al Badi'ah", places: 102, region: "south", eta: "20-25 د", tagAr: "أسرع توصيل 🛵", tagEn: "Fast Delivery 🛵", rating: 4.7, icon: "🍱" },
+  { id: "loc-9", nameAr: "قرطبة واليرموك", nameEn: "Qurtubah & Al Yarmuk", places: 125, region: "east", eta: "18-22 د", tagAr: "مطابخ سحابية 🍳", tagEn: "Cloud Kitchens 🍳", rating: 4.8, icon: "🍳" },
+  { id: "loc-10", nameAr: "الملز والمربع", nameEn: "Al Malaz & Al Murabba", places: 132, region: "central", eta: "15-20 د", tagAr: "قلب العاصمة 🎯", tagEn: "City Center 🎯", rating: 4.8, icon: "📍" },
+  { id: "loc-11", nameAr: "غرناطة والحمراء", nameEn: "Ghirnatah & Al Hamra", places: 114, region: "east", eta: "18-22 د", tagAr: "سموذي وأطباق 🥤", tagEn: "Smoothies & Bowls 🥤", rating: 4.8, icon: "🥤" },
+  { id: "loc-12", nameAr: "شبرا والشفاء", nameEn: "Shubra & Al Shifa", places: 88, region: "south", eta: "22-28 د", tagAr: "توصيل اقتصادي 💰", tagEn: "Budget Friendly 💰", rating: 4.6, icon: "🚚" },
 ];
 
 // Zomato Curated Collections
@@ -280,6 +294,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [selectedCat, setSelectedCat] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocId, setSelectedLocId] = useState("loc-1");
+  const [localityRegion, setLocalityRegion] = useState<string>("all");
+  const [localityQuery, setLocalityQuery] = useState("");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
   const [likedDishes, setLikedDishes] = useState<Record<string, boolean>>({});
   const [showAllLocalities, setShowAllLocalities] = useState(false);
@@ -339,7 +355,19 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
     return matchCat && matchSearch;
   });
 
-  const visibleLocalities = showAllLocalities ? RIYADH_LOCALITIES : RIYADH_LOCALITIES.slice(0, 6);
+  const filteredLocalities = RIYADH_LOCALITIES.filter((loc) => {
+    const matchReg = localityRegion === "all" || loc.region === localityRegion;
+    const q = localityQuery.trim().toLowerCase();
+    const matchQ =
+      !q ||
+      loc.nameAr.toLowerCase().includes(q) ||
+      loc.nameEn.toLowerCase().includes(q) ||
+      loc.tagAr.toLowerCase().includes(q) ||
+      loc.tagEn.toLowerCase().includes(q);
+    return matchReg && matchQ;
+  });
+
+  const visibleLocalities = showAllLocalities ? filteredLocalities : filteredLocalities.slice(0, 6);
 
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950 ${isEmbedded ? "text-sm" : ""}`}>
@@ -611,75 +639,205 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* ============================================================ */}
       {/* 4. POPULAR LOCALITIES IN RIYADH (Zomato Localities Grid) */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
-        <div className="space-y-1">
-          <h2 className="text-xl sm:text-2xl font-black text-white">
-            {lang === "ar" ? (
-              <>
-                الأحياء الأكثر طلباً في{" "}
-                <span className="text-amber-400">الرياض</span>
-              </>
-            ) : (
-              <>
-                Popular localities in and around <span className="text-amber-400">Riyadh</span>
-              </>
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-6">
+        {/* Section Header with live delivery coverage badge */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-bold text-emerald-400">
+              <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+              {lang === "ar" ? "تغطية فورية 100% لكافة أحياء الرياض" : "100% Instant Delivery Coverage across Riyadh"}
+            </div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white">
+              {lang === "ar" ? (
+                <>
+                  الأحياء الأكثر طلباً في{" "}
+                  <span className="text-amber-400">الرياض</span>
+                </>
+              ) : (
+                <>
+                  Popular localities in and around <span className="text-amber-400">Riyadh</span>
+                </>
+              )}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400">
+              {lang === "ar"
+                ? "اختر حيك لتصفح المطابخ السحابية القريبة، أوقات التوصيل الفورية، ومعدلات التقييم"
+                : "Select your neighborhood to explore nearby cloud kitchens, instant ETAs, and top ratings"}
+            </p>
+          </div>
+
+          {/* Mini Search Input for localities */}
+          <div className="relative w-full md:w-72">
+            <Search className={`absolute top-1/2 -translate-y-1/2 size-4 text-slate-400 ${lang === "ar" ? "right-3" : "left-3"}`} />
+            <input
+              type="text"
+              value={localityQuery}
+              onChange={(e) => setLocalityQuery(e.target.value)}
+              placeholder={lang === "ar" ? "ابحث باسم الحي أو الميزة..." : "Search neighborhood or tag..."}
+              className={`w-full rounded-xl border border-slate-800 bg-slate-900/90 py-2 text-xs text-white placeholder:text-slate-500 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500 ${
+                lang === "ar" ? "pr-9 pl-8" : "pl-9 pr-8"
+              }`}
+            />
+            {localityQuery && (
+              <button
+                type="button"
+                aria-label="مسح البحث"
+                onClick={() => setLocalityQuery("")}
+                className={`absolute top-1/2 -translate-y-1/2 text-slate-400 hover:text-white ${lang === "ar" ? "left-2.5" : "right-2.5"}`}
+              >
+                <X className="size-3.5" />
+              </button>
             )}
-          </h2>
-          <p className="text-xs text-slate-400">
-            {lang === "ar"
-              ? "اختر حيك المفضل لتصفح المطابخ السحابية وأوقات التوصيل الفورية"
-              : "Select your neighborhood to explore active cloud kitchens and instant delivery ETAs"}
-          </p>
+          </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {visibleLocalities.map((loc) => (
-            <div
-              key={loc.id}
-              onClick={() => {
-                sounds.playClick();
-                setSelectedLocId(loc.id);
-                toast.info(lang === "ar" ? `📍 تم تحديد الحي: ${loc.nameAr}` : `📍 Selected: ${loc.nameEn}`);
-              }}
-              className="group cursor-pointer flex items-center justify-between p-3.5 rounded-2xl border border-slate-800 bg-slate-900/80 hover:border-amber-500/40 hover:bg-slate-900 transition-all"
-            >
-              <div className="space-y-0.5">
-                <h3 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors">
-                  {lang === "ar" ? loc.nameAr : loc.nameEn}
-                </h3>
-                <p className="text-xs text-slate-400">
-                  {loc.places} {lang === "ar" ? "مكان متاح للتوصيل" : "places nearby"}
-                </p>
-              </div>
-              <ChevronRight className={`size-4 text-slate-500 group-hover:text-amber-400 transition-colors ${lang === "ar" ? "rotate-180" : ""}`} />
-            </div>
-          ))}
+        {/* Region Filter Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+          {REGION_FILTERS.map((rf) => {
+            const isSelected = localityRegion === rf.id;
+            return (
+              <button
+                key={rf.id}
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setLocalityRegion(rf.id);
+                }}
+                className={`flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isSelected
+                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                    : "bg-slate-900/80 border border-slate-800 text-slate-300 hover:border-amber-500/40 hover:text-white"
+                }`}
+              >
+                <span>{rf.icon}</span>
+                <span>{lang === "ar" ? rf.labelAr : rf.labelEn}</span>
+              </button>
+            );
+          })}
         </div>
+
+        {/* Localities Cards Grid */}
+        {filteredLocalities.length === 0 ? (
+          <div className="text-center py-10 rounded-2xl border border-slate-800 bg-slate-900/50 space-y-2">
+            <p className="text-sm font-bold text-slate-300">
+              {lang === "ar" ? "لم يتم العثور على أحياء مطابقة" : "No matching neighborhoods found"}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setLocalityQuery("");
+                setLocalityRegion("all");
+              }}
+              className="text-xs border-slate-700 text-amber-400 hover:bg-slate-800"
+            >
+              {lang === "ar" ? "إعادة تعيين الفلتر" : "Reset filter"}
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {visibleLocalities.map((loc) => {
+              const isSelected = selectedLocId === loc.id;
+              return (
+                <div
+                  key={loc.id}
+                  onClick={() => {
+                    sounds.playClick();
+                    setSelectedLocId(loc.id);
+                    toast.info(lang === "ar" ? `📍 تم تحديد حي ${loc.nameAr} كوجهة طلب نشطة!` : `📍 ${loc.nameEn} selected as active destination!`);
+                  }}
+                  className={`group cursor-pointer relative overflow-hidden flex flex-col justify-between p-4 rounded-2xl border transition-all duration-300 ${
+                    isSelected
+                      ? "border-amber-500 bg-gradient-to-br from-amber-500/15 via-slate-900 to-slate-900 shadow-lg shadow-amber-500/10 ring-2 ring-amber-500/30"
+                      : "border-slate-800 bg-slate-900/80 hover:border-amber-500/50 hover:bg-slate-900 hover:shadow-lg hover:shadow-slate-950/40"
+                  }`}
+                >
+                  {/* Top Row: Icon + Tag & Active Badge */}
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-9 items-center justify-center rounded-xl bg-slate-800/90 border border-slate-700/60 text-base shadow-sm group-hover:scale-110 transition-transform">
+                        {loc.icon}
+                      </span>
+                      <span className="rounded-lg bg-slate-800/70 border border-slate-700/50 px-2 py-0.5 text-[10px] font-bold text-amber-400">
+                        {lang === "ar" ? loc.tagAr : loc.tagEn}
+                      </span>
+                    </div>
+
+                    {isSelected ? (
+                      <span className="flex items-center gap-1 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] px-2 py-0.5 shadow-sm">
+                        <Check className="size-3" />
+                        {lang === "ar" ? "الحي النشط" : "Active"}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1 text-[11px] font-bold text-amber-400/90">
+                        <Star className="size-3 fill-amber-400 text-amber-400" />
+                        {loc.rating}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Locality Name */}
+                  <div className="space-y-1 mb-3">
+                    <h3 className="font-black text-base text-white group-hover:text-amber-400 transition-colors">
+                      {lang === "ar" ? loc.nameAr : loc.nameEn}
+                    </h3>
+                    <div className="flex items-center gap-3 text-xs text-slate-400">
+                      <span className="flex items-center gap-1 text-slate-300 font-medium">
+                        <Store className="size-3.5 text-amber-400" />
+                        {loc.places} {lang === "ar" ? "مطبخ ومتجر" : "places"}
+                      </span>
+                      <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                        <Zap className="size-3.5" />
+                        {loc.eta}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bottom Action Hint */}
+                  <div className="flex items-center justify-between border-t border-slate-800/60 pt-2.5 text-[11px] text-slate-400 group-hover:text-amber-400 transition-colors">
+                    <span className="font-semibold">
+                      {lang === "ar" ? "تصفح مطابخ الحي" : "Explore local kitchens"}
+                    </span>
+                    <ChevronRight
+                      className={`size-4 transition-transform group-hover:translate-x-1 ${
+                        lang === "ar" ? "rotate-180 group-hover:-translate-x-1" : ""
+                      }`}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {/* Toggle Show More Localities */}
-        <div className="flex justify-center pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              sounds.playClick();
-              setShowAllLocalities(!showAllLocalities);
-            }}
-            className="border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-amber-400 hover:border-amber-500/40 rounded-xl gap-1.5"
-          >
-            {showAllLocalities ? (
-              <>
-                <ChevronUp className="size-3.5" />
-                {lang === "ar" ? "إخفاء الأحياء الإضافية" : "Show less"}
-              </>
-            ) : (
-              <>
-                <ChevronDown className="size-3.5" />
-                {lang === "ar" ? `عرض المزيد من الأحياء (${RIYADH_LOCALITIES.length})` : `Show all localities (${RIYADH_LOCALITIES.length})`}
-              </>
-            )}
-          </Button>
-        </div>
+        {filteredLocalities.length > 6 && (
+          <div className="flex justify-center pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                sounds.playClick();
+                setShowAllLocalities(!showAllLocalities);
+              }}
+              className="border-slate-800 bg-slate-900 text-xs text-slate-300 hover:text-amber-400 hover:border-amber-500/40 rounded-xl gap-1.5 h-9 px-4"
+            >
+              {showAllLocalities ? (
+                <>
+                  <ChevronUp className="size-3.5" />
+                  {lang === "ar" ? "إخفاء الأحياء الإضافية" : "Show less"}
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="size-3.5" />
+                  {lang === "ar"
+                    ? `عرض كافة أحياء الرياض المتاحة (${filteredLocalities.length})`
+                    : `Show all available localities (${filteredLocalities.length})`}
+                </>
+              )}
+            </Button>
+          </div>
+        )}
       </section>
 
       {/* ============================================================ */}
