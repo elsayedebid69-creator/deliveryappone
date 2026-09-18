@@ -167,10 +167,10 @@ export function AppHeader() {
                   sounds.playClick();
                   setAccessCodeModalOpen(true);
                 }}
-                className="gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl shadow-md shadow-amber-500/20"
+                className="gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl shadow-md shadow-amber-500/20 px-4"
               >
                 <KeyRound className="size-4" />
-                <span>{lang === "ar" ? "دخول بكود الوصول" : "Access Code"}</span>
+                <span>{lang === "ar" ? "دخول" : "Login"}</span>
               </Button>
             )}
           </div>
@@ -272,10 +272,10 @@ export function AppHeader() {
                     setMobileMenuOpen(false);
                     setAccessCodeModalOpen(true);
                   }}
-                  className="justify-start gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold"
+                  className="justify-start gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold px-4"
                 >
                   <KeyRound className="size-4" />
-                  {lang === "ar" ? "دخول بكود الوصول" : "Access Code Login"}
+                  {lang === "ar" ? "دخول" : "Login"}
                 </Button>
               )}
             </div>
