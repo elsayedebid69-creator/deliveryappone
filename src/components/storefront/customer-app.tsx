@@ -1541,7 +1541,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 el.addEventListener("canplay", tryPlay, { once: true });
               }}
             >
-              <source src={deliveryHeroVideo.url} type="video/mp4" />
+              <source src={deliveryHeroVideo.url} type="video/webm" />
+              <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
             </video>
           )}
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
