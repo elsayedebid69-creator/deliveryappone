@@ -5,11 +5,9 @@ import { useI18n } from "@/lib/i18n";
 import { sounds } from "@/lib/sound-effects";
 import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import {
   Smartphone,
-  QrCode,
   Download,
   Star,
   ShieldCheck,
@@ -20,7 +18,6 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Send,
   Bell,
   Heart,
   Store,
@@ -59,38 +56,8 @@ export function DownloadPage() {
   const { lang, t } = useI18n();
   const navigate = useNavigate();
 
-  const [sendType, setSendType] = useState<"phone" | "email">("phone");
-  const [phoneOrEmailInput, setPhoneOrEmailInput] = useState("");
-  const [isSendingLink, setIsSendingLink] = useState(false);
   const [activeScreenTab, setActiveScreenTab] = useState<"menu" | "radar" | "checkout">("radar");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-
-  const handleSendLink = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!phoneOrEmailInput.trim()) {
-      sounds.playClick();
-      toast.error(
-        lang === "ar"
-          ? "يرجى إدخال رقم الهاتف أو البريد الإلكتروني"
-          : "Please enter your phone number or email"
-      );
-      return;
-    }
-
-    setIsSendingLink(true);
-    sounds.playClick();
-
-    setTimeout(() => {
-      setIsSendingLink(false);
-      sounds.playSuccess();
-      toast.success(
-        lang === "ar"
-          ? `🚀 تم إرسال رابط تحميل تطبيق FOODHUB بنجاح إلى: ${phoneOrEmailInput}`
-          : `🚀 App download link sent successfully to: ${phoneOrEmailInput}`
-      );
-      setPhoneOrEmailInput("");
-    }, 800);
-  };
 
   const handleStoreClick = (storeName: "appstore" | "playstore" | "apk") => {
     sounds.playSuccess();
@@ -298,69 +265,9 @@ export function DownloadPage() {
                     </div>
                   </button>
                 </div>
-
-                {/* SMS / Email Download Link Box */}
-                <div className="pt-3 border-t border-slate-800/80 max-w-xl mx-auto lg:mx-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-                      <Send className="size-3.5 text-amber-400" />
-                      {lang === "ar" ? "أو احصل على رابط التحميل عبر رسالة نصية:" : "Or get download link via SMS:"}
-                    </span>
-                    <div className="flex gap-1 text-[11px] font-bold">
-                      <button
-                        type="button"
-                        onClick={() => setSendType("phone")}
-                        className={`px-2.5 py-0.5 rounded-full transition-colors ${
-                          sendType === "phone"
-                            ? "bg-amber-500 text-slate-950"
-                            : "bg-slate-800 text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        {lang === "ar" ? "الجوال (SMS)" : "Phone"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setSendType("email")}
-                        className={`px-2.5 py-0.5 rounded-full transition-colors ${
-                          sendType === "email"
-                            ? "bg-amber-500 text-slate-950"
-                            : "bg-slate-800 text-slate-400 hover:text-white"
-                        }`}
-                      >
-                        {lang === "ar" ? "الإيميل" : "Email"}
-                      </button>
-                    </div>
-                  </div>
-
-                  <form onSubmit={handleSendLink} className="flex gap-2">
-                    <div className="relative flex-1">
-                      <Input
-                        type={sendType === "phone" ? "tel" : "email"}
-                        value={phoneOrEmailInput}
-                        onChange={(e) => setPhoneOrEmailInput(e.target.value)}
-                        placeholder={
-                          sendType === "phone"
-                            ? (lang === "ar" ? "05xxxxxxxx أو +966..." : "+966 5x xxx xxxx")
-                            : (lang === "ar" ? "name@example.com" : "your@email.com")
-                        }
-                        className="h-11 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 rounded-xl text-xs font-medium focus:border-amber-400"
-                        dir={sendType === "phone" ? "ltr" : undefined}
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      disabled={isSendingLink}
-                      className="h-11 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black hover:from-amber-400 hover:to-yellow-300 shadow-md shadow-amber-500/20 text-xs shrink-0"
-                    >
-                      {isSendingLink
-                        ? (lang === "ar" ? "جارٍ الإرسال..." : "Sending...")
-                        : (lang === "ar" ? "إرسال الرابط" : "Send Link")}
-                    </Button>
-                  </form>
-                </div>
               </div>
 
-              {/* Right Column: Interactive Smartphone Mockup & QR Card (5 cols) */}
+              {/* Right Column: Interactive Smartphone Mockup (5 cols) */}
               <div className="lg:col-span-5 flex flex-col items-center gap-6">
                 {/* Smartphone Mockup */}
                 <div className="relative w-full max-w-xs rounded-[40px] border-4 border-slate-700 bg-slate-900 p-3.5 shadow-2xl shadow-amber-500/10 ring-1 ring-slate-800">
