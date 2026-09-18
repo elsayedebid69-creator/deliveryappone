@@ -65,7 +65,8 @@ function AuthPage() {
     }
 
     sounds.playSuccess();
-    void navigate({ to: "/", replace: true });
+    toast.success(lang === "ar" ? "مرحباً بك! جاري فتح لوحة الإدارة..." : "Welcome! Opening Admin Panel...");
+    void navigate({ to: "/admin", replace: true });
   };
 
   return (
@@ -77,9 +78,17 @@ function AuthPage() {
             <div className="mx-auto flex justify-center">
               <FoodHubLogo size={64} />
             </div>
-            <h1 className="text-2xl font-black text-white">بوابة تسجيل الدخول المركزية</h1>
-            <p className="text-xs text-slate-400">
-              الدخول الآمن لمنظومة FOODHUB بالبريد الإلكتروني وكلمة المرور
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-bold text-amber-300">
+              <ShieldCheck className="size-3.5" />
+              <span>{lang === "ar" ? "بوابة الإدارة المركزية" : "Central Admin Portal"}</span>
+            </div>
+            <h1 className="text-2xl font-black text-white">
+              {lang === "ar" ? "دخول لوحة تحكم الإدارة" : "Admin Dashboard Login"}
+            </h1>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              {lang === "ar"
+                ? "مخصصة لإدارة منصة FOODHUB: متابعة العمليات والمبيعات، مراجعة الطلبات، والموافقة على الحسابات."
+                : "Dedicated for FOODHUB management: live operations, sales tracking, and account approvals."}
             </p>
           </div>
 

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { toast } from "sonner";
 import {
   ShoppingBag,
   Languages,
@@ -35,6 +36,36 @@ export function AppHeader() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Hidden Admin Triple-Click Mechanism on Website Logo
+  const logoClicksRef = useRef<number>(0);
+  const logoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleLogoClick = (e: React.MouseEvent) => {
+    sounds.playClick();
+    logoClicksRef.current += 1;
+
+    if (logoTimerRef.current) {
+      clearTimeout(logoTimerRef.current);
+    }
+
+    if (logoClicksRef.current >= 3) {
+      e.preventDefault();
+      logoClicksRef.current = 0;
+      sounds.playSuccess();
+      toast.success(
+        lang === "ar"
+          ? "🔐 جارٍ فتح بوابة تسجيل دخول الإدارة المركزية..."
+          : "🔐 Opening Admin Portal..."
+      );
+      void navigate({ to: "/auth" });
+      return;
+    }
+
+    logoTimerRef.current = setTimeout(() => {
+      logoClicksRef.current = 0;
+    }, 1200);
+  };
+
   const goToLogin = () => {
     sounds.playClick();
     void navigate({ to: "/auth" });
@@ -61,8 +92,9 @@ export function AppHeader() {
           <div className="flex items-center gap-2.5 sm:gap-3">
             <Link
               to="/"
-              onClick={() => sounds.playClick()}
-              className="flex items-center gap-2 group transition-transform active:scale-95 shrink-0"
+              onClick={handleLogoClick}
+              className="flex items-center gap-2 group transition-transform active:scale-95 shrink-0 select-none cursor-pointer"
+              title={lang === "ar" ? "FOODHUB - الرئيسية" : "FOODHUB - Home"}
             >
               <FoodHubLogo size={40} showText />
             </Link>
@@ -151,8 +183,8 @@ export function AppHeader() {
               </Button>
             )}
 
-            {/* Public Unified Access Code / Login Button */}
-            {isLoggedIn ? (
+            {/* Logout button ONLY when logged in */}
+            {isLoggedIn && (
               <Button
                 variant="outline"
                 size="sm"
@@ -164,15 +196,6 @@ export function AppHeader() {
                 <span className="hidden sm:inline">
                   {t("logout")}
                 </span>
-              </Button>
-            ) : (
-              <Button
-                size="sm"
-                onClick={goToLogin}
-                className="gap-1.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl shadow-md shadow-amber-500/20 px-4"
-              >
-                <KeyRound className="size-4" />
-                <span>{lang === "ar" ? "دخول" : "Login"}</span>
               </Button>
             )}
           </div>
@@ -270,22 +293,10 @@ export function AppHeader() {
                 </Button>
               )}
 
-              {isLoggedIn ? (
+              {isLoggedIn && (
                 <Button variant="outline" size="sm" onClick={handleSignOut} className="justify-start gap-2 border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
                   <LogOut className="size-4" />
                   {t("logout")}
-                </Button>
-              ) : (
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    goToLogin();
-                  }}
-                  className="justify-start gap-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold px-4"
-                >
-                  <KeyRound className="size-4" />
-                  {lang === "ar" ? "دخول" : "Login"}
                 </Button>
               )}
             </div>
@@ -378,8 +389,7 @@ export function AppFooter() {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "customer" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-amber-400 transition-colors"
                   >
@@ -389,8 +399,7 @@ export function AppFooter() {
                 </li>
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "courier" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-cyan-400 transition-colors"
                   >
@@ -400,8 +409,7 @@ export function AppFooter() {
                 </li>
                 <li>
                   <Link
-                    to="/register"
-                    search={{ role: "restaurant" }}
+                    to="/download"
                     onClick={() => sounds.playClick()}
                     className="flex items-center gap-1.5 text-start hover:text-orange-400 transition-colors"
                   >

@@ -518,22 +518,9 @@ export function DownloadPage() {
         {/* ============================================================ */}
         {/* 3. APPS BY ROLE (Customer, Courier, Restaurant) */}
         {/* ============================================================ */}
-        <section className="mx-auto max-w-6xl px-4 py-10">
-          <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-6 sm:p-10 space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg sm:text-2xl font-black text-white">
-                  {lang === "ar" ? "تطبيقات مخصصة لكافة أطراف المنظومة" : "Dedicated Apps for Every Role"}
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-400 font-medium">
-                  {lang === "ar"
-                    ? "سواء كنت عميلاً جائعاً، أو كابتن توصيل، أو صاحب مطعم ومطبخ سحابي."
-                    : "Whether you are a hungry customer, delivery courier, or cloud kitchen partner."}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid sm:grid-cols-3 gap-4 pt-2">
+        <section className="mx-auto max-w-6xl px-4 py-6">
+          <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 p-6 sm:p-8">
+            <div className="grid sm:grid-cols-3 gap-4">
               {/* Customer App */}
               <div className="rounded-2xl border border-amber-500/30 bg-slate-900 p-4 space-y-2.5">
                 <div className="flex items-center justify-between">
