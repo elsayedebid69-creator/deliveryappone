@@ -3,7 +3,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { sounds } from "@/lib/sound-effects";
-import { AppHeader } from "@/components/app-header";
+import { AppHeader, AppFooter } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { FoodHubLogo } from "@/components/food-hub-logo";
 import {
@@ -711,6 +711,8 @@ export function DownloadPage() {
           </div>
         </section>
       </main>
+
+      <AppFooter />
     </div>
   );
 }
