@@ -953,6 +953,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
+  const [isSimulatingDelivery, setIsSimulatingDelivery] = useState(false);
   const cart = useCart();
 
   // Auto-rotating timer for famous KSA restaurants circular carousel
@@ -1041,6 +1042,21 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
         ? `✨ استعراض أطباق وفروع ${brand.nameAr} (${brand.branchesAr})`
         : `✨ Browsing dishes and branches for ${brand.nameEn} (${brand.branchesEn})`
     );
+  };
+
+  const handleSimulateDelivery = () => {
+    sounds.playClick();
+    setIsSimulatingDelivery(true);
+    sounds.playNewOrder();
+    setTimeout(() => {
+      sounds.playSuccess();
+      toast.success(
+        lang === "ar"
+          ? "🛵 كابتن FoodHub سلّم الوجبة بنجاح من الشنطة الحرارية إلى العميل! بالهناء والعافية ✨"
+          : "🛵 FoodHub Courier successfully delivered the meal fresh from the thermal bag! Enjoy your meal ✨"
+      );
+      setIsSimulatingDelivery(false);
+    }, 1800);
   };
 
   const handleSendAppLink = (e: React.FormEvent) => {
@@ -2259,39 +2275,258 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           ))}
         </div>
 
-        {/* 5. Partner With FoodHub Callout Card */}
-        <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-2xl shrink-0">
-              🏪
+        {/* ============================================================ */}
+        {/* 5. SMART DOOR-TO-DOOR COURIER DELIVERY HANDOVER SHOWCASE */}
+        {/* ============================================================ */}
+        <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 p-6 sm:p-8 shadow-2xl space-y-6">
+          {/* Subtle Ambient Lighting Effects */}
+          <div className="absolute -top-16 -right-16 size-56 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-16 -left-16 size-56 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Top Fleet Header Badge */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex size-10 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 text-xl font-bold shadow-lg shadow-amber-500/20">
+                🛵
+              </div>
+              <div className="space-y-0.5">
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-400">
+                  <span className="flex size-2 rounded-full bg-emerald-500 animate-ping" />
+                  <span>
+                    {lang === "ar"
+                      ? "أسطول كباتن FoodHub المعتمد • توصيل راداري ذكي"
+                      : "Certified FoodHub Fleet • Smart Radar Delivery"}
+                  </span>
+                </div>
+                <h3 className="text-lg sm:text-xl font-black text-white">
+                  {lang === "ar"
+                    ? "تسليم فوري لباب منزلك مع شنطة FoodHub الحرارية الذكية"
+                    : "Door-to-Door Delivery with FoodHub Smart Thermal Bag"}
+                </h3>
+              </div>
             </div>
-            <div className="space-y-1">
-              <h4 className="text-sm sm:text-base font-black text-white">
-                {lang === "ar" ? "هل تملك مطعماً أو علامة تجارية في المملكة؟" : "Own a Restaurant or Food Brand in KSA?"}
-              </h4>
-              <p className="text-xs text-slate-400 max-w-xl">
-                {lang === "ar"
-                  ? "انضم إلى شبكة FoodHub المعتمدة، اعرض لوجو مطعمك وأطباقك الشهيرة أمام آلاف العملاء يومياً، وضاعف مبيعاتك فورياً."
-                  : "Join FoodHub's verified network, showcase your iconic dishes to thousands of daily customers, and boost sales instantly."}
-              </p>
+
+            {/* Live Status Pill */}
+            <div className="inline-flex items-center gap-2 rounded-full bg-slate-800/90 border border-slate-700 px-3.5 py-1 text-xs font-bold text-emerald-400 self-start sm:self-auto">
+              <span className="size-2 rounded-full bg-emerald-400" />
+              <span>{lang === "ar" ? "الكابتن جاهز للتوصيل الفوري" : "Couriers Active Nearby"}</span>
             </div>
           </div>
 
-          <Link
-            to="/register"
-            onClick={() => sounds.playClick()}
-            className="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 hover:bg-amber-400 transition-all shadow-md gap-2 flex items-center"
-          >
-            <span>{lang === "ar" ? "انضمام كشريك مطعم" : "Join as Restaurant Partner"}</span>
-            <ArrowRight className={`size-3.5 ${lang === "ar" ? "rotate-180" : ""}`} />
-          </Link>
+          {/* THE HERO DELIVERY HANDOVER VISUAL STAGE */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            {/* Courier & Delivery Thermal Bag Card (Left on LTR / Right on RTL - 5 Cols) */}
+            <div className="lg:col-span-5 rounded-2xl border border-amber-500/30 bg-slate-950/60 p-5 space-y-4 shadow-xl relative overflow-hidden group">
+              {/* Courier Profile Badge */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="flex size-12 items-center justify-center rounded-full bg-slate-800 border-2 border-amber-400 text-2xl shadow-md">
+                      🛵
+                    </div>
+                    <span className="absolute -bottom-1 -end-1 flex size-4 items-center justify-center rounded-full bg-emerald-500 text-white text-[9px] font-black border border-slate-950">
+                      ✓
+                    </span>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white flex items-center gap-1.5">
+                      <span>{lang === "ar" ? "كابتن التوصيل المعتمد" : "Certified Courier"}</span>
+                      <span className="text-[10px] bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded-full font-bold">
+                        ★ 4.99
+                      </span>
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {lang === "ar" ? "فهد السبيعي • مجهز بالشنطة الحرارية" : "Fahad • Equipped with Thermal Bag"}
+                    </p>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                  {lang === "ar" ? "بالطريق لبابك" : "On the way"}
+                </span>
+              </div>
+
+              {/* The Stylized FoodHub Smart Thermal Bag */}
+              <div className="rounded-2xl border-2 border-amber-500/50 bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 p-4 space-y-3 relative shadow-2xl">
+                {/* Backpack top carry handle and reflective strips */}
+                <div className="flex items-center justify-between">
+                  <div className="h-1.5 w-12 bg-amber-400/80 rounded-full shadow-sm" />
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1">
+                    <span>🎒</span>
+                    <span>{lang === "ar" ? "شنطة التوصيل الذكية" : "Smart Thermal Bag"}</span>
+                  </span>
+                  <div className="h-1.5 w-12 bg-amber-400/80 rounded-full shadow-sm" />
+                </div>
+
+                {/* THE OFFICIAL FOODHUB LOGO PRINTED ON BAG */}
+                <div className="flex flex-col items-center justify-center py-3 px-4 rounded-xl bg-slate-950 border border-amber-500/30 shadow-inner group-hover:border-amber-400/60 transition-colors">
+                  <span className="text-[9px] font-bold text-slate-400 tracking-wider mb-1">
+                    {lang === "ar" ? "شعار الموقع المعتمد على الشنطة" : "Official Site Logo on Bag"}
+                  </span>
+                  <FoodHubLogo size={36} showText={true} />
+                </div>
+
+                {/* Thermal Bag Status Indicators */}
+                <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-2 text-center">
+                    <span className="text-[10px] text-slate-400 block">{lang === "ar" ? "درجة الحرارة" : "Temperature"}</span>
+                    <span className="text-xs font-black text-amber-400 flex items-center justify-center gap-1">
+                      <span>🔥</span>
+                      <span>65°C ساخن</span>
+                    </span>
+                  </div>
+                  <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-2 text-center">
+                    <span className="text-[10px] text-slate-400 block">{lang === "ar" ? "العزل والأمان" : "Sanitized Seal"}</span>
+                    <span className="text-xs font-black text-emerald-400 flex items-center justify-center gap-1">
+                      <span>🛡️</span>
+                      <span>100% محكم</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Handover Motion & Real-Time Radar Journey (Middle - 3 Cols) */}
+            <div className="lg:col-span-3 flex flex-col items-center justify-center text-center space-y-3 py-2">
+              <div className="relative flex items-center justify-center">
+                <div className="size-20 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center animate-pulse">
+                  <div className="size-14 rounded-full bg-amber-500/20 flex items-center justify-center text-2xl">
+                    📦
+                  </div>
+                </div>
+                <span className="absolute -top-1 -end-1 flex size-6 items-center justify-center rounded-full bg-amber-500 text-slate-950 text-xs font-black shadow-md">
+                  ⚡
+                </span>
+              </div>
+
+              <div className="space-y-1 max-w-xs">
+                <h5 className="text-xs font-black text-white">
+                  {lang === "ar" ? "تسليم الطلب من يد الكابتن للعميل" : "Direct Handover to Customer"}
+                </h5>
+                <p className="text-[11px] text-slate-400">
+                  {lang === "ar"
+                    ? "تغليف حراري محكم يضمن وصول طعامك مقرمشاً وطازجاً في أقل من 20 دقيقة"
+                    : "Piping hot, crispy meals delivered in less than 20 minutes"}
+                </p>
+              </div>
+
+              {/* Simulation Interactive Button */}
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={isSimulatingDelivery}
+                onClick={handleSimulateDelivery}
+                className="border-amber-500/40 bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-slate-950 rounded-xl text-xs gap-1.5 h-8 shadow-sm"
+              >
+                {isSimulatingDelivery ? (
+                  <>
+                    <Sparkles className="size-3 animate-spin" />
+                    <span>{lang === "ar" ? "جاري التسليم للعميل..." : "Delivering..."}</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="size-3" />
+                    <span>{lang === "ar" ? "تجربة محاكاة التسليم اللحظي" : "Simulate Handover"}</span>
+                  </>
+                )}
+              </Button>
+            </div>
+
+            {/* Customer Receiving Order Card (Right on LTR / Left on RTL - 4 Cols) */}
+            <div className="lg:col-span-4 rounded-2xl border border-emerald-500/30 bg-slate-950/60 p-5 space-y-4 shadow-xl">
+              {/* Customer Profile & Doorstep */}
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-slate-800 border-2 border-emerald-400 text-2xl shadow-md">
+                    😊
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-white">
+                      {lang === "ar" ? "العميل المستلم" : "Happy Customer"}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {lang === "ar" ? "حي حطين • باب المنزل" : "Hittin • Doorstep"}
+                    </p>
+                  </div>
+                </div>
+
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                  {lang === "ar" ? "تم الاستلام ✓" : "Delivered ✓"}
+                </span>
+              </div>
+
+              {/* Customer Feedback Quote Box */}
+              <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-3 space-y-2">
+                <div className="flex items-center justify-between text-amber-400 text-xs">
+                  <div className="flex items-center gap-0.5">
+                    {"★★★★★".split("").map((s, i) => (
+                      <span key={i}>{s}</span>
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-slate-400">
+                    {lang === "ar" ? "منذ دقيقتين" : "2 mins ago"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 leading-relaxed italic">
+                  {lang === "ar"
+                    ? '💬 "وصل الكابتن بالموعد ومعه شنطة FoodHub الحرارية.. الطعام ساخن كأنه خرج للتو من فرن المطعم!"'
+                    : '💬 "The courier arrived fast with the FoodHub thermal bag.. The meal was piping hot like fresh out of the oven!"'}
+                </p>
+              </div>
+
+              {/* Verified Order Receipt Tag */}
+              <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1">
+                <span className="flex items-center gap-1 text-slate-300 font-medium">
+                  <CheckCircle2 className="size-3.5 text-emerald-400" />
+                  <span>{lang === "ar" ? "طلب موثق ومختوم" : "Verified & Sealed Order"}</span>
+                </span>
+                <span className="font-mono text-amber-400">#FH-9842</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Action & Fleet Joining Bar */}
+          <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs text-slate-300">
+              <span className="text-amber-400 font-bold">✨ {lang === "ar" ? "ضمان FoodHub الذهبي:" : "FoodHub Guarantee:"}</span>
+              <span>{lang === "ar" ? "حرارة الوجبة مضمونة 100% أو استرجاع فوري لحسابك" : "100% Temperature Guaranteed or Instant Refund"}</span>
+            </div>
+
+            <div className="flex items-center gap-2.5 w-full sm:w-auto">
+              <Link
+                to="/join/courier"
+                onClick={() => sounds.playClick()}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-slate-800 border border-slate-700 px-4 py-2.5 text-xs font-bold text-slate-200 hover:bg-slate-700 hover:text-white transition-all shadow-md"
+              >
+                <Bike className="size-3.5 text-amber-400" />
+                <span>{lang === "ar" ? "انضمام ككابتن توصيل (استلم الشنطة)" : "Join as Courier"}</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  const target = document.getElementById("trending-dishes-section");
+                  if (target) {
+                    target.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    toast.info(lang === "ar" ? "🚀 تصفح أشهى الأطباق للطلب الفوري بالأسفل" : "🚀 Explore trending meals below");
+                  }
+                }}
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 hover:bg-amber-400 transition-all shadow-md shadow-amber-500/10"
+              >
+                <span>{lang === "ar" ? "اطلب وجبتك وتتبع الكابتن" : "Order Now & Track Courier"}</span>
+                <ArrowRight className={`size-3.5 ${lang === "ar" ? "rotate-180" : ""}`} />
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ============================================================ */}
       {/* 6. TRENDING DISHES WITH LIVE MACROS & FAST CART */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
+      <section id="trending-dishes-section" className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
           <div>
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
