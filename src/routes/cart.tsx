@@ -113,7 +113,13 @@ function CartPage() {
         );
 
         if (itemsError) {
-          console.warn("Could not insert some order items:", itemsError);
+          console.error("Could not insert order items:", itemsError);
+          toast.error(
+            lang === "ar"
+              ? "تعذر حفظ أصناف الطلب. لم يتم تأكيد طلبك، يرجى المحاولة مرة أخرى."
+              : "Failed to save order items. Your order was not confirmed, please try again."
+          );
+          return;
         }
       }
 

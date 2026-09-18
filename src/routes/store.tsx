@@ -12,7 +12,17 @@ export const Route = createFileRoute("/store")({
         content: "اطلب وجباتك المفضلة ومشترياتك اليومية بأسرع توصيل وأقل سعر عبر FoodHub.",
       },
       { property: "og:title", content: "متجر FoodHub | أسرع توصيل بأقل سعر" },
+      {
+        property: "og:description",
+        content: "تصفح متجر FoodHub: مطابخ ومتاجر قريبة منك، عروض يومية، وتوصيل سريع لطلبك خلال دقائق.",
+      },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://foodhub.delivery/store" },
+      { property: "og:image", content: "https://foodhub.delivery/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://foodhub.delivery/icons/icon-512.png" },
     ],
+    links: [{ rel: "canonical", href: "https://foodhub.delivery/store" }],
   }),
   component: StorePage,
 });
