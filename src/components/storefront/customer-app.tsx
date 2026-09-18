@@ -27,6 +27,11 @@ import {
   Award,
   ChevronUp,
   X,
+  Handshake,
+  ShieldCheck,
+  Layers,
+  UtensilsCrossed,
+  ArrowUpRight,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -170,64 +175,132 @@ const ZOMATO_PILLARS = [
   },
 ];
 
-// Featured Kitchens & Brands
-const FEATURED_KITCHENS = [
+// Partnership Filter Categories
+const PARTNERSHIP_CATEGORIES = [
+  { id: "all", labelAr: "جميع الشراكات", labelEn: "All Partnerships", icon: "🤝" },
+  { id: "protein", labelAr: "البروتين والشواء الصحي", labelEn: "Protein & Healthy Grills", icon: "🥩" },
+  { id: "keto", labelAr: "الكيتو والبرجر الصحي", labelEn: "Keto & Fit Burgers", icon: "🥑" },
+  { id: "coffee", labelAr: "القهوة والمخبوزات", labelEn: "Specialty Coffee & Bakery", icon: "☕" },
+  { id: "seafood", labelAr: "المأكولات البحرية والآسيوية", labelEn: "Seafood & Asian Poke", icon: "🐟" },
+];
+
+// Strategic Restaurant & Kitchen Partnerships (Multi-Brand Collaborations)
+const RESTAURANT_PARTNERSHIPS = [
   {
-    id: "rest-1",
-    nameAr: "مطبخ هيلثي جورميه السحابي",
-    nameEn: "Healthy Gourmet Cloud Kitchen",
-    cuisineAr: "وجبات صحية • كيتو دايت • بروتين عالي",
-    cuisineEn: "Healthy • Keto Diet • High Protein",
-    rating: 4.9,
-    reviews: "1.2k+",
-    deliveryTimeAr: "15-20 دقيقة",
-    deliveryTimeEn: "15-20 mins",
-    deliveryFeeAr: "توصيل مجاني",
-    deliveryFeeEn: "Free delivery",
-    minOrder: 30,
-    discountAr: "خصم 25% بكود: FOOD25",
-    discountEn: "25% OFF with code: FOOD25",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=350&fit=crop",
-    tagAr: "🔥 الأكثر طلباً",
-    tagEn: "🔥 Most Popular",
-  },
-  {
-    id: "rest-2",
-    nameAr: "جريل ماستر بروتين هاوس",
-    nameEn: "Grill Master Protein House",
-    cuisineAr: "مشويات صحية • ستيك تندرلوين • دجاج مشوي",
-    cuisineEn: "Healthy Grills • Tenderloin Steak • Chicken",
-    rating: 4.85,
-    reviews: "850+",
-    deliveryTimeAr: "20-25 دقيقة",
-    deliveryTimeEn: "20-25 mins",
-    deliveryFeeAr: "5 ر.س",
-    deliveryFeeEn: "5 SAR",
-    minOrder: 40,
-    discountAr: "توصيل مجاني للطلبات فوق 50 ر.س",
-    discountEn: "Free delivery over 50 SAR",
-    image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=600&h=350&fit=crop",
-    tagAr: "⚡ سرعة قياسية",
-    tagEn: "⚡ Ultra Fast",
-  },
-  {
-    id: "rest-3",
-    nameAr: "أورجانيك بول & سموذي بار",
-    nameEn: "Organic Bowl & Smoothie Bar",
-    cuisineAr: "أكاي عضوي • سموذي بروتين • سلطات كينوا",
-    cuisineEn: "Organic Acai • Protein Smoothies • Quinoa",
+    id: "part-1",
+    titleAr: "تحالف الشواء الماسي & السلطات العضوية",
+    titleEn: "Diamond Grills ✕ Organic Bowls Collaboration",
+    partner1Ar: "جريل ماستر ستيك هاوس",
+    partner1En: "Grill Master Steakhouse",
+    partner2Ar: "أورجانيك بول & سموذي بار",
+    partner2En: "Organic Bowls & Smoothie Bar",
+    category: "protein",
+    descAr: "شراكة طهي تجمع بين أرقى شرائح الستيك المشوي والسموذي العضوي الطازج في طلب وسلة واحدة.",
+    descEn: "Culinary synergy combining tenderloin steaks with fresh antioxidant smoothies in a single unified order.",
+    comboDishAr: "وجبة شواء تندرلوين + طبق كينوا وسموذي توت",
+    comboDishEn: "Tenderloin Steak + Organic Quinoa & Berry Smoothie",
+    comboPrice: 68,
+    oldPrice: 85,
+    discountBadgeAr: "وفر 20% على الطلب المشترك",
+    discountBadgeEn: "Save 20% on Combined Order",
     rating: 4.95,
-    reviews: "2.1k+",
-    deliveryTimeAr: "12-18 دقيقة",
-    deliveryTimeEn: "12-18 mins",
-    deliveryFeeAr: "توصيل مجاني",
-    deliveryFeeEn: "Free delivery",
-    minOrder: 25,
-    discountAr: "خصم 20% للطلب الأول",
-    discountEn: "20% OFF first order",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=350&fit=crop",
-    tagAr: "✨ اختيار الشيف",
-    tagEn: "✨ Chef's Pick",
+    ordersCount: "1.8k+ طلب مشترك",
+    ordersCountEn: "1.8k+ joint orders",
+    eta: "15-20 دقيقة",
+    deliveryFeeAr: "توصيل موحد مجاني",
+    deliveryFeeEn: "Free unified delivery",
+    tagAr: "🥩 تحالف بروتين وصحي",
+    tagEn: "🥩 Protein & Health Alliance",
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&h=500&fit=crop",
+    partner1Logo: "🥩",
+    partner2Logo: "🥗",
+  },
+  {
+    id: "part-2",
+    titleAr: "تحالف البرجر الذواقة & المطبخ الكيتوني",
+    titleEn: "Gourmet Smash ✕ Keto Diet Hub",
+    partner1Ar: "ذا سماش برجر جورميه",
+    partner1En: "The Smash Gourmet Lab",
+    partner2Ar: "مملكة الكيتو للرياضيين",
+    partner2En: "Athletes Keto Kingdom",
+    category: "keto",
+    descAr: "برجر أنجوس فاخر بخبز الكيتو الحصري خالي من الجلوتين مع بطاطا الشوفان المحمصة الصحية.",
+    descEn: "Premium Angus smash burger on gluten-free keto buns paired with baked guilt-free sweet potato wedges.",
+    comboDishAr: "دبل برجر أنجوس كيتو + بطاطا حلوة مشوية ومشروب دايت",
+    comboDishEn: "Double Angus Keto Burger + Baked Fries & Diet Drink",
+    comboPrice: 48,
+    oldPrice: 62,
+    discountBadgeAr: "عرض الشراكة الحصري",
+    discountBadgeEn: "Exclusive Partnership Deal",
+    rating: 4.9,
+    ordersCount: "950+ طلب مشترك",
+    ordersCountEn: "950+ joint orders",
+    eta: "15-20 دقيقة",
+    deliveryFeeAr: "توصيل موحد 5 ر.س",
+    deliveryFeeEn: "5 SAR Unified Delivery",
+    tagAr: "🥑 كيتو برجر معتمد",
+    tagEn: "🥑 Certified Keto Burger",
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&h=500&fit=crop",
+    partner1Logo: "🍔",
+    partner2Logo: "🥑",
+  },
+  {
+    id: "part-3",
+    titleAr: "تحالف القهوة المختصة & المخبوزات الصحية",
+    titleEn: "Artisan Roastery ✕ Fit Oat Bakery",
+    partner1Ar: "محمصة أروما المختصة",
+    partner1En: "Aroma Specialty Roasters",
+    partner2Ar: "مخبز الفيت بيكري الصحي",
+    partner2En: "Fit Protein Oat Bakery",
+    category: "coffee",
+    descAr: "بداية صباحية استثنائية تجمع بين محاصيل القهوة المختصة وتشيزكيك الشوفان المحسوب السعرات.",
+    descEn: "Signature morning fuel pairing specialty V60 Ethiopian brew with macro-calculated protein oat cheesecake.",
+    comboDishAr: "قهوة V60 إثيوبية فاخرة + تشيزكيك الشوفان والبروتين",
+    comboDishEn: "V60 Ethiopian Brew + Protein Oat Guilt-Free Cheesecake",
+    comboPrice: 34,
+    oldPrice: 45,
+    discountBadgeAr: "باقة الصباح المتكاملة",
+    discountBadgeEn: "Signature Morning Bundle",
+    rating: 4.98,
+    ordersCount: "2.4k+ طلب مشترك",
+    ordersCountEn: "2.4k+ joint orders",
+    eta: "10-15 دقيقة",
+    deliveryFeeAr: "توصيل موحد مجاني",
+    deliveryFeeEn: "Free unified delivery",
+    tagAr: "☕ قهوة ومخبوزات صحية",
+    tagEn: "☕ Coffee & Fit Bakery",
+    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&h=500&fit=crop",
+    partner1Logo: "☕",
+    partner2Logo: "🥐",
+  },
+  {
+    id: "part-4",
+    titleAr: "تحالف المأكولات البحرية & البوكي الآسيوي",
+    titleEn: "Tokyo Poke ✕ Pacific Salmon Hub",
+    partner1Ar: "طوكيو بوكي بول آسيان",
+    partner1En: "Tokyo Asian Poke Bowls",
+    partner2Ar: "سالمون أوميغا سي فود",
+    partner2En: "Salmon Omega Seafood",
+    category: "seafood",
+    descAr: "أطباق السلمون النرويجي الطازج مع خضار الإدامامي وصلصات البوكي الغنية بأوميغا 3 والألياف.",
+    descEn: "Fresh Norwegian salmon fillets with Japanese steamed edamame, avocado slices, and omega-rich poke glaze.",
+    comboDishAr: "سالمون بوكي بول فاخر + إدامامي وصوص الميزو",
+    comboDishEn: "Gourmet Salmon Poke Bowl + Steamed Edamame & Miso",
+    comboPrice: 59,
+    oldPrice: 75,
+    discountBadgeAr: "وفر 22% مع كود: OMEGA",
+    discountBadgeEn: "Save 22% with code: OMEGA",
+    rating: 4.88,
+    ordersCount: "1.1k+ طلب مشترك",
+    ordersCountEn: "1.1k+ joint orders",
+    eta: "18-22 دقيقة",
+    deliveryFeeAr: "توصيل موحد مجاني",
+    deliveryFeeEn: "Free unified delivery",
+    tagAr: "🐟 أوميغا 3 طازج",
+    tagEn: "🐟 Fresh Omega-3",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&h=500&fit=crop",
+    partner1Logo: "🥢",
+    partner2Logo: "🐟",
   },
 ];
 
@@ -311,6 +384,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   const [localityRegion, setLocalityRegion] = useState<string>("all");
   const [localityQuery, setLocalityQuery] = useState("");
   const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+  const [partnerCategory, setPartnerCategory] = useState("all");
   const [likedDishes, setLikedDishes] = useState<Record<string, boolean>>({});
   const [showAllLocalities, setShowAllLocalities] = useState(false);
   const [phoneOrEmailInput, setPhoneOrEmailInput] = useState("");
@@ -339,6 +413,22 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       lang === "ar"
         ? `✨ تمت إضافة "${dish.nameAr}" إلى السلة!`
         : `✨ Added "${dish.nameEn}" to cart!`
+    );
+  };
+
+  const handleAddComboToCart = (p: (typeof RESTAURANT_PARTNERSHIPS)[0]) => {
+    cart.add({
+      id: `combo-${p.id}`,
+      restaurant_id: p.id,
+      name_ar: `[عرض شراكة] ${p.comboDishAr}`,
+      name_en: `[Partnership] ${p.comboDishEn}`,
+      price: p.comboPrice,
+    });
+    sounds.playSuccess();
+    toast.success(
+      lang === "ar"
+        ? `🤝 تمت إضافة وجبة الشراكة الموحدة "${p.comboDishAr}" إلى السلة!`
+        : `🤝 Added partnership combo "${p.comboDishEn}" to cart!`
     );
   };
 
@@ -382,6 +472,10 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
   });
 
   const visibleLocalities = showAllLocalities ? filteredLocalities : filteredLocalities.slice(0, 6);
+
+  const filteredPartnerships = RESTAURANT_PARTNERSHIPS.filter(
+    (p) => partnerCategory === "all" || p.category === partnerCategory
+  );
 
   return (
     <div className={`min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950 ${isEmbedded ? "text-sm" : ""}`}>
@@ -891,69 +985,239 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 5. FEATURED CLOUD KITCHENS & BRANDS */}
+      {/* 5. RESTAURANT PARTNERSHIPS & MULTI-BRAND COLLABORATIVE HUBS */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800/80 pb-3">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <Store className="size-6 text-amber-400" />
-              <span>{lang === "ar" ? "أفضل المطابخ السحابية المعتمدة" : "Top Verified Cloud Kitchens"}</span>
+      <section className="mx-auto max-w-6xl px-4 py-8 w-full space-y-6">
+        {/* Header with Title and Partner Join Link */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800/80 pb-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-[11px] font-bold text-amber-400">
+              <Handshake className="size-3.5" />
+              <span>{lang === "ar" ? "تحالفات استراتيجية • طلب موحد من عدة مطابخ في سلة واحدة" : "Strategic Alliances • Multi-Brand Single Cart Delivery"}</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white flex items-center gap-2.5">
+              <span>{lang === "ar" ? "شراكات المطاعم والمطابخ السحابية" : "Restaurant Partnerships & Shared Kitchens"}</span>
             </h2>
-            <p className="text-xs text-slate-400">
-              {lang === "ar" ? "مطابخ صحية معتمدة بأعلى معايير النظافة والجودة" : "Certified kitchens with highest hygiene & freshness ratings"}
+            <p className="text-xs sm:text-sm text-slate-400">
+              {lang === "ar"
+                ? "اطلب من عدة علامات تجارية شريكة في سلة واحدة، بكيس حراري موحد، وتوصيل فوري بأقل تكلفة"
+                : "Combine dishes from multiple partner brands in a single order, delivered together with unified fees"}
             </p>
           </div>
+
+          <Link
+            to="/register"
+            onClick={() => sounds.playClick()}
+            className="inline-flex items-center gap-2 rounded-xl bg-slate-900 border border-amber-500/40 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500 hover:text-slate-950 transition-all shadow-md shrink-0 self-start md:self-auto"
+          >
+            <Store className="size-3.5" />
+            <span>{lang === "ar" ? "انضمام مطعم جديد للشراكة" : "Join as Restaurant Partner"}</span>
+            <ArrowUpRight className="size-3.5" />
+          </Link>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {FEATURED_KITCHENS.map((k) => (
+        {/* Partnership Perks Bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          {[
+            {
+              icon: "🛍️",
+              titleAr: "سلة موحدة",
+              titleEn: "Single Cart",
+              descAr: "اطلب من مطعمين في فاتورة واحدة",
+              descEn: "Order 2+ brands in 1 bill",
+            },
+            {
+              icon: "💰",
+              titleAr: "توفير 50% بالرسوم",
+              titleEn: "Save on Delivery",
+              descAr: "كابتن واحد يوصل كل الأصناف",
+              descEn: "One courier delivers all items",
+            },
+            {
+              icon: "🛡️",
+              titleAr: "جودة وتوريد معتمد",
+              titleEn: "Certified Quality",
+              descAr: "فحص ورقابة بلدية وصحية مشتركة",
+              descEn: "Unified hygiene inspections",
+            },
+            {
+              icon: "⚡",
+              titleAr: "تجهيز متزامن فوري",
+              titleEn: "Sync Kitchen Prep",
+              descAr: "تصل الأطباق ساخنة وطازجة معاً",
+              descEn: "Meals arrive piping hot together",
+            },
+          ].map((perk, idx) => (
             <div
-              key={k.id}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-md transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl"
+              key={idx}
+              className="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 flex items-center gap-2.5 hover:border-slate-700 transition-colors"
             >
-              {/* Photo */}
-              <div className="relative h-40 w-full overflow-hidden">
+              <span className="text-xl shrink-0">{perk.icon}</span>
+              <div className="space-y-0.5 min-w-0">
+                <h4 className="text-xs font-bold text-white truncate">
+                  {lang === "ar" ? perk.titleAr : perk.titleEn}
+                </h4>
+                <p className="text-[10px] text-slate-400 truncate">
+                  {lang === "ar" ? perk.descAr : perk.descEn}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Partnership Category Tabs */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none">
+          {PARTNERSHIP_CATEGORIES.map((cat) => {
+            const isSelected = partnerCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  sounds.playClick();
+                  setPartnerCategory(cat.id);
+                }}
+                className={`flex items-center gap-1.5 shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                  isSelected
+                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                    : "bg-slate-900/80 border border-slate-800 text-slate-300 hover:border-amber-500/40 hover:text-white"
+                }`}
+              >
+                <span>{cat.icon}</span>
+                <span>{lang === "ar" ? cat.labelAr : cat.labelEn}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Partnerships Grid */}
+        <div className="grid gap-5 md:grid-cols-2">
+          {filteredPartnerships.map((p) => (
+            <div
+              key={p.id}
+              className="group relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl transition-all duration-300 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
+            >
+              {/* Photo & Brand Logos Banner */}
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-950">
                 <img
-                  src={k.image}
-                  alt={k.nameEn}
-                  className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  src={p.image}
+                  alt={p.titleEn}
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-transparent" />
-                <Badge className="absolute top-3 start-3 bg-amber-500 text-slate-950 font-black text-[10px]">
-                  {lang === "ar" ? k.tagAr : k.tagEn}
-                </Badge>
-                <div className="absolute top-3 end-3 flex items-center gap-1 rounded-lg bg-slate-950/80 px-2 py-0.5 text-xs font-bold text-amber-400 backdrop-blur-md">
-                  <Star className="size-3 fill-amber-400 text-amber-400" />
-                  <span>{k.rating}</span>
-                  <span className="text-[10px] text-slate-400">({k.reviews})</span>
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+
+                {/* Floating Discount Badge */}
+                <span className="absolute top-3 end-3 rounded-full bg-amber-500 px-3 py-1 text-xs font-black text-slate-950 shadow-lg">
+                  {lang === "ar" ? p.discountBadgeAr : p.discountBadgeEn}
+                </span>
+
+                {/* Partner Brands Badge in Header */}
+                <div className="absolute bottom-3 start-3 end-3 flex flex-wrap items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-xl bg-slate-950/90 border border-slate-700/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md shadow-md">
+                    <span>{p.partner1Logo}</span>
+                    <span>{lang === "ar" ? p.partner1Ar : p.partner1En}</span>
+                  </span>
+                  <span className="flex size-5 items-center justify-center rounded-full bg-amber-500 text-slate-950 text-[10px] font-black shadow-sm">
+                    ✕
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-xl bg-slate-950/90 border border-slate-700/80 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-md shadow-md">
+                    <span>{p.partner2Logo}</span>
+                    <span>{lang === "ar" ? p.partner2Ar : p.partner2En}</span>
+                  </span>
                 </div>
               </div>
 
-              {/* Info */}
-              <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                <div className="space-y-1">
-                  <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? k.nameAr : k.nameEn}
+              {/* Partnership Body Content */}
+              <div className="p-5 flex flex-col justify-between flex-1 gap-4">
+                <div className="space-y-1.5">
+                  <h3 className="text-base sm:text-lg font-black text-white group-hover:text-amber-400 transition-colors">
+                    {lang === "ar" ? p.titleAr : p.titleEn}
                   </h3>
-                  <p className="text-xs text-slate-400 line-clamp-1">
-                    {lang === "ar" ? k.cuisineAr : k.cuisineEn}
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {lang === "ar" ? p.descAr : p.descEn}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
-                  <div className="flex items-center gap-1 text-slate-300 font-medium">
-                    <Clock className="size-3.5 text-amber-400" />
-                    <span>{lang === "ar" ? k.deliveryTimeAr : k.deliveryTimeEn}</span>
+                {/* Highlighted Combined Combo Meal Card */}
+                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-3.5 space-y-2.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
+                        {lang === "ar" ? "🍽️ الوجبة المشتركة الحصرية" : "🍽️ Exclusive Combined Combo"}
+                      </span>
+                      <h4 className="text-xs sm:text-sm font-black text-white">
+                        {lang === "ar" ? p.comboDishAr : p.comboDishEn}
+                      </h4>
+                    </div>
+                    <div className="text-end shrink-0">
+                      <div className="text-sm sm:text-base font-black text-amber-400">
+                        {p.comboPrice} {t("sar")}
+                      </div>
+                      <div className="text-[10px] text-slate-500 line-through">
+                        {p.oldPrice} {t("sar")}
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1 text-emerald-400 font-bold">
+
+                  <Button
+                    size="sm"
+                    onClick={() => handleAddComboToCart(p)}
+                    className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-bold hover:from-amber-400 hover:to-yellow-300 rounded-xl text-xs gap-1.5 shadow-md h-9"
+                  >
+                    <Plus className="size-3.5" />
+                    <span>{lang === "ar" ? "أضف وجبة الشراكة إلى السلة (طلب موحد)" : "Add Combo to Cart (Unified Order)"}</span>
+                  </Button>
+                </div>
+
+                {/* Footer Meta Row */}
+                <div className="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800/80">
+                  <div className="flex items-center gap-1.5 text-slate-300 font-medium">
+                    <Clock className="size-3.5 text-amber-400" />
+                    <span>{p.eta}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold">
                     <Bike className="size-3.5" />
-                    <span>{lang === "ar" ? k.deliveryFeeAr : k.deliveryFeeEn}</span>
+                    <span>{lang === "ar" ? p.deliveryFeeAr : p.deliveryFeeEn}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-amber-400 font-bold">
+                    <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                    <span>{p.rating}</span>
+                    <span className="text-[10px] text-slate-500 font-normal">
+                      ({lang === "ar" ? p.ordersCount : p.ordersCountEn})
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Partner With FoodHub Callout Card */}
+        <div className="rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-950 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-4">
+            <div className="flex size-12 items-center justify-center rounded-2xl bg-amber-500/15 border border-amber-500/30 text-2xl shrink-0">
+              🤝
+            </div>
+            <div className="space-y-1">
+              <h4 className="text-sm sm:text-base font-black text-white">
+                {lang === "ar" ? "هل تملك مطعماً أو مطبخاً سحابياً؟" : "Own a Restaurant or Cloud Kitchen?"}
+              </h4>
+              <p className="text-xs text-slate-400 max-w-xl">
+                {lang === "ar"
+                  ? "انضم إلى شبكة تحالفات FoodHub، شارك مساحات التجهيز، وضاعف مبيعاتك عبر توفير خيارات الطلب الموحد للعملاء."
+                  : "Join FoodHub's partner network, share kitchen operations, and multiply your orders with unified single-cart delivery."}
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to="/register"
+            onClick={() => sounds.playClick()}
+            className="shrink-0 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 hover:bg-amber-400 transition-all shadow-md gap-2 flex items-center"
+          >
+            <span>{lang === "ar" ? "تقديم طلب شراكة مطعم" : "Apply for Partnership"}</span>
+            <ArrowRight className={`size-3.5 ${lang === "ar" ? "rotate-180" : ""}`} />
+          </Link>
         </div>
       </section>
 
