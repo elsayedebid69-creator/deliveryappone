@@ -1514,7 +1514,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           />
           {deliveryHeroVideo?.url && (
             <video
-              className="absolute inset-0 size-full object-cover object-center opacity-65"
+              className="absolute inset-0 size-full object-cover object-center"
               poster={riderFrameImage}
               autoPlay
               muted
