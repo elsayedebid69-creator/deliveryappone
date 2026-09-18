@@ -3485,13 +3485,22 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 </p>
               </div>
 
-              {/* Action Button */}
-              <div className="pt-2 flex items-center gap-3">
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-2">
+                <Button
+                  asChild
+                  className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-xl text-xs h-10 hover:from-amber-400 hover:to-yellow-300 shadow-md shadow-amber-500/20"
+                >
+                  <Link to="/download" onClick={() => sounds.playClick()}>
+                    <Smartphone className="size-4 me-1" />
+                    <span>{lang === "ar" ? "تحميل التطبيق للطلب الفوري" : "Download App to Order"}</span>
+                  </Link>
+                </Button>
                 <Button
                   onClick={() => setPreviewDish(null)}
-                  className="w-full bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs h-10 border border-slate-700"
+                  className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold rounded-xl text-xs h-10 border border-slate-700 shrink-0"
                 >
-                  {lang === "ar" ? "إغلاق الاستعراض" : "Close Preview"}
+                  {lang === "ar" ? "إغلاق" : "Close"}
                 </Button>
               </div>
             </div>

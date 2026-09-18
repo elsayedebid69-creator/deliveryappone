@@ -338,18 +338,33 @@ export function AppFooter() {
               </h3>
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
-                  <Link to="/" className="hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? "🍽️ تصفح قائمة الأطباق الصحية" : "🍽️ Browse Healthy Menu"}
+                  <Link
+                    to="/download"
+                    onClick={() => sounds.playClick()}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>🍽️</span>
+                    <span>{lang === "ar" ? "تصفح قائمة الأطباق الصحية" : "Browse Healthy Menu"}</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/orders" className="hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? "🛰️ رادار تتبع الطلبات المباشر" : "🛰️ Live Order Radar"}
+                  <Link
+                    to="/download"
+                    onClick={() => sounds.playClick()}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>🛰️</span>
+                    <span>{lang === "ar" ? "رادار تتبع الطلبات المباشر" : "Live Order Radar"}</span>
                   </Link>
                 </li>
                 <li>
-                  <Link to="/cart" className="hover:text-amber-400 transition-colors">
-                    {lang === "ar" ? "🛒 السلة وإتمام الطلب الفوري" : "🛒 Cart & Instant Checkout"}
+                  <Link
+                    to="/download"
+                    onClick={() => sounds.playClick()}
+                    className="hover:text-amber-400 transition-colors flex items-center gap-1.5"
+                  >
+                    <span>🛒</span>
+                    <span>{lang === "ar" ? "السلة وإتمام الطلب الفوري" : "Cart & Instant Checkout"}</span>
                   </Link>
                 </li>
               </ul>
