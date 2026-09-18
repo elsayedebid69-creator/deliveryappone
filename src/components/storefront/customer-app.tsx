@@ -2651,52 +2651,68 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 7. ZOMATO MOBILE APP DOWNLOAD SHOWCASE BANNER */}
+      {/* 7. OFFICIAL MOBILE APP DOWNLOAD SHOWCASE (APP STORE & GOOGLE PLAY) */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-6xl px-4 py-12 w-full">
         <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 p-6 sm:p-10 shadow-2xl">
+          {/* Ambient Lighting Orbs */}
+          <div className="absolute -top-20 -right-20 size-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -bottom-20 -left-20 size-60 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none" />
+
           <div className="grid gap-8 md:grid-cols-2 items-center">
             
             {/* Left: Smartphone Showcase */}
             <div className="flex justify-center order-2 md:order-1">
-              <div className="relative w-60 sm:w-72 rounded-[40px] border-[8px] border-slate-800 bg-slate-950 p-2 shadow-2xl ring-1 ring-slate-700/50">
-                <div className="h-4 w-20 rounded-full bg-black mx-auto mb-2" />
-                <div className="rounded-[28px] overflow-hidden bg-slate-900 p-3 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <FoodHubLogo size={24} showText={false} />
-                    <span className="text-[10px] text-amber-400 font-bold">FoodHub App</span>
+              <div className="relative w-64 sm:w-72 rounded-[40px] border-[8px] border-slate-800 bg-slate-950 p-2.5 shadow-2xl ring-2 ring-amber-500/20">
+                <div className="h-4 w-24 rounded-full bg-black mx-auto mb-2 flex items-center justify-center gap-1.5">
+                  <div className="size-1.5 rounded-full bg-slate-700" />
+                  <div className="size-2 rounded-full bg-slate-800" />
+                </div>
+                <div className="rounded-[28px] overflow-hidden bg-slate-900 p-3.5 space-y-3 border border-slate-800">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                    <FoodHubLogo size={24} showText={true} />
+                    <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      iOS & Android
+                    </span>
                   </div>
-                  <div className="h-28 rounded-2xl overflow-hidden">
+                  <div className="relative h-32 rounded-2xl overflow-hidden shadow-md">
                     <img
                       src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400&h=250&fit=crop"
                       alt="App preview"
                       className="size-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 start-2 end-2 flex items-center justify-between text-white">
+                      <span className="text-xs font-black">{lang === "ar" ? "وعاء السلمون البري" : "Salmon Bowl"}</span>
+                      <span className="text-xs font-black text-amber-400">52 {t("sar")}</span>
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="h-3 w-3/4 rounded-full bg-slate-800" />
-                    <div className="h-2 w-1/2 rounded-full bg-slate-800" />
-                  </div>
-                  <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/30 text-[10px] text-amber-300 font-bold text-center">
-                    {lang === "ar" ? "⚡ كابتن في الطريق إليك (12 دقيقة)" : "⚡ Courier on the way (12 mins)"}
+                  <div className="p-2.5 rounded-xl bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-yellow-500/15 border border-amber-500/30 text-xs text-amber-300 font-bold flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <span className="flex size-2 rounded-full bg-emerald-500 animate-ping" />
+                      <span>{lang === "ar" ? "كابتن في الطريق لبابك" : "Courier on the way"}</span>
+                    </span>
+                    <span className="font-mono text-white bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800 text-[10px]">
+                      12 دقيقة
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Copy & Send Link Form */}
+            {/* Right: Copy & Send Link Form + Official Store Badges */}
             <div className="space-y-5 order-1 md:order-2">
               <div className="space-y-2">
                 <Badge className="bg-amber-500/15 border-amber-500/30 text-amber-400 text-xs">
-                  📱 {lang === "ar" ? "تطبيق الهاتف الذكي" : "Mobile Experience"}
+                  📱 {lang === "ar" ? "تطبيق الهاتف الذكي الرسمي" : "Official Mobile App"}
                 </Badge>
                 <h2 className="text-2xl sm:text-3xl font-black text-white">
-                  {lang === "ar" ? "احصل على تطبيق FoodHub" : "Get the FoodHub App"}
+                  {lang === "ar" ? "حمّل تطبيق FoodHub الآن" : "Download FoodHub App Now"}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
                   {lang === "ar"
-                    ? "سنرسل لك رابط التحميل الفوري عبر رسالة نصية أو بريد إلكتروني. متوفر لأجهزة iOS وأندرويد."
-                    : "We will send you a direct download link via SMS or Email. Available for iOS & Android."}
+                    ? "استمتع بتجربة طلب فائقة السرعة، خصومات حصرية، وتتبع مباشر لمندوب التوصيل عبر تطبيق iOS وأندرويد."
+                    : "Enjoy lightning-fast ordering, exclusive discounts, and live GPS courier tracking on iOS & Android."}
                 </p>
               </div>
 
@@ -2710,7 +2726,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                     onChange={() => setSendType("phone")}
                     className="accent-amber-500"
                   />
-                  <span>{lang === "ar" ? "رقم الهاتف (SMS)" : "Phone Number (SMS)"}</span>
+                  <span className="font-bold">{lang === "ar" ? "رقم الهاتف (SMS)" : "Phone Number (SMS)"}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer text-slate-300">
                   <input
@@ -2720,7 +2736,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                     onChange={() => setSendType("email")}
                     className="accent-amber-500"
                   />
-                  <span>{lang === "ar" ? "البريد الإلكتروني" : "Email Address"}</span>
+                  <span className="font-bold">{lang === "ar" ? "البريد الإلكتروني" : "Email Address"}</span>
                 </label>
               </div>
 
@@ -2737,7 +2753,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                       ? "05xxxxxxxx"
                       : "+966 5x xxx xxxx"
                   }
-                  className="bg-slate-950 border-slate-700 text-xs sm:text-sm text-white"
+                  className="bg-slate-950 border-slate-700 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:border-amber-400"
                 />
                 <Button
                   type="submit"
@@ -2748,16 +2764,83 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                 </Button>
               </form>
 
-              {/* Store Badges */}
+              {/* Official Apple App Store and Google Play Store Badges */}
               <div className="pt-2 flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2 rounded-xl bg-slate-950 border border-slate-800 px-3 py-1.5 text-xs text-slate-300">
-                  <Smartphone className="size-4 text-amber-400" />
-                  <span>App Store & Google Play</span>
-                </div>
-                <div className="flex items-center gap-1.5 rounded-xl bg-slate-950 border border-slate-800 px-3 py-1.5 text-xs text-slate-400">
-                  <QrCode className="size-4 text-cyan-400" />
+                {/* Apple App Store Download Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    toast.success(
+                      lang === "ar"
+                        ? "🍏 جارٍ توجيهك إلى متجر Apple App Store لتحميل تطبيق FoodHub..."
+                        : "🍏 Redirecting to Apple App Store to download FoodHub..."
+                    );
+                  }}
+                  className="group flex items-center gap-3 rounded-2xl bg-black border-2 border-slate-700/80 hover:border-amber-400 hover:bg-slate-950 px-4 py-2.5 text-white transition-all duration-300 shadow-xl hover:shadow-amber-500/10 hover:scale-105 active:scale-95"
+                >
+                  <div className="flex size-7 items-center justify-center text-white group-hover:text-amber-400 transition-colors">
+                    <svg className="size-6 fill-current" viewBox="0 0 24 24">
+                      <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.66-1.06 1.73-.93 2.76 1.01.08 2.03-.51 2.64-1.26z" />
+                    </svg>
+                  </div>
+                  <div className="text-start leading-tight">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                      {lang === "ar" ? "حَمّله من" : "Download on the"}
+                    </span>
+                    <span className="text-sm font-black text-white group-hover:text-amber-400 transition-colors font-sans">
+                      App Store
+                    </span>
+                  </div>
+                </button>
+
+                {/* Google Play Store Download Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    toast.success(
+                      lang === "ar"
+                        ? "▶ جارٍ توجيهك إلى متجر Google Play لتحميل تطبيق FoodHub..."
+                        : "▶ Redirecting to Google Play Store to download FoodHub..."
+                    );
+                  }}
+                  className="group flex items-center gap-3 rounded-2xl bg-black border-2 border-slate-700/80 hover:border-amber-400 hover:bg-slate-950 px-4 py-2.5 text-white transition-all duration-300 shadow-xl hover:shadow-amber-500/10 hover:scale-105 active:scale-95"
+                >
+                  <div className="flex size-7 items-center justify-center shrink-0">
+                    <svg className="size-6" viewBox="0 0 24 24" fill="none">
+                      <path d="M3.609 1.814L13.792 12 3.61 22.186A2.21 2.21 0 0 1 3 20.627V3.373c0-.6.225-1.164.609-1.559z" fill="#00D2FF" />
+                      <path d="M17.183 8.61L13.792 12l3.391 3.39 3.83-2.188c1.087-.622 1.087-1.782 0-2.404L17.183 8.61z" fill="#FFD200" />
+                      <path d="M3.609 1.814l10.183 10.186 3.391-3.39-11.75-6.714c-.672-.384-1.352-.352-1.824-.082z" fill="#00F076" />
+                      <path d="M3.609 22.186l1.824-.082 11.75-6.714-3.391-3.39L3.609 22.186z" fill="#FF3A44" />
+                    </svg>
+                  </div>
+                  <div className="text-start leading-tight">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">
+                      {lang === "ar" ? "احصل عليه من" : "GET IT ON"}
+                    </span>
+                    <span className="text-sm font-black text-white group-hover:text-amber-400 transition-colors font-sans">
+                      Google Play
+                    </span>
+                  </div>
+                </button>
+
+                {/* QR Code Quick Scan Badge */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    sounds.playClick();
+                    toast.info(
+                      lang === "ar"
+                        ? "📷 وجّه كاميرا هاتفك لمسح باركود تطبيق FoodHub والتحميل الفوري!"
+                        : "📷 Point your phone camera to scan FoodHub QR code for instant download!"
+                    );
+                  }}
+                  className="flex items-center gap-2 rounded-2xl bg-slate-900/90 border border-slate-700 hover:border-amber-500/50 px-3.5 py-2.5 text-xs text-slate-300 hover:text-white transition-all shadow-md"
+                >
+                  <QrCode className="size-4 text-amber-400" />
                   <span>{lang === "ar" ? "امسح QR للتحميل" : "Scan QR"}</span>
-                </div>
+                </button>
               </div>
             </div>
 
