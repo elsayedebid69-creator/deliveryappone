@@ -141,19 +141,19 @@ const ZOMATO_PILLARS = [
   },
   {
     id: "dining",
-    titleAr: "استكشاف المطابخ السحابية",
-    titleEn: "Explore Cloud Kitchens",
-    descAr: "تصفح قوائم أشهر المطابخ والماركات السحابية المعتمدة بأعلى معايير النظافة والجودة الغذائية.",
-    descEn: "Discover top-rated cloud kitchens, gourmet brands and verified master chefs with hygiene guarantee.",
+    titleAr: "استكشاف كافة المطاعم والمطابخ",
+    titleEn: "Explore Restaurants & Kitchens",
+    descAr: "تصفح قوائم أشهر المطاعم والماركات والمطابخ السحابية المعتمدة بأعلى معايير النظافة والجودة الغذائية.",
+    descEn: "Discover top-rated restaurants, cloud kitchens and gourmet brands with hygiene guarantee.",
     image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop",
-    linkTextAr: "استكشف المطابخ",
-    linkTextEn: "View Kitchens",
-    badgeAr: "👨‍🍳 علامات معتمدة",
-    badgeEn: "👨‍🍳 Verified Brands",
+    linkTextAr: "استكشف المطاعم والمطابخ",
+    linkTextEn: "View Restaurants & Kitchens",
+    badgeAr: "👨‍🍳 علامات ومطاعم معتمدة",
+    badgeEn: "👨‍🍳 Verified Restaurants",
     tagAr: "⭐ تقييم 4.9+",
     tagEn: "⭐ 4.9+ Rated",
-    featureAr: "مطابخ سحابية مرخصة 100%",
-    featureEn: "100% Certified cloud kitchens",
+    featureAr: "مطاعم ومطابخ مرخصة 100%",
+    featureEn: "100% Certified restaurants & kitchens",
     icon: "🏪",
   },
   {
@@ -508,14 +508,14 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-950 dark:text-white leading-tight">
               {lang === "ar" ? (
                 <>
-                  اكتشف أفضل المأكولات والمطابخ السحابية في{" "}
+                  اكتشف أفضل المطاعم والمطابخ السحابية والمأكولات في{" "}
                   <span className="text-amber-600 dark:text-amber-400">
                     الرياض
                   </span>
                 </>
               ) : (
                 <>
-                  Discover the best food & cloud kitchens in{" "}
+                  Discover the best restaurants, cloud kitchens & dining in{" "}
                   <span className="text-amber-600 dark:text-amber-400">
                     Riyadh
                   </span>
@@ -524,8 +524,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             </h1>
             <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed font-semibold">
               {lang === "ar"
-                ? "وجبات صحية طازجة، دايت وكيتو محسوبة الماكروز، وتوصيل راداري فائق السرعة يصلك أينما كنت."
-                : "Fresh healthy dining, keto & high-protein macros delivered in 15-20 minutes with live GPS radar."}
+                ? "قوائم طعام من كافة المطابخ والمطاعم المعتمدة، وجبات صحية، دايت وكيتو وتوصيل راداري فائق السرعة."
+                : "Menus from all certified restaurants & cloud kitchens, healthy dining, keto macros and ultrafast live radar delivery."}
             </p>
           </div>
 
@@ -658,7 +658,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   setSelectedCat("all");
                   toast.info(lang === "ar" ? "🛵 تصفح جميع الوجبات الجاهزة للتوصيل الفوري" : "🛵 Browsing all instant delivery meals");
                 } else if (pillar.id === "dining") {
-                  toast.info(lang === "ar" ? "🏪 تصفح أفضل المطابخ السحابية المعتمدة" : "🏪 Exploring certified cloud kitchens");
+                  toast.info(lang === "ar" ? "🏪 تصفح أفضل المطاعم والمطابخ المعتمدة" : "🏪 Exploring certified restaurants & cloud kitchens");
                 }
               }}
               className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
@@ -732,8 +732,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             </h2>
             <p className="text-xs text-slate-400">
               {lang === "ar"
-                ? "استكشف قوائم منسقة لأفضل المطابخ والوجبات الرائجة هذا الأسبوع في منطقتك"
-                : "Explore curated lists of top-rated cloud kitchens, gourmet diets and trending meals"}
+                ? "استكشف قوائم منسقة لأفضل المطاعم والمطابخ والوجبات الرائجة هذا الأسبوع في منطقتك"
+                : "Explore curated lists of top-rated restaurants, cloud kitchens and trending meals"}
             </p>
           </div>
 
@@ -805,8 +805,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
             </h2>
             <p className="text-xs sm:text-sm text-slate-400">
               {lang === "ar"
-                ? "اختر حيك لتصفح المطابخ السحابية القريبة، أوقات التوصيل الفورية، ومعدلات التقييم"
-                : "Select your neighborhood to explore nearby cloud kitchens, instant ETAs, and top ratings"}
+                ? "اختر حيك لتصفح المطاعم والمطابخ السحابية القريبة، أوقات التوصيل الفورية، ومعدلات التقييم"
+                : "Select your neighborhood to explore nearby restaurants, cloud kitchens, instant ETAs, and top ratings"}
             </p>
           </div>
 
