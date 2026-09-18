@@ -80,27 +80,27 @@ export function AppHeader() {
             <LanguageDropdown />
 
             {/* Public Link: Store & Menu */}
-            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
+            <Button asChild variant="ghost" size="sm" className="gap-1.5 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
               <Link to="/" onClick={() => sounds.playClick()}>
-                <Store className="size-4 text-amber-400" />
+                <Store className="size-4 text-amber-500 dark:text-amber-400" />
                 <span>{lang === "ar" ? "المتجر والطلب" : "Store"}</span>
               </Link>
             </Button>
 
             {/* Public Link: Track Orders */}
-            <Button asChild variant="ghost" size="sm" className="text-slate-300 hover:text-white hover:bg-slate-900">
+            <Button asChild variant="ghost" size="sm" className="text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
               <Link to="/orders" onClick={() => sounds.playClick()}>
                 <span className="flex items-center gap-1.5">
-                  <Sparkles className="size-3.5 text-amber-400" />
+                  <Sparkles className="size-3.5 text-amber-500 dark:text-amber-400" />
                   {lang === "ar" ? "تتبع طلباتي" : "Track Orders"}
                 </span>
               </Link>
             </Button>
 
             {/* Public Link: Cart */}
-            <Button asChild variant="ghost" size="sm" aria-label={t("cart")} className="relative gap-1.5 text-slate-300 hover:text-white hover:bg-slate-900">
+            <Button asChild variant="ghost" size="sm" aria-label={t("cart")} className="relative gap-1.5 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
               <Link to="/cart" onClick={() => sounds.playClick()}>
-                <ShoppingBag className="size-4 text-amber-400" />
+                <ShoppingBag className="size-4 text-amber-500 dark:text-amber-400" />
                 <span className="hidden sm:inline">{t("cart")}</span>
                 {count > 0 ? (
                   <span className="absolute -top-1 -end-1 flex size-5 items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 text-[11px] font-bold text-slate-950 shadow-md shadow-amber-500/50">
@@ -112,9 +112,9 @@ export function AppHeader() {
 
             {/* Authenticated Admin Link ONLY */}
             {isAdmin && (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-300 hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-600 dark:text-cyan-300 hover:text-cyan-700 dark:hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
                 <Link to="/admin" onClick={() => sounds.playClick()}>
-                  <ShieldCheck className="size-4 text-cyan-400" />
+                  <ShieldCheck className="size-4 text-cyan-500 dark:text-cyan-400" />
                   <span>{lang === "ar" ? "لوحة الإدارة المركزية" : "Admin Panel"}</span>
                 </Link>
               </Button>
@@ -122,9 +122,9 @@ export function AppHeader() {
 
             {/* Authenticated Restaurant Link */}
             {isRestaurant && (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-orange-300 hover:text-orange-200 hover:bg-orange-500/10 border border-orange-500/30 rounded-xl">
+              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-orange-600 dark:text-orange-300 hover:text-orange-700 dark:hover:text-orange-200 hover:bg-orange-500/10 border border-orange-500/30 rounded-xl">
                 <Link to="/vendor" onClick={() => sounds.playClick()}>
-                  <Store className="size-4 text-orange-400" />
+                  <Store className="size-4 text-orange-500 dark:text-orange-400" />
                   <span>{lang === "ar" ? "شاشة المطبخ (KDS)" : "Kitchen KDS"}</span>
                 </Link>
               </Button>
@@ -132,9 +132,9 @@ export function AppHeader() {
 
             {/* Authenticated Courier Link */}
             {isCourier && (
-              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-300 hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+              <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-600 dark:text-cyan-300 hover:text-cyan-700 dark:hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
                 <Link to="/courier" onClick={() => sounds.playClick()}>
-                  <Bike className="size-4 text-cyan-400" />
+                  <Bike className="size-4 text-cyan-500 dark:text-cyan-400" />
                   <span>{lang === "ar" ? "لوحة المندوب الذكي" : "Courier HUD"}</span>
                 </Link>
               </Button>
@@ -147,7 +147,7 @@ export function AppHeader() {
                 size="sm"
                 aria-label={t("logout")}
                 onClick={handleSignOut}
-                className="gap-1.5 border-slate-800 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white rounded-xl"
+                className="gap-1.5 border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-slate-950 dark:hover:text-white rounded-xl"
               >
                 <LogOut className="size-4" />
                 <span className="hidden sm:inline">
@@ -186,30 +186,30 @@ export function AppHeader() {
 
         {/* Mobile Drawer Menu */}
         {mobileMenuOpen && (
-          <div className="border-t border-slate-800 bg-slate-950 px-4 py-4 md:hidden animate-in slide-in-from-top-2">
+          <div className="border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 py-4 md:hidden animate-in slide-in-from-top-2">
             <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 pb-2 border-b border-slate-800">
+              <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
                 <ThemeToggleDropdown />
                 <LanguageDropdown />
               </div>
 
-              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
                 <Link to="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Store className="size-4 text-amber-400" />
+                  <Store className="size-4 text-amber-500 dark:text-amber-400" />
                   {lang === "ar" ? "المتجر والطلب" : "Store"}
                 </Link>
               </Button>
 
-              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
                 <Link to="/orders" onClick={() => setMobileMenuOpen(false)}>
-                  <Sparkles className="size-4 text-amber-400" />
+                  <Sparkles className="size-4 text-amber-500 dark:text-amber-400" />
                   {lang === "ar" ? "تتبع طلباتي" : "Track Orders"}
                 </Link>
               </Button>
 
-              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-300 hover:text-white">
+              <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-900">
                 <Link to="/cart" onClick={() => setMobileMenuOpen(false)}>
-                  <ShoppingBag className="size-4 text-amber-400" />
+                  <ShoppingBag className="size-4 text-amber-500 dark:text-amber-400" />
                   {t("cart")}
                   {count > 0 ? (
                     <span className="ms-2 flex size-5 items-center justify-center rounded-full bg-amber-500 text-[11px] font-bold text-slate-950">
@@ -220,16 +220,16 @@ export function AppHeader() {
               </Button>
 
               {isAdmin && (
-                <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-cyan-300 hover:text-white">
+                <Button asChild variant="ghost" size="sm" className="justify-start gap-2 text-cyan-600 dark:text-cyan-300 hover:text-cyan-700 dark:hover:text-white hover:bg-cyan-500/10">
                   <Link to="/admin" onClick={() => setMobileMenuOpen(false)}>
-                    <ShieldCheck className="size-4 text-cyan-400" />
+                    <ShieldCheck className="size-4 text-cyan-500 dark:text-cyan-400" />
                     {lang === "ar" ? "لوحة الإدارة المركزية" : "Admin Panel"}
                   </Link>
                 </Button>
               )}
 
               {isLoggedIn ? (
-                <Button variant="outline" size="sm" onClick={handleSignOut} className="justify-start gap-2 border-slate-800 bg-slate-900 text-slate-300">
+                <Button variant="outline" size="sm" onClick={handleSignOut} className="justify-start gap-2 border-slate-300 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300">
                   <LogOut className="size-4" />
                   {t("logout")}
                 </Button>

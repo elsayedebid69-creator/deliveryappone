@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { I18nProvider } from "@/lib/i18n";
 import { CartProvider } from "@/lib/cart";
 import { Toaster } from "@/components/ui/sonner";
+import { getInitialTheme, applyTheme } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/pwa";
 import { UniversalRoleBar } from "@/components/universal-role-bar";
 
@@ -125,6 +126,23 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('foodhub_theme_preference');
+                  var isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches) || (saved === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  if (saved === 'light') {
+                    document.documentElement.classList.remove('dark');
+                  } else if (isDark || !saved) {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -138,6 +156,7 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
+    applyTheme(getInitialTheme());
     registerServiceWorker();
 
     // Remove any "Edit with Lovable" badges or injected widgets from the DOM

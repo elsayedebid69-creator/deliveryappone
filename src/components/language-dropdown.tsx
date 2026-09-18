@@ -33,15 +33,16 @@ export function LanguageDropdown() {
           sounds.playClick();
           setOpen((prev) => !prev);
         }}
-        className="flex items-center gap-2 rounded-full bg-slate-900/90 border border-slate-700/70 px-3 py-1.5 hover:border-teal-500/50 hover:bg-slate-800 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+        className="flex items-center gap-2 rounded-full bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/70 px-3 py-1.5 hover:border-amber-500/50 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all shadow-sm dark:shadow-md focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+        aria-label={lang === "ar" ? "تغيير لغة المنصة" : "Change platform language"}
       >
-        <div className="flex size-6 items-center justify-center rounded-full bg-teal-500/10 text-teal-400">
+        <div className="flex size-6 items-center justify-center rounded-full bg-amber-500/15 text-amber-500 dark:text-amber-400">
           <Globe className="size-3.5" />
         </div>
-        <span className="rounded bg-teal-950/60 px-1.5 py-0.5 text-[10px] font-black tracking-wider text-teal-300 border border-teal-500/20 font-mono">
+        <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-black tracking-wider text-amber-600 dark:text-amber-300 border border-amber-500/30 font-mono">
           {lang === "ar" ? "AR" : "EN"}
         </span>
-        <span className="text-xs font-bold text-slate-200">
+        <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
           {lang === "ar" ? "العربية" : "English"}
         </span>
       </button>
@@ -51,11 +52,11 @@ export function LanguageDropdown() {
         <div
           className={`absolute ${
             lang === "ar" ? "start-0" : "end-0"
-          } mt-2 w-52 rounded-2xl border border-slate-800/90 bg-slate-950/95 p-2 shadow-2xl backdrop-blur-xl z-50 animate-in fade-in-50 zoom-in-95 duration-150`}
+          } mt-2 w-52 rounded-2xl border border-slate-200 dark:border-slate-800/90 bg-white dark:bg-slate-950/95 p-2 shadow-2xl backdrop-blur-xl z-50 animate-in fade-in-50 zoom-in-95 duration-150`}
         >
           {/* Header */}
-          <div className="px-3 py-2 text-xs font-bold text-teal-400 border-b border-slate-800/60 flex items-center gap-2">
-            <Globe className="size-3.5 text-teal-400" />
+          <div className="px-3 py-2 text-xs font-bold text-amber-600 dark:text-amber-400 border-b border-slate-100 dark:border-slate-800/60 flex items-center gap-2">
+            <Globe className="size-3.5 text-amber-500 dark:text-amber-400" />
             <span>{lang === "ar" ? "اختر اللغة" : "Select Language"}</span>
           </div>
 
@@ -66,12 +67,12 @@ export function LanguageDropdown() {
               onClick={() => selectLanguage("en")}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 lang === "en"
-                  ? "bg-teal-950/40 text-teal-200 border border-teal-500/40 shadow-inner"
-                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                  ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/40 shadow-inner"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white"
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-teal-500/20 text-teal-300 font-mono text-[11px] font-black">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-300 font-mono text-[11px] font-black">
                   EN
                 </div>
                 <div className="text-start">
@@ -79,7 +80,7 @@ export function LanguageDropdown() {
                   <p className="text-[10px] text-slate-500 font-normal">English</p>
                 </div>
               </div>
-              {lang === "en" && <Check className="size-4 text-teal-400" />}
+              {lang === "en" && <Check className="size-4 text-amber-500 dark:text-amber-400" />}
             </button>
 
             {/* 2. Arabic */}
@@ -88,12 +89,12 @@ export function LanguageDropdown() {
               onClick={() => selectLanguage("ar")}
               className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 lang === "ar"
-                  ? "bg-teal-950/40 text-teal-200 border border-teal-500/40 shadow-inner"
-                  : "text-slate-300 hover:bg-slate-900 hover:text-white"
+                  ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/40 shadow-inner"
+                  : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 hover:text-slate-950 dark:hover:text-white"
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-teal-500/20 text-teal-300 font-mono text-[11px] font-black">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-600 dark:text-amber-300 font-mono text-[11px] font-black">
                   AR
                 </div>
                 <div className="text-start">
@@ -101,7 +102,7 @@ export function LanguageDropdown() {
                   <p className="text-[10px] text-slate-500 font-normal">Arabic</p>
                 </div>
               </div>
-              {lang === "ar" && <Check className="size-4 text-teal-400" />}
+              {lang === "ar" && <Check className="size-4 text-amber-500 dark:text-amber-400" />}
             </button>
           </div>
         </div>

@@ -251,3 +251,171 @@ iframe[id*="lovable"],
   z-index: -9999 !important;
 }
 
+/* ============================================================ */
+/* UNIVERSAL LIGHT MODE & BRIGHTNESS THEME SYSTEM               */
+/* ============================================================ */
+html {
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html:not(.dark) body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Major Page Containers & Surfaces in Light Mode */
+html:not(.dark) .bg-slate-950,
+html:not(.dark) .bg-slate-950\/95,
+html:not(.dark) .bg-slate-950\/90,
+html:not(.dark) .bg-slate-950\/85,
+html:not(.dark) .bg-slate-950\/80,
+html:not(.dark) .bg-slate-950\/60,
+html:not(.dark) .bg-slate-950\/40 {
+  background-color: #ffffff !important;
+  color: #0f172a;
+}
+
+/* Secondary Panels, Cards & Sections */
+html:not(.dark) .bg-slate-900,
+html:not(.dark) .bg-slate-900\/95,
+html:not(.dark) .bg-slate-900\/90,
+html:not(.dark) .bg-slate-900\/80,
+html:not(.dark) .bg-slate-900\/60,
+html:not(.dark) .bg-slate-900\/50,
+html:not(.dark) .bg-slate-900\/40 {
+  background-color: #f8fafc !important;
+  color: #0f172a;
+}
+
+html:not(.dark) .bg-slate-800,
+html:not(.dark) .bg-slate-800\/90,
+html:not(.dark) .bg-slate-800\/80,
+html:not(.dark) .bg-slate-800\/60,
+html:not(.dark) .bg-slate-800\/50,
+html:not(.dark) .bg-slate-800\/40 {
+  background-color: #f1f5f9 !important;
+  color: #1e293b;
+}
+
+/* Borders in Light Mode */
+html:not(.dark) .border-slate-800,
+html:not(.dark) .border-slate-800\/90,
+html:not(.dark) .border-slate-800\/80,
+html:not(.dark) .border-slate-800\/60,
+html:not(.dark) .border-slate-800\/50,
+html:not(.dark) .border-slate-700,
+html:not(.dark) .border-slate-700\/80,
+html:not(.dark) .border-slate-700\/70,
+html:not(.dark) .border-slate-700\/50 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Typography Overrides for Light Mode */
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-slate-200 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-slate-300,
+html:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-slate-500 {
+  color: #64748b !important;
+}
+
+html:not(.dark) .text-white {
+  color: #0f172a !important;
+}
+
+/* Keep Light Text on Colored Primary Badges & Buttons */
+html:not(.dark) .bg-amber-500 .text-white,
+html:not(.dark) .bg-amber-500 .text-slate-950,
+html:not(.dark) .bg-gradient-to-r .text-slate-950,
+html:not(.dark) .bg-gradient-to-l .text-slate-950,
+html:not(.dark) button.bg-gradient-to-r,
+html:not(.dark) a.bg-gradient-to-r,
+html:not(.dark) .bg-emerald-500,
+html:not(.dark) .bg-rose-500,
+html:not(.dark) .bg-red-500,
+html:not(.dark) .bg-blue-500,
+html:not(.dark) .bg-indigo-500,
+html:not(.dark) .badge-solid {
+  color: #020617 !important;
+}
+
+html:not(.dark) .text-white.bg-rose-500,
+html:not(.dark) .text-white.bg-red-500,
+html:not(.dark) .text-white.bg-emerald-500,
+html:not(.dark) .text-white.bg-blue-500,
+html:not(.dark) .text-white.bg-indigo-500 {
+  color: #ffffff !important;
+}
+
+/* Hero Section Gradients in Light Mode */
+html:not(.dark) .from-slate-950\/80 {
+  --tw-gradient-from: rgba(255, 255, 255, 0.88) var(--tw-gradient-from-position) !important;
+}
+html:not(.dark) .via-slate-950\/90 {
+  --tw-gradient-via: rgba(248, 250, 252, 0.94) var(--tw-gradient-via-position) !important;
+}
+html:not(.dark) .to-slate-950 {
+  --tw-gradient-to: #f8fafc var(--tw-gradient-to-position) !important;
+}
+html:not(.dark) .from-slate-950 {
+  --tw-gradient-from: #f8fafc var(--tw-gradient-from-position) !important;
+}
+html:not(.dark) .via-slate-950\/40,
+html:not(.dark) .via-slate-950\/60 {
+  --tw-gradient-via: rgba(248, 250, 252, 0.6) var(--tw-gradient-via-position) !important;
+}
+
+/* Glass Dark in Light Mode */
+html:not(.dark) .glass-dark {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(226, 232, 240, 0.9) !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Header, Footer & Inputs in Light Mode */
+html:not(.dark) header {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) footer {
+  background-color: #f8fafc !important;
+  border-top-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+html:not(.dark) footer h3 {
+  color: #0f172a !important;
+}
+
+html:not(.dark) input,
+html:not(.dark) textarea,
+html:not(.dark) select {
+  color: #0f172a !important;
+}
+
+html:not(.dark) input::placeholder,
+html:not(.dark) textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) nav[aria-label*="شريط التنقل"] {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+

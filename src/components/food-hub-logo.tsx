@@ -48,7 +48,7 @@ export function FoodHubLogo({
       {/* Clean, Bold, Minimalist Typography */}
       {showText && (
         <div dir="ltr" className="flex items-center tracking-tight font-black leading-none select-none">
-          <span className="text-2xl sm:text-[25px] font-black tracking-tight text-white">
+          <span className="text-2xl sm:text-[25px] font-black tracking-tight text-slate-900 dark:text-white">
             FOOD
           </span>
           <span className="text-2xl sm:text-[25px] font-black tracking-tight text-[#FFC72C]">
