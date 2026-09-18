@@ -278,7 +278,7 @@ export function sendOnboardingMessage(
     senderName,
     text,
     timestamp: new Date().toISOString(),
-    attachments,
+    attachments: attachments ?? [],
   };
 
   app.messages.push(newMsg);
@@ -393,7 +393,7 @@ export function adminApproveAndIssueCodeInChat(appId: string): {
     fullName: app.businessName || app.fullName,
     phone: app.phone,
     email: app.email,
-    businessName: app.businessName,
+    businessName: app.businessName ?? "",
     city: app.city || "الرياض",
   });
 

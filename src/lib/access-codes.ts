@@ -93,7 +93,8 @@ export function generateAccessCode(type: AccountType): string {
   const prefix = prefixMap[type] || "FH-CODE";
   const num = Math.floor(1000 + Math.random() * 9000);
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const suffix = chars[Math.floor(Math.random() * chars.length)] + chars[Math.floor(Math.random() * chars.length)];
+  const pick = () => chars[Math.floor(Math.random() * chars.length)] ?? "X";
+  const suffix = `${pick()}${pick()}`;
   return `${prefix}-${num}${suffix}`;
 }
 
@@ -193,7 +194,7 @@ export function issueAccountCode(data: {
     fullName: data.fullName,
     email: data.email,
     phone: data.phone,
-    businessName: data.businessName,
+    businessName: data.businessName ?? "",
     city: data.city || "الرياض",
     isActive: true,
     createdAt: new Date().toISOString(),

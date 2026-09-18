@@ -51,6 +51,7 @@ export function useTheme() {
       media.addEventListener("change", listener);
       return () => media.removeEventListener("change", listener);
     }
+    return undefined;
   }, [theme]);
 
   const setTheme = (newTheme: ThemeMode) => {
