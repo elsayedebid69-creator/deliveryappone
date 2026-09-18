@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import deliveryHeroVideo from "@/assets/foodhub-delivery-hero-logo.webm.asset.json";
+import deliveryHeroVideoMp4 from "@/assets/foodhub-delivery-hero-logo.mp4.asset.json";
 import riderFrameImage from "@/assets/foodhub-rider-logo-frame.jpg";
 import {
   Search,
@@ -1503,7 +1504,7 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       {/* ============================================================ */}
       {/* 1. ZOMATO ICONIC HERO SECTION WITH DUAL SEARCH & LOCATION */}
       {/* ============================================================ */}
-      <section className="relative overflow-hidden bg-slate-950 border-b border-slate-800">
+      <section className="relative isolate overflow-hidden bg-slate-950 border-b border-slate-800 min-h-[340px] sm:min-h-[460px] lg:min-h-[560px] flex items-center">
         {/* Cinematic FOODHUB delivery rider background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
@@ -1513,22 +1514,40 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           />
           {deliveryHeroVideo?.url && (
             <video
-              className="absolute inset-0 size-full object-cover object-center opacity-65"
-              src={deliveryHeroVideo.url}
+              className="absolute inset-0 size-full object-cover object-center"
               poster={riderFrameImage}
               autoPlay
               muted
               loop
               playsInline
-              preload="metadata"
+              controls={false}
+
+              disablePictureInPicture
+              preload="auto"
               aria-hidden="true"
-            />
+              tabIndex={-1}
+              ref={(el) => {
+                if (!el) return;
+                el.muted = true;
+                el.defaultMuted = true;
+                const tryPlay = () => {
+                  const p = el.play();
+                  if (p && typeof p.catch === "function") p.catch(() => undefined);
+                };
+                tryPlay();
+                el.addEventListener("loadeddata", tryPlay, { once: true });
+                el.addEventListener("canplay", tryPlay, { once: true });
+              }}
+            >
+              <source src={deliveryHeroVideo.url} type="video/webm" />
+              <source src={deliveryHeroVideoMp4.url} type="video/mp4" />
+            </video>
           )}
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/40 to-slate-950/85" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/70 via-slate-950/45 to-slate-950/90" />
         </div>
 
         {/* Hero Content Container */}
-        <div className="relative z-10 mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
+        <div className="relative z-10 w-full mx-auto max-w-5xl px-4 py-16 sm:py-24 flex flex-col items-center text-center space-y-4">
           {/* Brand Logo */}
           <div className="flex flex-col items-center">
             <FoodHubLogo size={64} showText />
