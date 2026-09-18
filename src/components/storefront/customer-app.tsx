@@ -120,58 +120,91 @@ const ZOMATO_COLLECTIONS = [
   },
 ];
 
-// Zomato 3 Core Pillars (Order Online, Cloud Dining, Pro Healthy)
-const ZOMATO_PILLARS = [
+// FOODHUB Platform Features (Smart Delivery, Multi-Brand Cart, Precision Diet)
+const FOODHUB_PLATFORM_FEATURES = [
   {
     id: "online",
-    titleAr: "الطلب أونلاين والتوصيل السريع",
-    titleEn: "Order Online & Fast Delivery",
-    descAr: "وجبات طازجة ومحسوبة السعرات تصل إلى باب منزلك في 15-20 دقيقة بتتبع راداري حي مباشر.",
-    descEn: "Fresh macro-calculated meals delivered right to your doorstep in 15-20 mins with live GPS tracking.",
+    titleAr: "الطلب الذكي والتوصيل فائق السرعة",
+    titleEn: "Smart Ordering & Ultrafast Delivery",
+    descAr: "منظومة إسناد وتوزيع ذكية تضمن وصول طلبك في 15-20 دقيقة بأقل سعر توصيل في المملكة مع تتبع راداري حي لحظي.",
+    descEn: "Smart dispatching ensuring 15-20 min arrival with the lowest delivery fees in KSA and live GPS tracking.",
     image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=500&fit=crop",
-    linkTextAr: "اطلب الآن",
-    linkTextEn: "Order Now",
-    badgeAr: "🛵 توصيل راداري حي",
-    badgeEn: "🛵 Live GPS Delivery",
-    tagAr: "⚡ 15-20 دقيقة",
-    tagEn: "⚡ 15-20 Mins",
-    featureAr: "توصيل فائق السرعة وأقل تكلفة",
-    featureEn: "Fastest delivery & lowest rates",
+    linkTextAr: "اطلب الآن بأسرع توصيل",
+    linkTextEn: "Order Fast Delivery",
+    badgeAr: "⚡ أسرع توصيل في المملكة",
+    badgeEn: "⚡ Fastest Delivery in KSA",
+    tagAr: "⏱️ 15-20 دقيقة",
+    tagEn: "⏱️ 15-20 Mins",
+    bulletsAr: [
+      "تتبع راداري حي مباشر لمسار المندوب حتى بابك",
+      "أقل رسوم توصيل تبدأ من 0 ر.س مع عروض يومية",
+      "حقائب حرارية معزولة تحفظ حرارة وجودة الطعام",
+    ],
+    bulletsEn: [
+      "Live GPS radar driver tracking to your door",
+      "Lowest delivery fees starting at 0 SAR",
+      "Thermal insulated bags keeping meals fresh and hot",
+    ],
+    statAr: "⚡ متوسط التوصيل: 18 دقيقة",
+    statEn: "⚡ Avg. ETA: 18 mins",
     icon: "🛵",
+    accentColor: "amber",
   },
   {
     id: "dining",
-    titleAr: "استكشاف كافة المطاعم والمطابخ",
-    titleEn: "Explore Restaurants & Kitchens",
-    descAr: "تصفح قوائم أشهر المطاعم والماركات والمطابخ السحابية المعتمدة بأعلى معايير النظافة والجودة الغذائية.",
-    descEn: "Discover top-rated restaurants, cloud kitchens and gourmet brands with hygiene guarantee.",
+    titleAr: "تنوع شامل وسلة موحدة لعدة مطاعم",
+    titleEn: "All-in-One Multi-Brand Unified Cart",
+    descAr: "اطلب من كافة المطاعم والماركات والمطابخ السحابية المعتمدة في سلة واحدة ومندوب واحد لتوفير 50% من الرسوم.",
+    descEn: "Order from top restaurants & certified cloud kitchens in a single cart with one driver to save 50% on fees.",
     image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop",
-    linkTextAr: "استكشف المطاعم والمطابخ",
-    linkTextEn: "View Restaurants & Kitchens",
-    badgeAr: "👨‍🍳 علامات ومطاعم معتمدة",
-    badgeEn: "👨‍🍳 Verified Restaurants",
-    tagAr: "⭐ تقييم 4.9+",
-    tagEn: "⭐ 4.9+ Rated",
-    featureAr: "مطاعم ومطابخ مرخصة 100%",
-    featureEn: "100% Certified restaurants & kitchens",
+    linkTextAr: "استكشف المطاعم والتحالفات",
+    linkTextEn: "Explore Restaurants",
+    badgeAr: "🤝 سلة موحدة لعدة علامات",
+    badgeEn: "🤝 Multi-Brand Single Cart",
+    tagAr: "🏪 مطاعم مرخصة 100%",
+    tagEn: "🏪 100% Certified",
+    bulletsAr: [
+      "طلب أطباق من مطعمين مختلفين في فاتورة واحدة",
+      "توفير 50% في تكاليف الشحن والمشاوير المتعددة",
+      "رقابة بلدية ومعايير نظافة وجودة غذائية صارمة",
+    ],
+    bulletsEn: [
+      "Combine dishes from 2 brands in 1 checkout",
+      "Save 50% on delivery trips and driver fees",
+      "Strict municipality hygiene & safety guarantee",
+    ],
+    statAr: "🏪 +120 مطعم ومطبخ معتمد",
+    statEn: "🏪 +120 Certified Brands",
     icon: "🏪",
+    accentColor: "blue",
   },
   {
     id: "healthy",
-    titleAr: "وجبات الشيف والدايت الصحي",
-    titleEn: "Chef Gourmet & Diet Plans",
-    descAr: "وجبات بروتين عالية ونظام كيتو متوازن محسوبة السعرات والماكروز بدقة بأيدي أمهر الطهاة المحترفين.",
-    descEn: "High-protein, keto & tailored nutrition meals with exact macro calculations by master chefs.",
+    titleAr: "وجبات الشيف والدايت وحساب الماكروز",
+    titleEn: "Chef Gourmet & Precision Macro Nutrition",
+    descAr: "وجبات دايت، كيتو وبروتين صافي محسوبة السعرات والماكروز بدقة بأيدي أمهر الطهاة لمساعدتك في تحقيق أهدافك البدنية.",
+    descEn: "Clean diet, keto & high-protein gourmet meals with exact macro and calorie counts to hit your fitness goals.",
     image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&h=500&fit=crop",
-    linkTextAr: "تصفح خطط الدايت",
-    linkTextEn: "Browse Diet Plans",
-    badgeAr: "🥗 دايت وبروتين صافي",
-    badgeEn: "🥗 Pure Protein & Diet",
+    linkTextAr: "تصفح وجبات الدايت والشيف",
+    linkTextEn: "Browse Healthy Meals",
+    badgeAr: "🥗 تغذية صحية ودقيقة",
+    badgeEn: "🥗 Precision Diet Nutrition",
     tagAr: "🥑 محسوب الماكروز",
-    tagEn: "🥑 Macro Calculated",
-    featureAr: "تغذية صحية وحساب دقيق للسعرات",
-    featureEn: "Healthy nutrition & exact calories",
+    tagEn: "🥑 Exact Macros",
+    bulletsAr: [
+      "حساب دقيق لجرامات البروتين والكاربوهيدرات والدهون",
+      "مكونات طازجة خالية من الزيوت المهدرجة والمواد الحافظة",
+      "خيارات مرنة للرياضيين وأصحاب الحميات المتنوعة",
+    ],
+    bulletsEn: [
+      "Exact protein, carb & fat grams per meal",
+      "Fresh ingredients, zero trans-fats or preservatives",
+      "Tailored options for athletes & active lifestyles",
+    ],
+    statAr: "🥑 +80 وجبة محسوبة السعرات",
+    statEn: "🥑 +80 Keto & Protein Meals",
     icon: "🥗",
+    accentColor: "emerald",
   },
 ];
 
@@ -708,73 +741,106 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
       </section>
 
       {/* ============================================================ */}
-      {/* 2. ZOMATO 3 CORE PILLARS (Order Online, Dining, Pro Healthy) */}
+      {/* 2. FOODHUB EXCLUSIVE PLATFORM FEATURES (مميزات المنصة) */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-6xl px-4 py-8 w-full">
-        <h2 className="sr-only">
-          {lang === "ar" ? "خدمات وركائز FOODHUB الأساسية" : "Core FOODHUB Platform Pillars"}
-        </h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {ZOMATO_PILLARS.map((pillar) => (
+      <section className="mx-auto max-w-6xl px-4 py-10 w-full space-y-6">
+        {/* Section Header */}
+        <div className="text-center space-y-2 max-w-2xl mx-auto">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-500 dark:text-amber-400 shadow-sm">
+            <Sparkles className="size-3.5" />
+            <span>{lang === "ar" ? "مميزات منصة FOODHUB الحصرية" : "Exclusive FOODHUB Platform Features"}</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-950 dark:text-white">
+            {lang === "ar" ? (
+              <>
+                مميزات فريدة تجعل تجربة طعامك{" "}
+                <span className="text-amber-500">أسرع، ألذ، وأوفر</span>
+              </>
+            ) : (
+              <>
+                Unique Features for a{" "}
+                <span className="text-amber-500">Faster, Tastier, Smarter</span> Dining Experience
+              </>
+            )}
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            {lang === "ar"
+              ? "منظومة توصيل ذكية تجمع بين المطاعم العالمية والمطابخ السحابية بأعلى معايير الجودة والسرعة."
+              : "Smart delivery infrastructure unifying world-class restaurants, cloud kitchens and healthy gourmet."}
+          </p>
+        </div>
+
+        {/* 3 Upgraded Feature Cards */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {FOODHUB_PLATFORM_FEATURES.map((feature) => (
             <div
-              key={pillar.id}
+              key={feature.id}
               onClick={() => {
                 sounds.playClick();
-                if (pillar.id === "healthy") {
+                if (feature.id === "healthy") {
                   setSelectedCat("healthy");
                   toast.info(lang === "ar" ? "🥗 تم تفعيل تصنيف الوجبات الصحية والدايت" : "🥗 Filtered to Healthy & Diet Meals");
-                } else if (pillar.id === "online") {
+                } else if (feature.id === "online") {
                   setSelectedCat("all");
                   toast.info(lang === "ar" ? "🛵 تصفح جميع الوجبات الجاهزة للتوصيل الفوري" : "🛵 Browsing all instant delivery meals");
-                } else if (pillar.id === "dining") {
+                } else if (feature.id === "dining") {
                   toast.info(lang === "ar" ? "🏪 تصفح أفضل المطاعم والمطابخ المعتمدة" : "🏪 Exploring certified restaurants & cloud kitchens");
                 }
               }}
-              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
+              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-amber-500/60 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
             >
-              {/* Photo Header Container */}
+              {/* Photo Header Container with Badges */}
               <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-950">
                 <img
-                  src={pillar.image}
-                  alt={pillar.titleEn}
+                  src={feature.image}
+                  alt={feature.titleEn}
                   className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent" />
                 
                 {/* Floating Top Badges */}
                 <div className="absolute top-3 start-3 end-3 flex items-center justify-between pointer-events-none">
-                  <span className="rounded-full bg-slate-950/85 border border-slate-700/80 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-md">
-                    {lang === "ar" ? pillar.badgeAr : pillar.badgeEn}
+                  <span className="rounded-full bg-slate-950/90 border border-slate-700/80 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-md">
+                    {lang === "ar" ? feature.badgeAr : feature.badgeEn}
                   </span>
                   <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-black text-slate-950 shadow-md">
-                    {lang === "ar" ? pillar.tagAr : pillar.tagEn}
+                    {lang === "ar" ? feature.tagAr : feature.tagEn}
                   </span>
                 </div>
               </div>
 
-              {/* Pillar Body Content */}
-              <div className="p-5 flex flex-col justify-between flex-1 gap-3 bg-white dark:bg-slate-900">
-                <div className="space-y-2">
+              {/* Feature Body Content */}
+              <div className="p-5 sm:p-6 flex flex-col justify-between flex-1 gap-4 bg-white dark:bg-slate-900">
+                <div className="space-y-2.5">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{pillar.icon}</span>
+                    <span className="text-2xl">{feature.icon}</span>
                     <h3 className="text-base sm:text-lg font-black text-slate-950 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
-                      {lang === "ar" ? pillar.titleAr : pillar.titleEn}
+                      {lang === "ar" ? feature.titleAr : feature.titleEn}
                     </h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                    {lang === "ar" ? pillar.descAr : pillar.descEn}
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                    {lang === "ar" ? feature.descAr : feature.descEn}
                   </p>
                 </div>
 
-                {/* Feature Bullet */}
-                <div className="rounded-xl bg-slate-100 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
-                  <span className="text-amber-500">✓</span>
-                  <span>{lang === "ar" ? pillar.featureAr : pillar.featureEn}</span>
+                {/* Sub-features Checklist */}
+                <div className="space-y-2 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 p-3 text-xs">
+                  {(lang === "ar" ? feature.bulletsAr : feature.bulletsEn).map((bullet, bIdx) => (
+                    <div key={bIdx} className="flex items-start gap-2 text-slate-700 dark:text-slate-300">
+                      <span className="text-amber-500 font-bold shrink-0 mt-0.5">✓</span>
+                      <span className="text-[11px] leading-snug">{bullet}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Stat Highlight Pill */}
+                <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                  <span>{lang === "ar" ? feature.statAr : feature.statEn}</span>
                 </div>
 
                 {/* Action CTA Button */}
                 <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-3 text-xs font-bold text-slate-900 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
-                  <span>{lang === "ar" ? pillar.linkTextAr : pillar.linkTextEn}</span>
+                  <span>{lang === "ar" ? feature.linkTextAr : feature.linkTextEn}</span>
                   <span className="flex size-7 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
                     <ChevronRight
                       className={`size-4 transition-transform group-hover:translate-x-0.5 ${
