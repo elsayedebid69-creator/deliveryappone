@@ -304,7 +304,7 @@ const RESTAURANT_PARTNERSHIPS = [
   },
 ];
 
-// Trending Dishes with Macros
+// Trending Dishes with Macros from All Restaurant Cuisines
 const TRENDING_MEALS = [
   {
     id: "dish-1",
@@ -352,7 +352,7 @@ const TRENDING_MEALS = [
     prepTime: "14-16 د",
     rating: 4.95,
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&h=350&fit=crop",
-    category: "healthy",
+    category: "seafood",
   },
   {
     id: "dish-4",
@@ -368,6 +368,70 @@ const TRENDING_MEALS = [
     prepTime: "5 د",
     rating: 4.85,
     image: "https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&h=350&fit=crop",
+    category: "smoothie",
+  },
+  {
+    id: "dish-5",
+    restaurantId: "rest-4",
+    nameAr: "دبل أنجوس سماش برجر ذواقة فاخر",
+    nameEn: "Double Angus Gourmet Smash Burger",
+    descAr: "لحم أنجوس فاخر مكرمل مع جبن الشيدر الذائب، صوص خاص، وخبز البريوش الطازج",
+    descEn: "Prime Angus beef smash patties with aged melted cheddar, house secret sauce on brioche",
+    price: 39,
+    oldPrice: 49,
+    calories: 580,
+    protein: 38,
+    prepTime: "10-12 د",
+    rating: 4.96,
+    image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&h=350&fit=crop",
+    category: "burger",
+  },
+  {
+    id: "dish-6",
+    restaurantId: "rest-5",
+    nameAr: "بيتزا نابوليتانا بالترفل والموزاريلا الطازجة",
+    nameEn: "Artisan Truffle & Buffalo Mozzarella Pizza",
+    descAr: "عجينة مخمرة 48 ساعة على الحطب، مع زيت الترفل الإيطالي، جبن موزاريلا، وفطر طازج",
+    descEn: "48h fermented wood-fired dough with Italian truffle glaze, fresh mozzarella and wild mushrooms",
+    price: 48,
+    oldPrice: 60,
+    calories: 520,
+    protein: 26,
+    prepTime: "12-15 د",
+    rating: 4.92,
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&h=350&fit=crop",
+    category: "pizza",
+  },
+  {
+    id: "dish-7",
+    restaurantId: "rest-6",
+    nameAr: "مشكل كباب وتندرلوين مشوي على الفحم",
+    nameEn: "Charcoal Mixed Grill & Tenderloin Platter",
+    descAr: "أسياخ كباب لحم غنم نعيمي مع أوصال تندرلوين مشوية على الفحم مع خبز التنور والحمص",
+    descEn: "Charcoal-grilled premium lamb kebab skewers, tenderloin cuts with freshly baked bread and hummus",
+    price: 64,
+    oldPrice: 78,
+    calories: 590,
+    protein: 56,
+    prepTime: "15-18 د",
+    rating: 4.98,
+    image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=500&h=350&fit=crop",
+    category: "protein",
+  },
+  {
+    id: "dish-8",
+    restaurantId: "rest-7",
+    nameAr: "قهوة كولد برو إثيوبية وتشيزكيك الشوفان",
+    nameEn: "Ethiopian Cold Brew & Oat Protein Cheesecake",
+    descAr: "محصول إثيوبي مقطر بارد 18 ساعة مع قطعة تشيزكيك الشوفان المحلاة طبيعياً",
+    descEn: "18h slow-steeped Ethiopian cold brew with high-protein guilt-free oat cheesecake",
+    price: 32,
+    oldPrice: 42,
+    calories: 220,
+    protein: 14,
+    prepTime: "5-7 د",
+    rating: 4.89,
+    image: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=500&h=350&fit=crop",
     category: "smoothie",
   },
 ];
@@ -593,8 +657,8 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={
                     lang === "ar"
-                      ? "ابحث عن مطعم، مطبخ سحابي، وجبة شهية، أو دايت..."
-                      : "Search for restaurant, cloud kitchen, dish, or diet..."
+                      ? "ابحث عن أي مطعم، مطبخ، برجر، مشويات، بيتزا، كافيه، أو وجبة دايت..."
+                      : "Search any restaurant, kitchen, burger, grills, pizza, cafe, or diet..."
                   }
                   className="w-full h-11 ps-10 pe-4 bg-transparent border-0 text-xs sm:text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
@@ -611,22 +675,27 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
               </div>
             </div>
 
-            {/* Quick Trending Search Tags */}
+            {/* Quick Trending Search Tags Covering All Restaurant Cuisines */}
             <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 text-xs">
               <span className="text-slate-600 dark:text-slate-400 text-[11px] font-bold me-1">
-                {lang === "ar" ? "الأكثر بحثاً:" : "Trending Searches:"}
+                {lang === "ar" ? "الأكثر بحثاً في المطاعم:" : "Trending in Restaurants:"}
               </span>
               {[
-                { ar: "🔥 مشويات بروتين", en: "🔥 Protein Grills", cat: "protein" },
-                { ar: "🥑 كيتو دايت", en: "🥑 Keto Meals", cat: "healthy" },
-                { ar: "🥗 سلطات كينوا", en: "🥗 Quinoa Bowls", cat: "healthy" },
-                { ar: "🥤 سموذي طاقة", en: "🥤 Power Smoothies", cat: "smoothie" },
+                { ar: "🍔 برجر وساندوتشات", en: "🍔 Burgers", query: "برجر", cat: "all" },
+                { ar: "🥩 مشويات وشاورما", en: "🥩 Grills & Shawarma", query: "مشويات", cat: "all" },
+                { ar: "🍕 بيتزا وإيطالي", en: "🍕 Pizza & Pasta", query: "بيتزا", cat: "all" },
+                { ar: "🥗 دايت وكيتو صحي", en: "🥗 Healthy & Keto", query: "صحي", cat: "healthy" },
+                { ar: "☕ كافيهات ومخبوزات", en: "☕ Cafes & Bakery", query: "قهوة", cat: "all" },
+                { ar: "🍣 مأكولات بحرية وآسيوية", en: "🍣 Seafood & Asian", query: "سالمون", cat: "all" },
+                { ar: "🍛 أطباق شرقية وشعبية", en: "🍛 Traditional Rice", query: "شواء", cat: "all" },
               ].map((pill, idx) => (
                 <button
                   key={idx}
                   onClick={() => {
                     sounds.playClick();
-                    setSelectedCat(pill.cat);
+                    setSearchQuery(pill.query);
+                    if (pill.cat) setSelectedCat(pill.cat);
+                    toast.info(lang === "ar" ? `🔎 تصفح: ${pill.ar}` : `🔎 Browsing: ${pill.en}`);
                   }}
                   className="rounded-full bg-slate-100 dark:bg-slate-900/80 border border-slate-300 dark:border-slate-800 px-3 py-1 text-[11px] font-bold text-slate-700 dark:text-slate-300 hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition-all active:scale-95 shadow-sm"
                 >
@@ -1237,12 +1306,15 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           </div>
 
           {/* Categories Pill Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
             {[
               { id: "all", ar: "الكل", en: "All" },
-              { id: "healthy", ar: "🥑 صحي وكيتو", en: "Healthy/Keto" },
-              { id: "protein", ar: "🥩 بروتين عالي", en: "High Protein" },
-              { id: "smoothie", ar: "🥤 سموذي", en: "Smoothies" },
+              { id: "burger", ar: "🍔 برجر وساندوتشات", en: "Burgers" },
+              { id: "pizza", ar: "🍕 بيتزا وإيطالي", en: "Pizza" },
+              { id: "protein", ar: "🥩 مشويات وبروتين", en: "Grills" },
+              { id: "healthy", ar: "🥑 صحي وكيتو", en: "Healthy" },
+              { id: "seafood", ar: "🍣 بحري وآسيوي", en: "Seafood" },
+              { id: "smoothie", ar: "☕ كافيهات وحلى", en: "Cafes" },
             ].map((cat) => (
               <button
                 key={cat.id}
