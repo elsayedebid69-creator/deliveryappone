@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import deliveryHeroVideo from "@/assets/foodhub-rider-arrival.webm.asset.json";
-import deliveryHeroVideoMp4 from "@/assets/foodhub-rider-arrival.mp4.asset.json";
-import riderFrameImage from "@/assets/foodhub-rider-arrival-frame.png";
+import deliveryHeroVideo from "@/assets/foodhub-rider-arrival-all-sides-f.webm.asset.json";
+import deliveryHeroVideoMp4 from "@/assets/foodhub-rider-arrival-all-sides-f.mp4.asset.json";
+import riderFrameImage from "@/assets/foodhub-rider-arrival-all-sides-f-frame.png";
 import {
   Search,
   MapPin,
