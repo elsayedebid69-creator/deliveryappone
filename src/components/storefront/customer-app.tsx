@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "@tanstack/react-router";
-import deliveryHeroVideo from "@/assets/foodhub-delivery-hero.mp4.asset.json";
+import deliveryHeroVideo from "@/assets/foodhub-delivery-hero.webm.asset.json";
 import {
   Search,
   MapPin,
