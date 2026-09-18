@@ -36,7 +36,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { FoodHubLogo } from "@/components/food-hub-logo";
-import { AiFoodAssistant } from "@/components/customer/ai-food-assistant";
 
 // Region filter options for Riyadh localities
 const REGION_FILTERS = [
@@ -122,37 +121,52 @@ const ZOMATO_PILLARS = [
     id: "online",
     titleAr: "الطلب أونلاين والتوصيل السريع",
     titleEn: "Order Online & Fast Delivery",
-    descAr: "وجبات طازجة ومحسوبة السعرات تصل إلى باب منزلك في 15-20 دقيقة.",
-    descEn: "Fresh macro-calculated meals delivered right to your doorstep in 15-20 mins.",
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=350&fit=crop",
+    descAr: "وجبات طازجة ومحسوبة السعرات تصل إلى باب منزلك في 15-20 دقيقة بتتبع راداري حي مباشر.",
+    descEn: "Fresh macro-calculated meals delivered right to your doorstep in 15-20 mins with live GPS tracking.",
+    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&h=500&fit=crop",
     linkTextAr: "اطلب الآن",
     linkTextEn: "Order Now",
     badgeAr: "🛵 توصيل راداري حي",
     badgeEn: "🛵 Live GPS Delivery",
+    tagAr: "⚡ 15-20 دقيقة",
+    tagEn: "⚡ 15-20 Mins",
+    featureAr: "توصيل فائق السرعة وأقل تكلفة",
+    featureEn: "Fastest delivery & lowest rates",
+    icon: "🛵",
   },
   {
     id: "dining",
     titleAr: "استكشاف المطابخ السحابية",
     titleEn: "Explore Cloud Kitchens",
-    descAr: "تصفح قوائم أشهر المطابخ والماركات السحابية المعتمدة في منطقتك.",
-    descEn: "Discover top-rated cloud kitchens, gourmet brands and verified chefs.",
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=350&fit=crop",
+    descAr: "تصفح قوائم أشهر المطابخ والماركات السحابية المعتمدة بأعلى معايير النظافة والجودة الغذائية.",
+    descEn: "Discover top-rated cloud kitchens, gourmet brands and verified master chefs with hygiene guarantee.",
+    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=500&fit=crop",
     linkTextAr: "استكشف المطابخ",
     linkTextEn: "View Kitchens",
     badgeAr: "👨‍🍳 علامات معتمدة",
     badgeEn: "👨‍🍳 Verified Brands",
+    tagAr: "⭐ تقييم 4.9+",
+    tagEn: "⭐ 4.9+ Rated",
+    featureAr: "مطابخ سحابية مرخصة 100%",
+    featureEn: "100% Certified cloud kitchens",
+    icon: "🏪",
   },
   {
     id: "healthy",
     titleAr: "وجبات الشيف والدايت الصحي",
     titleEn: "Chef Gourmet & Diet Plans",
-    descAr: "وجبات بروتين عالية ونظام كيتو متوازن مع استشارة ذكاء اصطناعي مخصصة.",
-    descEn: "High-protein, keto & personalized nutrition guided by FoodHub AI.",
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&h=350&fit=crop",
-    linkTextAr: "خطط التغذية",
-    linkTextEn: "Nutrition Plans",
-    badgeAr: "✨ ذكاء اصطناعي AI",
-    badgeEn: "✨ Smart AI Core",
+    descAr: "وجبات بروتين عالية ونظام كيتو متوازن محسوبة السعرات والماكروز بدقة بأيدي أمهر الطهاة المحترفين.",
+    descEn: "High-protein, keto & tailored nutrition meals with exact macro calculations by master chefs.",
+    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=800&h=500&fit=crop",
+    linkTextAr: "تصفح خطط الدايت",
+    linkTextEn: "Browse Diet Plans",
+    badgeAr: "🥗 دايت وبروتين صافي",
+    badgeEn: "🥗 Pure Protein & Diet",
+    tagAr: "🥑 محسوب الماكروز",
+    tagEn: "🥑 Macro Calculated",
+    featureAr: "تغذية صحية وحساب دقيق للسعرات",
+    featureEn: "Healthy nutrition & exact calories",
+    icon: "🥗",
   },
 ];
 
@@ -537,39 +551,75 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
         <h2 className="sr-only">
           {lang === "ar" ? "خدمات وركائز FOODHUB الأساسية" : "Core FOODHUB Platform Pillars"}
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {ZOMATO_PILLARS.map((pillar) => (
             <div
               key={pillar.id}
               onClick={() => {
                 sounds.playClick();
-                if (pillar.id === "healthy") setSelectedCat("healthy");
-                if (pillar.id === "online") setSelectedCat("all");
+                if (pillar.id === "healthy") {
+                  setSelectedCat("healthy");
+                  toast.info(lang === "ar" ? "🥗 تم تفعيل تصنيف الوجبات الصحية والدايت" : "🥗 Filtered to Healthy & Diet Meals");
+                } else if (pillar.id === "online") {
+                  setSelectedCat("all");
+                  toast.info(lang === "ar" ? "🛵 تصفح جميع الوجبات الجاهزة للتوصيل الفوري" : "🛵 Browsing all instant delivery meals");
+                } else if (pillar.id === "dining") {
+                  toast.info(lang === "ar" ? "🏪 تصفح أفضل المطابخ السحابية المعتمدة" : "🏪 Exploring certified cloud kitchens");
+                }
               }}
-              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 shadow-xl transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10"
+              className="group relative cursor-pointer overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-lg dark:shadow-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-2xl hover:shadow-amber-500/10 flex flex-col justify-between"
             >
-              {/* Photo Background */}
-              <div className="relative h-44 w-full overflow-hidden">
+              {/* Photo Header Container */}
+              <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-950">
                 <img
                   src={pillar.image}
                   alt={pillar.titleEn}
-                  className="size-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-                <Badge className="absolute top-3 end-3 bg-slate-950/80 backdrop-blur-md border-amber-500/40 text-amber-400 text-[10px]">
-                  {lang === "ar" ? pillar.badgeAr : pillar.badgeEn}
-                </Badge>
+                
+                {/* Floating Top Badges */}
+                <div className="absolute top-3 start-3 end-3 flex items-center justify-between pointer-events-none">
+                  <span className="rounded-full bg-slate-950/85 border border-slate-700/80 px-3 py-1 text-xs font-bold text-white shadow-lg backdrop-blur-md">
+                    {lang === "ar" ? pillar.badgeAr : pillar.badgeEn}
+                  </span>
+                  <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-[11px] font-black text-slate-950 shadow-md">
+                    {lang === "ar" ? pillar.tagAr : pillar.tagEn}
+                  </span>
+                </div>
               </div>
 
-              {/* Pillar Body */}
-              <div className="p-4 space-y-2">
-                <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors flex items-center justify-between">
-                  <span>{lang === "ar" ? pillar.titleAr : pillar.titleEn}</span>
-                  <ChevronRight className={`size-4 text-amber-400 transition-transform ${lang === "ar" ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`} />
-                </h3>
-                <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
-                  {lang === "ar" ? pillar.descAr : pillar.descEn}
-                </p>
+              {/* Pillar Body Content */}
+              <div className="p-5 flex flex-col justify-between flex-1 gap-3 bg-white dark:bg-slate-900">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{pillar.icon}</span>
+                    <h3 className="text-base sm:text-lg font-black text-slate-950 dark:text-white group-hover:text-amber-500 dark:group-hover:text-amber-400 transition-colors">
+                      {lang === "ar" ? pillar.titleAr : pillar.titleEn}
+                    </h3>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                    {lang === "ar" ? pillar.descAr : pillar.descEn}
+                  </p>
+                </div>
+
+                {/* Feature Bullet */}
+                <div className="rounded-xl bg-slate-100 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800/80 px-3 py-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <span className="text-amber-500">✓</span>
+                  <span>{lang === "ar" ? pillar.featureAr : pillar.featureEn}</span>
+                </div>
+
+                {/* Action CTA Button */}
+                <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-3 text-xs font-bold text-slate-900 dark:text-amber-400 group-hover:text-amber-600 dark:group-hover:text-amber-300 transition-colors">
+                  <span>{lang === "ar" ? pillar.linkTextAr : pillar.linkTextEn}</span>
+                  <span className="flex size-7 items-center justify-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all">
+                    <ChevronRight
+                      className={`size-4 transition-transform group-hover:translate-x-0.5 ${
+                        lang === "ar" ? "rotate-180 group-hover:-translate-x-0.5" : ""
+                      }`}
+                    />
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -1199,9 +1249,6 @@ export function CustomerApp({ isEmbedded = false }: CustomerAppProps) {
           ))}
         </div>
       </section>
-
-      {/* Floating AI Assistant */}
-      <AiFoodAssistant />
     </div>
   );
 }
