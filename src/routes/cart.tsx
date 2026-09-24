@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { SmartAddressPicker } from "@/components/customer/smart-address-picker";
 import { sounds } from "@/lib/sound-effects";
+import { PaymentModal } from "@/components/checkout/payment-modal";
+import { PaymentTransaction } from "@/lib/payment-gateway";
 
 export const Route = createFileRoute("/cart")({
   ssr: false,
@@ -43,6 +45,7 @@ function CartPage() {
     notes: "يرجى ترك الطلب عند الباب والدق خفيفاً",
   });
   const [paymentMethod, setPaymentMethod] = useState<"applepay" | "card" | "tamara" | "cash">("applepay");
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const { data: restaurant } = useQuery({
@@ -61,16 +64,8 @@ function CartPage() {
   const deliveryFee = 12;
   const total = cart.subtotal + deliveryFee;
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (cart.lines.length === 0) {
-      toast.error(lang === "ar" ? "سلة الطلبات فارغة!" : "Your cart is empty!");
-      return;
-    }
-
+  const executeOrderPlacement = async (txn?: PaymentTransaction) => {
     setBusy(true);
-    sounds.playClick();
-
     const customerId = user?.id || "demo-customer-" + Math.random().toString(36).substring(7);
     const targetRestaurantId = cart.restaurantId || "food-hub-prime";
 
@@ -86,7 +81,7 @@ function CartPage() {
           subtotal: cart.subtotal,
           delivery_fee: deliveryFee,
           total,
-          status: "pending",
+          status: txn && txn.status === "paid" ? "preparing" : "pending",
         })
         .select("id")
         .single();
@@ -127,9 +122,13 @@ function CartPage() {
       cart.clear();
       sounds.playSuccess();
       toast.success(
-        lang === "ar"
-          ? "🎉 تم تأكيد طلبك بنجاح وجاري ربطه بالرادار الفضائي!"
-          : "🎉 Order confirmed and sent to kitchen!"
+        txn && txn.status === "paid"
+          ? (lang === "ar"
+              ? `🎉 ${txn.description} وتم توجيه الطلب للمطبخ فوراً!`
+              : `🎉 Payment verified! Order sent to kitchen.`)
+          : (lang === "ar"
+              ? "🎉 تم تأكيد طلبك بنجاح بنمط الدفع عند الاستلام!"
+              : "🎉 Order confirmed with Cash on Delivery!")
       );
       void navigate({ to: "/orders" });
     } catch (err) {
@@ -142,6 +141,30 @@ function CartPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (cart.lines.length === 0) {
+      toast.error(lang === "ar" ? "سلة الطلبات فارغة!" : "Your cart is empty!");
+      return;
+    }
+
+    if (!form.phone.trim()) {
+      toast.error(lang === "ar" ? "يرجى إدخال رقم هاتف للتواصل" : "Please provide a contact phone number");
+      return;
+    }
+
+    sounds.playClick();
+
+    // If online payment (Apple Pay, Card, Tamara) -> open payment gateway modal
+    if (paymentMethod !== "cash") {
+      setPaymentModalOpen(true);
+      return;
+    }
+
+    // Cash on delivery direct confirmation
+    await executeOrderPlacement();
   };
 
   return (
@@ -397,6 +420,19 @@ function CartPage() {
 
           </div>
         )}
+
+        {/* Payment Processing Modal */}
+        <PaymentModal
+          open={paymentModalOpen}
+          onOpenChange={setPaymentModalOpen}
+          method={paymentMethod}
+          amount={total}
+          customerName={user?.email || "عميل فود هب المميز"}
+          customerPhone={form.phone}
+          onSuccess={(txn) => {
+            void executeOrderPlacement(txn);
+          }}
+        />
       </main>
     </div>
   );
