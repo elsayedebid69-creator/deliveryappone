@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "sa.foodhub.app",
+  appId: "foodhub.app",
   appName: "FOODHUB",
   webDir: ".output/public",
   bundledWebRuntime: false,

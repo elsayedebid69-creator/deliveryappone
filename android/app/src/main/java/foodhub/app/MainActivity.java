@@ -1,4 +1,4 @@
-package sa.foodhub.app;
+package foodhub.app;
 
 import com.getcapacitor.BridgeActivity;
 
