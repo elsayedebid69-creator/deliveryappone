@@ -41,6 +41,10 @@ import {
   AlertCircle,
   KeyRound,
   Lock,
+  Printer,
+  Volume2,
+  VolumeX,
+  FileText,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vendor")({
@@ -275,15 +279,120 @@ function VendorPage() {
   };
 
   const list = useMemo(() => orders.data ?? [], [orders.data]);
-  const todayOrders = list.filter(
-    (o) => new Date(o.created_at).toDateString() === new Date().toDateString(),
-  );
-  const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const pendingOrders = list.filter((o) => o.status === "pending");
   const preparingOrders = list.filter((o) => o.status === "preparing");
   const readyOrders = list.filter((o) => o.status === "ready");
   const completedOrders = list.filter((o) => o.status === "delivered");
 
+  // Audible bell chime when new orders enter pending status
+  useEffect(() => {
+    if (kitchenSound && pendingOrders.length > 0) {
+      sounds.playNewOrder();
+    }
+  }, [pendingOrders.length, kitchenSound]);
+
+  // Create simulated incoming order for instant testing on KDS
+  const createDemoKitchenOrder = async () => {
+    sounds.playClick();
+    const demoItems = [
+      { name_ar: "سلطة الكينوا بالأفوكادو والخضار المشوية", name_en: "Quinoa Salad", price: 38, quantity: 1 },
+      { name_ar: "صدر دجاج تندرلوين مشوي مع الكينوا الذهبية", name_en: "Herb Grilled Chicken", price: 45, quantity: 2 },
+    ];
+    try {
+      const { data: ord, error } = await supabase
+        .from("orders")
+        .insert({
+          restaurant_id: restaurantId,
+          customer_id: "demo-cust-" + Math.random().toString(36).substring(7),
+          address: "حي النرجس، شارع عثمان بن عفان، عمارة 14 - الرياض",
+          phone: "055" + Math.floor(1000000 + Math.random() * 9000000),
+          status: "pending" as OrderStatus,
+          subtotal: 128,
+          delivery_fee: 12,
+          total: 140,
+          notes: "يرجى تسخين الوجبة جيداً وتوصيلها بأسرع وقت (طلب تجريبي KDS)",
+        })
+        .select()
+        .single();
+
+      if (!error && ord) {
+        await supabase.from("order_items").insert(
+          demoItems.map((it) => ({
+            order_id: ord.id,
+            name_ar: it.name_ar,
+            name_en: it.name_en,
+            price: it.price,
+            quantity: it.quantity,
+          }))
+        );
+        sounds.playNewOrder();
+        toast.success("🛎️ وصل طلب جديد إلى شاشة المطبخ KDS!");
+        void qc.invalidateQueries({ queryKey: ["vendor-orders", restaurantId] });
+      }
+    } catch {
+      // Fallback
+    }
+  };
+
+  // Print preparation slip for kitchen cooks
+  const handlePrintSlip = (order: { id: string; created_at: string; notes?: string | null; order_items?: { name_ar: string; quantity: number }[] }) => {
+    sounds.playClick();
+    const printWindow = window.open("", "_blank", "width=420,height=600");
+    if (!printWindow) {
+      toast.info("يرجى السماح بالنوافذ المنبثقة لطباعة التذكرة");
+      return;
+    }
+    const itemsHtml = (order.order_items || [])
+      .map(
+        (it) =>
+          `<div style="display:flex; justify-content:space-between; margin:8px 0; font-size:15px; font-weight:bold;">
+            <span>${it.name_ar}</span>
+            <span style="direction:ltr;">×${it.quantity}</span>
+          </div>`
+      )
+      .join("");
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="utf-8">
+          <title>تذكرة مطبخ #${order.id.slice(0, 6).toUpperCase()}</title>
+          <style>
+            body { font-family: system-ui, sans-serif; padding: 20px; color: #000; text-align: right; }
+            .header { text-align: center; border-bottom: 2px dashed #000; padding-bottom: 12px; margin-bottom: 14px; }
+            .logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; }
+            .order-id { font-size: 24px; font-weight: 900; margin-top: 4px; }
+            .time { font-size: 12px; color: #555; margin-top: 4px; }
+            .items { border-bottom: 2px dashed #000; padding-bottom: 14px; margin-bottom: 14px; }
+            .notes { background: #f4f4f4; padding: 10px; border-radius: 8px; font-size: 13px; margin-top: 10px; border: 1px solid #ddd; }
+            .footer { text-align: center; font-size: 11px; margin-top: 16px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo">FOODHUB CLOUD KITCHEN</div>
+            <div class="order-id">طلب #${order.id.slice(0, 6).toUpperCase()}</div>
+            <div class="time">${new Date(order.created_at).toLocaleTimeString("ar-SA")} • ${new Date().toLocaleDateString("ar-SA")}</div>
+          </div>
+          <div class="items">
+            ${itemsHtml || "<div>وجبة مخصصة</div>"}
+          </div>
+          ${order.notes ? `<div class="notes"><strong>ملاحظة الزبون:</strong> ${order.notes}</div>` : ""}
+          <div class="footer">تذكرة تحضير الكيتشن ديسبلاي • معيار الشنطة 65°C</div>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const todayOrders = list.filter(
+    (o) => new Date(o.created_at).toDateString() === new Date().toDateString(),
+  );
+  const todayRevenue = todayOrders.reduce((sum, o) => sum + Number(o.total || 0), 0);
   const filteredItems = (items.data ?? []).filter((it) => {
     const q = menuSearch.trim().toLowerCase();
     if (!q) return true;
@@ -298,16 +407,44 @@ function VendorPage() {
       active={section}
       onNavigate={setSection}
       actions={
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          {/* Kitchen Audio Bell Sound Toggle */}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              const next = !kitchenSound;
+              setKitchenSound(next);
+              if (next) sounds.playNewOrder();
+              toast.info(next ? "🔔 جرس المطبخ مفعل" : "🔇 تم كتم جرس المطبخ");
+            }}
+            className="border-slate-800 bg-slate-900 text-xs h-8 text-slate-200"
+          >
+            {kitchenSound ? (
+              <Volume2 className="size-3.5 me-1 text-amber-400" />
+            ) : (
+              <VolumeX className="size-3.5 me-1 text-slate-500" />
+            )}
+            <span>{kitchenSound ? "جرس المطبخ 🔔" : "صامت 🔇"}</span>
+          </Button>
+
+          {/* Simulate New Incoming Order */}
+          <Button
+            size="sm"
+            onClick={createDemoKitchenOrder}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs h-8 shadow-sm"
+          >
+            <Zap className="size-3.5 me-1" />
+            <span>طلب تجريبي للمطبخ ⚡</span>
+          </Button>
+
           <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30 text-xs font-mono py-1 px-2.5">
             <KeyRound className="size-3.5 me-1 text-amber-400" />
-            AI Partner ID: FH-AI-REST-9482X7
+            AI KDS: FH-REST-948
           </Badge>
-          <Badge className="hidden md:inline-flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[11px] py-1 px-2.5 font-mono">
-            <Lock className="size-3 me-1 text-emerald-400" />
-            Single-IP Bound: 156.204.18.92
-          </Badge>
+          
           <AiDishCreator onDishCreated={handleAiDishAdded} />
+          
           <div className="hidden sm:flex items-center gap-2 border-s border-slate-700 ps-3">
             <span className="text-xs text-slate-400">
               {restaurant.data?.is_active ? "المطبخ نشط" : "المطبخ مغلق"}
@@ -558,12 +695,23 @@ function VendorPage() {
                           <span className="font-mono text-xs font-bold text-amber-400">
                             #{o.id.slice(0, 6).toUpperCase()}
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
-                            {new Date(o.created_at).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handlePrintSlip(o)}
+                              className="inline-flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-900 px-2 py-0.5 text-[10px] font-bold text-slate-300 hover:text-amber-400 hover:border-amber-500/40 transition-colors"
+                              title="طباعة تذكرة المطبخ KDS"
+                            >
+                              <Printer className="size-3" />
+                              <span>طباعة 🖨️</span>
+                            </button>
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              {new Date(o.created_at).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Order Items */}
