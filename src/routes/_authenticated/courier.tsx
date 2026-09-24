@@ -196,6 +196,35 @@ function CourierPage() {
     (o) => o.status === "delivered" || o.status === "cancelled",
   );
 
+  const createDemoCourierOrder = async () => {
+    sounds.playClick();
+    try {
+      const { data: ord, error } = await supabase
+        .from("orders")
+        .insert({
+          restaurant_id: "fh-1",
+          customer_id: "demo-cust-" + Math.random().toString(36).substring(7),
+          address: "حي الملقا، طريق أنس بن مالك، برج النخبة - الرياض",
+          phone: "055" + Math.floor(1000000 + Math.random() * 9000000),
+          status: "ready",
+          subtotal: 110,
+          delivery_fee: 18,
+          total: 128,
+          notes: "يرجى تسليم الطلب عند الباب (طلب تجريبي للكابتن)",
+        })
+        .select()
+        .single();
+
+      if (!error && ord) {
+        sounds.playNewOrder();
+        toast.success("🛵 طلب جديد متاح للاستلام والتوصيل الآن!");
+        refresh();
+      }
+    } catch {
+      // Fallback
+    }
+  };
+
   return (
     <DashboardShell
       role="courier"
@@ -204,15 +233,21 @@ function CourierPage() {
       active={section === "overview" ? undefined : section}
       onNavigate={(s) => setSection((s as Section) ?? "overview")}
       actions={
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <Button
+            size="sm"
+            onClick={createDemoCourierOrder}
+            className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-xs h-8 shadow-sm"
+          >
+            <Zap className="size-3.5 me-1" />
+            <span>طلب تجريبي للكابتن 🛵</span>
+          </Button>
+
           <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-500/30 text-xs font-mono py-1 px-2.5">
             <KeyRound className="size-3.5 me-1 text-cyan-400" />
-            AI Partner ID: FH-AI-RIDER-3129K4
+            AI RIDER: FH-3129
           </Badge>
-          <Badge className="hidden md:inline-flex bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[11px] py-1 px-2.5 font-mono">
-            <Lock className="size-3 me-1 text-emerald-400" />
-            Single-IP Bound: 156.204.18.92
-          </Badge>
+
           <div className="flex items-center gap-2 border-s border-slate-700 ps-3">
             <span className="text-xs font-bold text-slate-300">
               {isOnline ? "🟢 متصل" : "🔴 غير متصل"}
