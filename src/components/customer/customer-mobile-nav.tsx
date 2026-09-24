@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, UtensilsCrossed, ShoppingBag, Radar, HelpCircle, ArrowRight } from "lucide-react";
+import { Home, UtensilsCrossed, ShoppingBag, Radar, User, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { sounds } from "@/lib/sound-effects";
@@ -16,6 +16,7 @@ export function CustomerMobileNav() {
     currentPath.startsWith("/restaurant") ||
     currentPath === "/cart" ||
     currentPath === "/orders" ||
+    currentPath === "/profile" ||
     currentPath === "/store" ||
     currentPath === "/faq" ||
     currentPath === "/help";
@@ -60,11 +61,11 @@ export function CustomerMobileNav() {
       hasPulse: true,
     },
     {
-      id: "help",
-      labelAr: "المساعدة",
-      labelEn: "Help",
-      path: "/help",
-      icon: HelpCircle,
+      id: "profile",
+      labelAr: "حسابي",
+      labelEn: "Profile",
+      path: "/profile",
+      icon: User,
     },
   ];
 
