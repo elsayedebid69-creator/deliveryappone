@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   Heart,
   HelpCircle,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useSession } from "@/lib/session";
@@ -27,6 +28,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppHeader, AppFooter } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/profile")({
   ssr: false,
@@ -345,16 +357,61 @@ function ProfilePage() {
           </div>
 
           {user && (
-            <div className="pt-2">
+            <div className="pt-2 space-y-2">
               <Button
                 type="button"
                 onClick={handleSignOut}
                 variant="ghost"
-                className="w-full text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 text-xs font-bold py-5 rounded-2xl"
+                className="w-full text-slate-400 hover:text-white hover:bg-slate-800/50 text-xs font-bold py-5 rounded-2xl"
               >
                 <LogOut className="size-4 me-1.5" />
                 <span>{lang === "ar" ? "تسجيل الخروج من الحساب" : "Sign Out"}</span>
               </Button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="w-full text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 text-xs font-bold py-5 rounded-2xl"
+                  >
+                    <Trash2 className="size-4 me-1.5" />
+                    <span>{lang === "ar" ? "حذف الحساب والبيانات نهائياً" : "Delete Account Permanently"}</span>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-slate-950 border-slate-800 text-slate-100 max-w-md rounded-3xl p-6">
+                  <AlertDialogHeader className="text-right">
+                    <AlertDialogTitle className="text-lg font-black text-white text-right">
+                      {lang === "ar" ? "تأكيد حذف الحساب والبيانات نهائياً؟" : "Confirm Permanent Account Deletion?"}
+                    </AlertDialogTitle>
+                    <AlertDialogDescription className="text-xs text-slate-400 text-right leading-relaxed">
+                      {lang === "ar"
+                        ? "وفقاً لنظام حماية البيانات الشخصية السعودي (PDPL) ومعايير متجر التطبيقات، سيؤدي هذا الإجراء إلى حذف كافة بياناتك الشخصية، العناوين المحفوظة، وسجل الطلبات بشكل نهائي وفوري ولا يمكن التراجع عنه."
+                        : "In compliance with Saudi PDPL and App Store policies, this will permanently purge your account data, saved addresses, and order history immediately. This action cannot be undone."}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter className="flex-row-reverse gap-2 mt-4">
+                    <AlertDialogAction
+                      onClick={async () => {
+                        sounds.playClick();
+                        await supabase.auth.signOut();
+                        toast.success(
+                          lang === "ar"
+                            ? "تم حذف الحساب وبياناتك الشخصية نهائياً وتسجيل خروجك."
+                            : "Account and personal data permanently purged."
+                        );
+                        navigate({ to: "/" });
+                      }}
+                      className="bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl text-xs flex-1"
+                    >
+                      {lang === "ar" ? "نعم، حذف الحساب نهائياً" : "Yes, Delete Account"}
+                    </AlertDialogAction>
+                    <AlertDialogCancel className="bg-slate-900 border-slate-800 text-slate-300 hover:bg-slate-800 rounded-xl text-xs flex-1">
+                      {lang === "ar" ? "إلغاء التراجع" : "Cancel"}
+                    </AlertDialogCancel>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           )}
         </div>
