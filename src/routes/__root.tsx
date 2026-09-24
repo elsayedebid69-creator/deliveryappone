@@ -17,6 +17,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { getInitialTheme, applyTheme } from "@/lib/theme";
 import { registerServiceWorker } from "@/lib/pwa";
 import { UniversalRoleBar } from "@/components/universal-role-bar";
+import { CustomerMobileNav } from "@/components/customer/customer-mobile-nav";
 
 function NotFoundComponent() {
   return (
@@ -201,6 +202,7 @@ function RootComponent() {
         <CartProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <CustomerMobileNav />
           <Toaster richColors position="top-center" />
         </CartProvider>
       </I18nProvider>
