@@ -19,6 +19,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as PartnershipsRouteImport } from './routes/partnerships'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as StoreRouteImport } from './routes/store'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -78,6 +79,11 @@ const PartnershipsRoute = PartnershipsRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/help': typeof HelpRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/terms': typeof TermsRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/help': typeof HelpRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/terms': typeof TermsRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/help': typeof HelpRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/store': typeof StoreRoute
   '/terms': typeof TermsRoute
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/partnerships'
     | '/privacy'
+    | '/profile'
     | '/register'
     | '/store'
     | '/terms'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/partnerships'
     | '/privacy'
+    | '/profile'
     | '/register'
     | '/store'
     | '/terms'
@@ -261,6 +272,7 @@ export interface FileRouteTypes {
     | '/help'
     | '/partnerships'
     | '/privacy'
+    | '/profile'
     | '/register'
     | '/store'
     | '/terms'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   HelpRoute: typeof HelpRoute
   PartnershipsRoute: typeof PartnershipsRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   StoreRoute: typeof StoreRoute
   TermsRoute: typeof TermsRoute
@@ -364,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -474,6 +494,7 @@ const rootRouteChildren: RootRouteChildren = {
   HelpRoute: HelpRoute,
   PartnershipsRoute: PartnershipsRoute,
   PrivacyRoute: PrivacyRoute,
+  ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   StoreRoute: StoreRoute,
   TermsRoute: TermsRoute,

@@ -79,6 +79,14 @@ export function DownloadPage() {
           ? "📦 جارٍ تحميل ملف التثبيت المباشر APK v2.5.0..."
           : "📦 Downloading direct APK v2.5.0..."
       );
+      if (typeof window !== "undefined") {
+        const link = document.createElement("a");
+        link.href = "/downloads/foodhub-debug.apk";
+        link.download = "foodhub-debug.apk";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
   };
 

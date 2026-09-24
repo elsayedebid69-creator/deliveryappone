@@ -27,6 +27,18 @@ dist-ssr
 .DS_Store
 *.suo
 *.ntvs*
-*.njsproj
-*.sln
 *.sw?
+
+# Android build and gradle cache
+android/.gradle/
+android/.kotlin/
+android/build/
+android/app/build/
+android/local.properties
+android/**/build/
+android/.idea/
+android/*.iml
+android/app/*.iml
+
+# Built APKs and binaries
+public/downloads/*.apk

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <title>FOODHUB | أسرع توصيل بأقل سعر</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#020617" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background-color: #020617;
+        color: #ffffff;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+      .splash-container {
+        text-align: center;
+        animation: fadeIn 0.6s ease-out;
+      }
+      .logo-badge {
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 20px;
+        border-radius: 26px;
+        background: #FFC72C;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(255, 199, 44, 0.35);
+      }
+      .logo-text {
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+      }
+      .brand-hub { color: #FFC72C; }
+      .spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(255, 199, 44, 0.2);
+        border-top-color: #FFC72C;
+        border-radius: 50%;
+        margin: 24px auto 0;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+  </head>
+  <body>
+    <div class="splash-container">
+      <div class="logo-badge">
+        <svg width="52" height="52" viewBox="0 0 100 100" fill="none">
+          <path d="M25 21C25 17.6863 27.6863 15 31 15H64C67.3137 15 70 17.6863 70 21C70 24.3137 67.3137 27 64 27H37V41H57C60.3137 41 63 43.6863 63 47C63 50.3137 60.3137 53 57 53H37V75C37 78.3137 34.3137 81 31 81C27.6863 81 25 78.3137 25 75V21Z" fill="#26160C" />
+          <circle cx="81" cy="21" r="6" fill="#26160C" />
+        </svg>
+      </div>
+      <div class="logo-text">FOOD<span class="brand-hub">HUB</span></div>
+      <div class="spinner"></div>
+    </div>
+
+    <script>
+      // Automatically redirect to the root application view or server route
+      window.location.replace('/');
+    </script>
+  </body>
+</html>
