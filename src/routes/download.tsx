@@ -537,14 +537,23 @@ export function DownloadPage() {
                     ? "للطلب الفوري، تصفح المنيو، وتتبع الكابتن بالرادار."
                     : "For instant ordering, menu browsing, and radar tracking."}
                 </p>
-                <button
-                  type="button"
-                  onClick={() => handleStoreClick("appstore")}
-                  className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 pt-1"
-                >
-                  <span>{lang === "ar" ? "تحميل التطبيق الآن" : "Download Now"}</span>
-                  <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
-                </button>
+                <div className="flex items-center gap-3 pt-1">
+                  <Link
+                    to="/"
+                    onClick={() => sounds.playClick()}
+                    className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                  >
+                    <span>{lang === "ar" ? "ابدأ الطلب الآن ⚡" : "Start Ordering ⚡"}</span>
+                    <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => handleStoreClick("appstore")}
+                    className="text-[11px] text-slate-400 hover:text-white"
+                  >
+                    {lang === "ar" ? "تحميل التطبيق" : "Download App"}
+                  </button>
+                </div>
               </div>
 
               {/* Courier App */}
@@ -563,15 +572,24 @@ export function DownloadPage() {
                     ? "لاستلام الطلبات الذكية وتحقيق دخل يومي مجزي."
                     : "For receiving smart delivery orders and daily earnings."}
                 </p>
-                <Link
-                  to="/register"
-                  search={{ role: "courier" }}
-                  onClick={() => sounds.playClick()}
-                  className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 pt-1"
-                >
-                  <span>{lang === "ar" ? "انضم لأسطول الكباتن" : "Join Fleet"}</span>
-                  <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
-                </Link>
+                <div className="flex items-center gap-3 pt-1">
+                  <Link
+                    to="/courier"
+                    onClick={() => sounds.playClick()}
+                    className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                  >
+                    <span>{lang === "ar" ? "دخول لوحة الكابتن 🛵" : "Open Courier HUD 🛵"}</span>
+                    <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
+                  </Link>
+                  <Link
+                    to="/register"
+                    search={{ role: "courier" }}
+                    onClick={() => sounds.playClick()}
+                    className="text-[11px] text-slate-400 hover:text-white"
+                  >
+                    {lang === "ar" ? "تسجيل جديد" : "Sign Up"}
+                  </Link>
+                </div>
               </div>
 
               {/* Restaurant App */}
@@ -590,15 +608,24 @@ export function DownloadPage() {
                     ? "لإدارة وتجهيز الطلبات ومزامنة التوصيل المشترك."
                     : "For managing food prep and dispatch synchronization."}
                 </p>
-                <Link
-                  to="/register"
-                  search={{ role: "restaurant" }}
-                  onClick={() => sounds.playClick()}
-                  className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1 pt-1"
-                >
-                  <span>{lang === "ar" ? "انضم كشريك مطبخ" : "Partner Up"}</span>
-                  <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
-                </Link>
+                <div className="flex items-center gap-3 pt-1">
+                  <Link
+                    to="/vendor"
+                    onClick={() => sounds.playClick()}
+                    className="text-xs font-bold text-orange-400 hover:text-orange-300 flex items-center gap-1"
+                  >
+                    <span>{lang === "ar" ? "دخول شاشة المطبخ 👨‍🍳" : "Open Kitchen KDS 👨‍🍳"}</span>
+                    <ChevronLeft className="size-3.5 rtl:rotate-0 ltr:rotate-180" />
+                  </Link>
+                  <Link
+                    to="/register"
+                    search={{ role: "restaurant" }}
+                    onClick={() => sounds.playClick()}
+                    className="text-[11px] text-slate-400 hover:text-white"
+                  >
+                    {lang === "ar" ? "تسجيل شريك" : "Join Partner"}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>

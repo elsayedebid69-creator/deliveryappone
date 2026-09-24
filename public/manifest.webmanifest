@@ -1,18 +1,42 @@
 {
-  "name": "FoodHub — توصيل طعام",
-  "short_name": "FoodHub",
-  "description": "منصة توصيل الطعام: لوحات للعميل والمطعم والمندوب والإدارة",
+  "name": "FOODHUB — أسرع توصيل بأقل سعر",
+  "short_name": "FOODHUB",
+  "description": "منظومة توصيل الطعام الذكية: تطبيقات متكاملة للعميل، المطبخ، والمندوب بتوصيل فائق السرعة",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
+  "background_color": "#020617",
   "theme_color": "#FFC72C",
   "dir": "rtl",
   "lang": "ar",
+  "categories": ["food", "shopping", "lifestyle"],
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "طلب طعام (تطبيق العميل)",
+      "short_name": "طلب طعام",
+      "description": "تصفح المطابخ السحابية واطلب وجبتك بأسرع توصيل في 15 دقيقة",
+      "url": "/",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "شاشة المطبخ (Vendor KDS)",
+      "short_name": "المطبخ KDS",
+      "description": "استقبال وتجهيز طلبات المطبخ والمطعم السحابي",
+      "url": "/vendor",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "تطبيق الكابتن (Courier HUD)",
+      "short_name": "الكابتن",
+      "description": "استلام طلبات التوصيل الذكية والملاحة الفضائية",
+      "url": "/courier",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }
