@@ -42,6 +42,7 @@ function CartPage() {
     phone: "0551234567",
     notes: "يرجى ترك الطلب عند الباب والدق خفيفاً",
   });
+  const [paymentMethod, setPaymentMethod] = useState<"applepay" | "card" | "tamara" | "cash">("applepay");
   const [busy, setBusy] = useState(false);
 
   const { data: restaurant } = useQuery({
@@ -294,6 +295,76 @@ function CartPage() {
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className="bg-slate-950 border-slate-800 text-slate-100 text-sm font-mono focus-visible:ring-amber-500 rounded-xl"
                   />
+                </div>
+
+                {/* Payment Method Selector */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold text-slate-300">طريقة الدفع</Label>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sounds.playClick();
+                        setPaymentMethod("applepay");
+                      }}
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border font-bold transition-all ${
+                        paymentMethod === "applepay"
+                          ? "border-amber-400 bg-amber-500/15 text-white shadow-sm"
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span className="text-sm"></span>
+                      <span>Apple Pay</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sounds.playClick();
+                        setPaymentMethod("card");
+                      }}
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border font-bold transition-all ${
+                        paymentMethod === "card"
+                          ? "border-amber-400 bg-amber-500/15 text-white shadow-sm"
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>💳</span>
+                      <span>مدى / بطاقة</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sounds.playClick();
+                        setPaymentMethod("tamara");
+                      }}
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border font-bold transition-all ${
+                        paymentMethod === "tamara"
+                          ? "border-amber-400 bg-amber-500/15 text-white shadow-sm"
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>✨</span>
+                      <span>تمارا / تابي</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        sounds.playClick();
+                        setPaymentMethod("cash");
+                      }}
+                      className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border font-bold transition-all ${
+                        paymentMethod === "cash"
+                          ? "border-amber-400 bg-amber-500/15 text-white shadow-sm"
+                          : "border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>💵</span>
+                      <span>الدفع نقداً</span>
+                    </button>
+                  </div>
                 </div>
 
                 {/* Financial Breakdown */}
