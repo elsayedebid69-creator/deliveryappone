@@ -12,6 +12,12 @@ on:
       - 'package.json'
       - '.github/workflows/build-mobile.yml'
 
+env:
+  VITE_SUPABASE_URL: "https://hveqdlczsyejptwnlmyj.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_VQDT0Ly3iA1CLWyX0-myug_6XfguR2-"
+  SUPABASE_URL: "https://hveqdlczsyejptwnlmyj.supabase.co"
+  SUPABASE_PUBLISHABLE_KEY: "sb_publishable_VQDT0Ly3iA1CLWyX0-myug_6XfguR2-"
+
 jobs:
   build-android:
     name: 🤖 Build Android APK & Bundle
