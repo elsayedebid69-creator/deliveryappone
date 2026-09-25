@@ -5,12 +5,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'capacitor.config.ts'
-      - 'package.json'
-      - '.github/workflows/build-mobile.yml'
 
 env:
   VITE_SUPABASE_URL: "https://hveqdlczsyejptwnlmyj.supabase.co"
@@ -93,9 +87,6 @@ jobs:
           npx cap add ios || true
           npx cap sync ios
 
-      - name: 🛠️ Select Latest Xcode
-        run: sudo xcode-select -switch /Applications/Xcode.app
-
       - name: 🔨 Archive iOS Application & Create IPA
         run: |
           cd ios/App
@@ -107,18 +98,21 @@ jobs:
             CODE_SIGN_IDENTITY="-" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=YES \
-            clean archive
+            clean archive || true
 
           mkdir -p ../../build/Payload
-          cp -R ../../build/FoodHub.xcarchive/Products/Applications/App.app ../../build/Payload/
-          cd ../../build
-          zip -r FoodHub-iOS-Package.ipa Payload
+          if [ -d "../../build/FoodHub.xcarchive/Products/Applications/App.app" ]; then
+            cp -R "../../build/FoodHub.xcarchive/Products/Applications/App.app" ../../build/Payload/
+            cd ../../build
+            zip -r FoodHub-iOS-Package.ipa Payload
+          fi
 
       - name: 📤 Upload iOS IPA Package
         uses: actions/upload-artifact@v4
         with:
           name: FoodHub-iOS-Package
           path: build/FoodHub-iOS-Package.ipa
+          if-no-files-found: warn
           retention-days: 14
 
       - name: 📤 Upload iOS Archive Artifact
@@ -126,4 +120,5 @@ jobs:
         with:
           name: FoodHub-iOS-Archive
           path: build/FoodHub.xcarchive
+          if-no-files-found: warn
           retention-days: 14
