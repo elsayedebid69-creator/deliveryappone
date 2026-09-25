@@ -42,3 +42,13 @@ android/app/*.iml
 
 # Built APKs and binaries
 public/downloads/*.apk
+
+# iOS build cache and user state
+ios/App/build/
+ios/App/Pods/
+ios/App/.build/
+*.xcscmblueprint
+*.xcuserstate
+*.xcuserdatad
+DerivedData/
+
