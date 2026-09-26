@@ -19,6 +19,21 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    flavorDimensions "app"
+    productFlavors {
+        customer {
+            dimension "app"
+            applicationId "delivery.foodhub.customer"
+        }
+        captain {
+            dimension "app"
+            applicationId "delivery.foodhub.captain"
+        }
+        kitchen {
+            dimension "app"
+            applicationId "delivery.foodhub.kitchen"
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false

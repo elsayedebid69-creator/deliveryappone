@@ -54,23 +54,30 @@ jobs:
       - name: 🔑 Grant execute permission for gradlew
         run: chmod +x android/gradlew
 
-      - name: 🔨 Assemble Android APK & AAB Bundle
+      - name: 🔨 Assemble 3 Separate Android APKs
         run: |
           cd android
-          ./gradlew assembleDebug bundleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon
 
-      - name: 📤 Upload Android APK Artifact
+      - name: 📤 Upload Customer App APK (تطبيق العميل)
         uses: actions/upload-artifact@v4
         with:
-          name: FoodHub-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: FoodHub-Customer-App-APK
+          path: android/app/build/outputs/apk/customer/debug/app-customer-debug.apk
           retention-days: 14
 
-      - name: 📤 Upload Android AAB Bundle Artifact
+      - name: 📤 Upload Captain App APK (تطبيق المندوب)
         uses: actions/upload-artifact@v4
         with:
-          name: FoodHub-Android-AAB-Bundle
-          path: android/app/build/outputs/bundle/debug/app-debug.aab
+          name: FoodHub-Captain-App-APK
+          path: android/app/build/outputs/apk/captain/debug/app-captain-debug.apk
+          retention-days: 14
+
+      - name: 📤 Upload Kitchen Partner App APK (تطبيق المتجر والمطبخ)
+        uses: actions/upload-artifact@v4
+        with:
+          name: FoodHub-Kitchen-App-APK
+          path: android/app/build/outputs/apk/kitchen/debug/app-kitchen-debug.apk
           retention-days: 14
 
   build-ios:

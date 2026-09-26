@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CaptainRouteImport } from './routes/captain'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DownloadRouteImport } from './routes/download'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as HelpRouteImport } from './routes/help'
+import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as PartnershipsRouteImport } from './routes/partnerships'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -46,6 +48,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaptainRoute = CaptainRouteImport.update({
+  id: '/captain',
+  path: '/captain',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -69,6 +76,11 @@ const FaqRoute = FaqRouteImport.update({
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KitchenRoute = KitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PartnershipsRoute = PartnershipsRouteImport.update({
@@ -145,11 +157,13 @@ const RestaurantIdRoute = RestaurantIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/kitchen': typeof KitchenRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
@@ -168,11 +182,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/kitchen': typeof KitchenRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
@@ -193,11 +209,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
   '/contact': typeof ContactRoute
   '/download': typeof DownloadRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/kitchen': typeof KitchenRoute
   '/partnerships': typeof PartnershipsRoute
   '/privacy': typeof PrivacyRoute
   '/profile': typeof ProfileRoute
@@ -218,11 +236,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/captain'
     | '/cart'
     | '/contact'
     | '/download'
     | '/faq'
     | '/help'
+    | '/kitchen'
     | '/partnerships'
     | '/privacy'
     | '/profile'
@@ -241,11 +261,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/captain'
     | '/cart'
     | '/contact'
     | '/download'
     | '/faq'
     | '/help'
+    | '/kitchen'
     | '/partnerships'
     | '/privacy'
     | '/profile'
@@ -265,11 +287,13 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/captain'
     | '/cart'
     | '/contact'
     | '/download'
     | '/faq'
     | '/help'
+    | '/kitchen'
     | '/partnerships'
     | '/privacy'
     | '/profile'
@@ -290,11 +314,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CaptainRoute: typeof CaptainRoute
   CartRoute: typeof CartRoute
   ContactRoute: typeof ContactRoute
   DownloadRoute: typeof DownloadRoute
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
+  KitchenRoute: typeof KitchenRoute
   PartnershipsRoute: typeof PartnershipsRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfileRoute: typeof ProfileRoute
@@ -330,6 +356,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/captain': {
+      id: '/captain'
+      path: '/captain'
+      fullPath: '/captain'
+      preLoaderRoute: typeof CaptainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -363,6 +396,13 @@ declare module '@tanstack/react-router' {
       path: '/help'
       fullPath: '/help'
       preLoaderRoute: typeof HelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kitchen': {
+      id: '/kitchen'
+      path: '/kitchen'
+      fullPath: '/kitchen'
+      preLoaderRoute: typeof KitchenRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/partnerships': {
@@ -487,11 +527,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CaptainRoute: CaptainRoute,
   CartRoute: CartRoute,
   ContactRoute: ContactRoute,
   DownloadRoute: DownloadRoute,
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
+  KitchenRoute: KitchenRoute,
   PartnershipsRoute: PartnershipsRoute,
   PrivacyRoute: PrivacyRoute,
   ProfileRoute: ProfileRoute,
