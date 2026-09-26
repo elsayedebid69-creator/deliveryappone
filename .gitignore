@@ -51,4 +51,6 @@ ios/App/.build/
 *.xcuserstate
 *.xcuserdatad
 DerivedData/
-
+# Media and large assets
+*.mp4
+*.webm
