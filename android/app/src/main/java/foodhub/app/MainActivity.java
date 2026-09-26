@@ -17,13 +17,13 @@ public class MainActivity extends BridgeActivity {
             if (packageName != null && packageName.contains("captain")) {
                 if (getBridge() != null && getBridge().getWebView() != null) {
                     getBridge().getWebView().post(() -> {
-                        getBridge().getWebView().loadUrl("https://foodhub.delivery/captain");
+                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=captain");
                     });
                 }
             } else if (packageName != null && packageName.contains("kitchen")) {
                 if (getBridge() != null && getBridge().getWebView() != null) {
                     getBridge().getWebView().post(() -> {
-                        getBridge().getWebView().loadUrl("https://foodhub.delivery/kitchen");
+                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=kitchen");
                     });
                 }
             }
