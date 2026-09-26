@@ -98,6 +98,30 @@ class SoundEffectsManager {
       // ignore
     }
   }
+
+  // Quick Add to Cart Pop Sound
+  public playAdd() {
+    if (!this.enabled) return;
+    try {
+      this.initCtx();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1200, this.ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.08);
+    } catch {
+      // ignore
+    }
+  }
 }
 
 export const sounds = new SoundEffectsManager();

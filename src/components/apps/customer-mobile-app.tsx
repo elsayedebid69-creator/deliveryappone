@@ -478,38 +478,6 @@ export function CustomerMobileApp() {
         </div>
       </section>
 
-      {/* 7. FLOATING QUICK CHECKOUT BAR */}
-      {totalItemCount > 0 && (
-        <div className="fixed bottom-16 inset-x-0 z-40 px-4 pointer-events-none animate-in slide-in-from-bottom-4 duration-300">
-          <div className="max-w-md mx-auto pointer-events-auto">
-            <Link
-              to="/cart"
-              onClick={() => sounds.playClick()}
-              className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-2xl shadow-amber-500/40 border border-yellow-300 hover:brightness-105 active:scale-[0.99] transition-all"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="flex size-8 items-center justify-center rounded-xl bg-slate-950 text-amber-400 font-black text-sm">
-                  {totalItemCount}
-                </div>
-                <div>
-                  <div className="text-[10px] font-bold text-slate-900 leading-none">
-                    {ar ? "سلتك النشطة" : "Active Cart"}
-                  </div>
-                  <div className="text-sm font-black text-slate-950">
-                    {tn(cart.subtotal)} {ar ? "ر.س" : "SAR"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1.5 text-xs font-black bg-slate-950 text-amber-400 px-3 py-1.5 rounded-xl shadow-inner">
-                <span>{ar ? "متابعة الطلب السريع ⚡" : "Checkout ⚡"}</span>
-                <ArrowRight className="size-3.5 rtl:rotate-180" />
-              </div>
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* 8. DISTRICT PICKER MODAL */}
       {districtModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">

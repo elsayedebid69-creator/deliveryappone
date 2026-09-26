@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Home, UtensilsCrossed, ShoppingBag, Radar, User, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/cart";
@@ -27,6 +28,18 @@ export function CustomerMobileNav() {
     window.addEventListener("foodhub_app_changed", handleAppChanged);
     return () => window.removeEventListener("foodhub_app_changed", handleAppChanged);
   }, []);
+
+  // Never show on standalone captain or kitchen modes
+  const isSpecialAppMode =
+    typeof window !== "undefined" &&
+    (window.location.search.includes("app=captain") ||
+      window.location.search.includes("app=courier") ||
+      window.location.search.includes("app=kitchen") ||
+      window.location.search.includes("app=vendor"));
+
+  if (isSpecialAppMode) {
+    return null;
+  }
 
   // Only show on customer-facing storefront routes, and only when Customer app is selected
   const isCustomerRoute =

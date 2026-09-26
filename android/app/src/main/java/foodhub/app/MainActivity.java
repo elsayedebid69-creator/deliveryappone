@@ -26,6 +26,12 @@ public class MainActivity extends BridgeActivity {
                         getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=kitchen");
                     });
                 }
+            } else if (packageName != null && packageName.contains("customer")) {
+                if (getBridge() != null && getBridge().getWebView() != null) {
+                    getBridge().getWebView().post(() -> {
+                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=customer");
+                    });
+                }
             }
         } catch (Exception ignored) {
         }
