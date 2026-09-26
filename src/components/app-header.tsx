@@ -153,12 +153,19 @@ export function AppHeader() {
               </>
             )}
 
-            {/* Authenticated Admin Link ONLY */}
-            {isAdmin && (
+            {/* Admin Link: Dashboard when logged in as admin, or Admin Portal Entry */}
+            {isAdmin ? (
               <Button asChild variant="ghost" size="sm" className="gap-1.5 text-cyan-600 dark:text-cyan-300 hover:text-cyan-700 dark:hover:text-cyan-200 hover:bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
                 <Link to="/admin" onClick={() => sounds.playClick()}>
                   <ShieldCheck className="size-4 text-cyan-500 dark:text-cyan-400" />
                   <span>{lang === "ar" ? "لوحة الإدارة المركزية" : "Admin Panel"}</span>
+                </Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline" size="sm" className="hidden sm:inline-flex gap-1.5 border-slate-700 hover:border-amber-400 bg-slate-900/80 text-slate-200 hover:text-amber-400 rounded-xl text-xs">
+                <Link to="/auth" onClick={() => sounds.playClick()}>
+                  <ShieldCheck className="size-3.5 text-amber-400" />
+                  <span>{lang === "ar" ? "لوحة الإدارة" : "Admin"}</span>
                 </Link>
               </Button>
             )}

@@ -14,12 +14,12 @@ export const Route = createFileRoute("/")({
       { title: "FOODHUB | أسرع توصيل بأقل سعر" },
       {
         name: "description",
-        content: "تطبيق فود هب الرسمي لطلب الوجبات السريعة والصحية من أفضل المطابخ السحابية بالرياض بتوصيل فائق السرعة يبدأ من 15 دقيقة.",
+        content: "الموقع الرسمي لمنصة فود هب: أسرع توصيل طعام بأقل سعر في المملكة. وجبات صحية ومطابخ سحابية في الرياض مع لوحة تحكم متكاملة للإدارة.",
       },
       { property: "og:title", content: "FOODHUB | أسرع توصيل بأقل سعر" },
       {
         property: "og:description",
-        content: "أسرع توصيل طعام في 15 دقيقة بأقل سعر توصيل في المملكة مع رادار تتبع حي وخصومات فورية.",
+        content: "الموقع الرسمي لمنصة FOODHUB لعرض المنصة للجمهور وبوابة الإدارة المركزية.",
       },
       { property: "og:image", content: "https://foodhub.delivery/icons/icon-512.png" },
       { property: "og:type", content: "website" },
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const [appMode, setAppMode] = useState<"customer" | "captain" | "kitchen" | "landing">("customer");
+  const [appMode, setAppMode] = useState<"website" | "customer" | "captain" | "kitchen">("website");
 
   useEffect(() => {
     try {
@@ -44,14 +44,14 @@ function HomePage() {
         setAppMode("captain");
       } else if (appParam === "kitchen" || appParam === "vendor") {
         setAppMode("kitchen");
-      } else if (appParam === "landing") {
-        setAppMode("landing");
-      } else {
-        // Default for Customer App APK, mobile browsers, and customer storefront
+      } else if (appParam === "customer") {
         setAppMode("customer");
+      } else {
+        // Default on web, desktop, and Lovable: Show the official Public Website & Admin Portal!
+        setAppMode("website");
       }
     } catch {
-      setAppMode("customer");
+      setAppMode("website");
     }
   }, []);
 
@@ -63,7 +63,7 @@ function HomePage() {
         "@id": "https://foodhub.delivery/#website",
         url: "https://foodhub.delivery/",
         name: "FOODHUB",
-        description: "أسرع منصة توصيل طعام بأقل سعر في المملكة",
+        description: "المنصة الرسمية الموحدة لتوصيل الطعام وإدارة المطابخ السحابية",
         potentialAction: {
           "@type": "SearchAction",
           target: "https://foodhub.delivery/?q={search_term_string}",
@@ -87,7 +87,7 @@ function HomePage() {
     ],
   };
 
-  // 1. Captain Standalone Mobile App (?app=captain)
+  // 1. Captain Standalone Mobile App (Loaded by Captain APK: delivery.foodhub.captain)
   if (appMode === "captain") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-slate-950">
@@ -98,7 +98,7 @@ function HomePage() {
     );
   }
 
-  // 2. Kitchen & Merchant Standalone Mobile/Tablet App (?app=kitchen)
+  // 2. Kitchen & Merchant Standalone Mobile/Tablet App (Loaded by Kitchen APK: delivery.foodhub.kitchen)
   if (appMode === "kitchen") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
@@ -109,33 +109,29 @@ function HomePage() {
     );
   }
 
-  // 3. Legacy Marketing Landing Page (?app=landing)
-  if (appMode === "landing") {
+  // 3. Customer Standalone Mobile App (Loaded by Customer APK: delivery.foodhub.customer)
+  if (appMode === "customer") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
-        />
-        <AppHeader />
         <main className="flex-1">
-          <CustomerApp isEmbedded={false} />
+          <CustomerMobileApp />
         </main>
-        <AppFooter />
       </div>
     );
   }
 
-  // 4. Dedicated Pure Customer Mobile App (Default for Root & ?app=customer)
+  // 4. Default: Official Public Presentation Website & Admin Portal Access (for web visitors & Lovable editor)
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-amber-500 selection:text-slate-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
       />
+      <AppHeader />
       <main className="flex-1">
-        <CustomerMobileApp />
+        <CustomerApp isEmbedded={false} />
       </main>
+      <AppFooter />
     </div>
   );
 }
