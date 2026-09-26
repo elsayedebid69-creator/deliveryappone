@@ -10,7 +10,25 @@ export function CustomerMobileNav() {
   const routerState = useRouterState();
   const currentPath = routerState.location.pathname;
 
-  // Only show on customer-facing storefront routes
+  const [activeApp, setActiveApp] = useState(() => {
+    try {
+      return localStorage.getItem("foodhub_active_app_view") || "customer";
+    } catch {
+      return "customer";
+    }
+  });
+
+  useEffect(() => {
+    const handleAppChanged = (e: any) => {
+      if (e.detail?.appId) {
+        setActiveApp(e.detail.appId);
+      }
+    };
+    window.addEventListener("foodhub_app_changed", handleAppChanged);
+    return () => window.removeEventListener("foodhub_app_changed", handleAppChanged);
+  }, []);
+
+  // Only show on customer-facing storefront routes, and only when Customer app is selected
   const isCustomerRoute =
     currentPath === "/" ||
     currentPath.startsWith("/restaurant") ||
@@ -21,7 +39,7 @@ export function CustomerMobileNav() {
     currentPath === "/faq" ||
     currentPath === "/help";
 
-  if (!isCustomerRoute) {
+  if (!isCustomerRoute || (currentPath === "/" && activeApp !== "customer")) {
     return null;
   }
 
