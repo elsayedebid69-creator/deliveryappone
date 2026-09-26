@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { CustomerMobileApp } from "@/components/apps/customer-mobile-app";
 import { CourierMobileApp } from "@/components/apps/courier-mobile-app";
 import { KitchenMobileApp } from "@/components/apps/kitchen-mobile-app";
@@ -6,11 +7,6 @@ import { safeJsonLd } from "@/lib/jsonld";
 
 export const Route = createFileRoute("/")({
   ssr: false,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      app: (search.app as string) || undefined,
-    };
-  },
   head: () => ({
     meta: [
       { title: "FOODHUB | أسرع توصيل بأقل سعر" },
@@ -29,10 +25,21 @@ export const Route = createFileRoute("/")({
 });
 
 function RootAppEntryPoint() {
-  const search = Route.useSearch();
-  const appId = search.app?.toLowerCase();
+  const [appId, setAppId] = useState<string | null>(null);
 
-  // If captain app APK is launched (or ?app=captain)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const app = params.get("app")?.toLowerCase();
+      if (app) {
+        setAppId(app);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // 1. If Captain app flavor (?app=captain or ?app=courier)
   if (appId === "captain" || appId === "courier") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-slate-950">
@@ -43,7 +50,7 @@ function RootAppEntryPoint() {
     );
   }
 
-  // If kitchen app APK is launched (or ?app=kitchen / ?app=vendor)
+  // 2. If Kitchen app flavor (?app=kitchen or ?app=vendor)
   if (appId === "kitchen" || appId === "vendor") {
     return (
       <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
@@ -54,7 +61,7 @@ function RootAppEntryPoint() {
     );
   }
 
-  // Default: Pure Customer Mobile App
+  // 3. Default: Dedicated Pure Customer Mobile App
   const websiteSchema = {
     "@context": "https://schema.org",
     "@graph": [
