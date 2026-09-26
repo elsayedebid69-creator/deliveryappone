@@ -41,9 +41,8 @@ export function CustomerMobileNav() {
     return null;
   }
 
-  // Only show on customer-facing storefront routes, and only when Customer app is selected
+  // Only show on customer-facing storefront subroutes (root / has its own integrated mobile nav)
   const isCustomerRoute =
-    currentPath === "/" ||
     currentPath.startsWith("/restaurant") ||
     currentPath === "/cart" ||
     currentPath === "/orders" ||
@@ -52,7 +51,7 @@ export function CustomerMobileNav() {
     currentPath === "/faq" ||
     currentPath === "/help";
 
-  if (!isCustomerRoute || (currentPath === "/" && activeApp !== "customer")) {
+  if (!isCustomerRoute || currentPath === "/") {
     return null;
   }
 

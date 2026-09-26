@@ -3,32 +3,31 @@ import { Link } from "@tanstack/react-router";
 import {
   MapPin,
   Search,
-  Bell,
-  Sparkles,
   Flame,
   Clock,
   Star,
   Plus,
+  Minus,
   ShoppingBag,
-  Bike,
-  Heart,
   ChevronDown,
   Filter,
   Check,
-  Percent,
-  Compass,
-  ArrowRight,
-  ShieldCheck,
   Zap,
+  Home,
+  UtensilsCrossed,
+  Radar,
+  User,
+  ArrowRight,
+  Sparkles,
+  Share2,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-// Riyadh Localities Quick List
+// Riyadh Localities
 const DISTRICTS = [
   "حي النرجس، شمال الرياض",
   "حي الملقا، طريق أنس بن مالك",
@@ -39,14 +38,14 @@ const DISTRICTS = [
   "حي الروضة، شرق الرياض",
 ];
 
-// Stories
+// Instagram / Snapchat Style Daily Stories
 const STORIES = [
-  { id: "s1", titleAr: "خصم 50%", titleEn: "50% OFF", emoji: "🔥", tag: "كود: FOOD50" },
-  { id: "s2", titleAr: "توصيل 0 ر.س", titleEn: "Free Delivery", emoji: "🛵", tag: "أول 3 طلبات" },
-  { id: "s3", titleAr: "كيتو وهيلثي", titleEn: "Keto & Health", emoji: "🥑", tag: "ماكروز دقيقة" },
-  { id: "s4", titleAr: "أقوى برجر", titleEn: "Top Burgers", emoji: "🍔", tag: "لحم أنجوس" },
-  { id: "s5", titleAr: "شاورما صاج", titleEn: "Shawarma", emoji: "🌯", tag: "ثومية مضاعفة" },
-  { id: "s6", titleAr: "سويت وكافيه", titleEn: "Sweets & Cafe", emoji: "🍰", tag: "قهوة مختصة" },
+  { id: "s1", titleAr: "خصم 50%", titleEn: "50% OFF", emoji: "🔥", tag: "كود: FOOD50", code: "FOOD50" },
+  { id: "s2", titleAr: "توصيل 0 ر.س", titleEn: "Free Delivery", emoji: "🛵", tag: "أول 3 طلبات", code: "FREE3" },
+  { id: "s3", titleAr: "كيتو وهيلثي", titleEn: "Keto & Health", emoji: "🥑", tag: "ماكروز دقيقة", code: "KETO10" },
+  { id: "s4", titleAr: "أقوى برجر", titleEn: "Top Burgers", emoji: "🍔", tag: "لحم أنجوس", code: "BURGER" },
+  { id: "s5", titleAr: "شاورما صاج", titleEn: "Shawarma", emoji: "🌯", tag: "ثومية مضاعفة", code: "SHAWARMA" },
+  { id: "s6", titleAr: "سويت وكافيه", titleEn: "Sweets & Cafe", emoji: "🍰", tag: "قهوة مختصة", code: "SWEET" },
 ];
 
 // Categories
@@ -61,7 +60,7 @@ const CATEGORIES = [
   { id: "cloud", nameAr: "مطابخ سحابية", nameEn: "Cloud Kitchens", emoji: "☁️" },
 ];
 
-// Cloud Kitchens & Restaurants
+// Cloud Kitchens
 const RESTAURANTS = [
   {
     id: "fh-prime",
@@ -117,7 +116,7 @@ const RESTAURANTS = [
   },
 ];
 
-// Top Meals for 1-Tap Add to Cart
+// Popular Meals
 const POPULAR_MEALS = [
   {
     id: "meal-1",
@@ -145,7 +144,7 @@ const POPULAR_MEALS = [
     nameEn: "Grilled Salmon Quinoa Keto Bowl",
     descAr: "فيليه سلمون طازج مع أفوكادو وخضار مشكلة وصلصة الليمون",
     price: 49,
-    calories: "410 كالوري • 38g بروتين",
+    calories: "410 كالوري",
     category: "healthy",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80",
   },
@@ -192,7 +191,7 @@ export function CustomerMobileApp() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeStory, setActiveStory] = useState<typeof STORIES[0] | null>(null);
 
-  // 1-Tap Add To Cart Handler
+  // Quick Add To Cart
   const handleQuickAdd = (meal: typeof POPULAR_MEALS[0]) => {
     sounds.playAdd();
     cart.addItem({
@@ -213,6 +212,23 @@ export function CustomerMobileApp() {
     );
   };
 
+  const handleUpdateQuantity = (mealId: string, delta: number) => {
+    sounds.playClick();
+    const existing = cart.lines.find((item) => item.menu_item_id === mealId);
+    if (!existing) return;
+    const newQty = existing.quantity + delta;
+    if (newQty <= 0) {
+      cart.removeItem(mealId);
+    } else {
+      cart.updateQuantity(mealId, newQty);
+    }
+  };
+
+  const getItemQuantity = (mealId: string) => {
+    const item = cart.lines.find((line) => line.menu_item_id === mealId);
+    return item ? item.quantity : 0;
+  };
+
   const totalItemCount = cart.lines.reduce((sum, item) => sum + item.quantity, 0);
 
   // Filter meals
@@ -226,341 +242,510 @@ export function CustomerMobileApp() {
   });
 
   return (
-    <div className="w-full min-h-screen bg-slate-950 text-slate-100 flex flex-col pb-24 selection:bg-amber-500 selection:text-slate-950">
-      {/* 1. NATIVE MOBILE APP HEADER */}
-      <header className="sticky top-11 z-40 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3">
-        <div className="max-w-md mx-auto space-y-3">
-          {/* Top Row: Location Selector & Notification Bell */}
-          <div className="flex items-center justify-between gap-2">
-            <button
-              onClick={() => {
-                sounds.playClick();
-                setDistrictModalOpen(true);
-              }}
-              className="flex items-center gap-2 text-start p-1.5 rounded-xl hover:bg-slate-900 transition-colors group"
-            >
-              <div className="flex size-9 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 group-hover:scale-105 transition-transform">
-                <MapPin className="size-4" />
-              </div>
-              <div>
-                <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                  <span>{ar ? "التوصيل السريع إلى" : "Deliver to"}</span>
-                  <ChevronDown className="size-3 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
-                </div>
-                <div className="text-xs font-black text-white group-hover:text-amber-400 transition-colors truncate max-w-[200px]">
-                  {selectedDistrict}
-                </div>
-              </div>
-            </button>
-
-            <div className="flex items-center gap-1.5">
-              <Link
-                to="/orders"
-                onClick={() => sounds.playClick()}
-                className="relative size-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
-                title={ar ? "تتبع الطلبات الحية" : "Live Radar"}
-              >
-                <Zap className="size-4 text-amber-400" />
-                <span className="absolute -top-1 -end-1 flex size-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full size-3 bg-amber-500" />
-                </span>
-              </Link>
-            </div>
+    <div className="w-full min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center selection:bg-amber-500 selection:text-slate-950 md:py-6 md:px-4">
+      {/* 
+        SMARTPHONE DEVICE WRAPPER:
+        - Mobile View: 100% full screen native app experience (no borders, edge to edge)
+        - Desktop / Lovable Preview: Clean smartphone viewport frame with notch and status bar
+      */}
+      <div className="w-full md:max-w-[420px] min-h-screen md:min-h-[860px] md:h-[92vh] md:max-h-[920px] bg-slate-950 flex flex-col md:rounded-[48px] md:border-[7px] md:border-slate-800 md:shadow-[0_25px_80px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.08)] relative overflow-hidden">
+        {/* TOP STATUS BAR (Visible on desktop smartphone frame) */}
+        <div className="hidden md:flex items-center justify-between px-6 pt-3 pb-1 select-none text-[11px] font-semibold text-slate-400 bg-slate-950 z-30 shrink-0">
+          <span>9:41</span>
+          {/* Dynamic Island Notch */}
+          <div className="h-5 w-24 bg-black rounded-full flex items-center justify-center border border-slate-800/80 shadow-inner">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
           </div>
-
-          {/* Search Bar with Autocomplete Pill */}
-          <div className="relative">
-            <Search className="absolute start-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={ar ? "ابحث عن برجر، شاورما، كيتو، أو مطبخ..." : "Search burger, shawarma, keto, kitchen..."}
-              className="w-full h-11 ps-10 pe-4 rounded-2xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-400/20 transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded-md bg-slate-800"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* 2. DYNAMIC INSTAGRAM-LIKE STORIES */}
-      <section className="pt-3 px-4 overflow-x-auto no-scrollbar">
-        <div className="max-w-md mx-auto flex items-center gap-3">
-          {STORIES.map((story) => (
-            <button
-              key={story.id}
-              onClick={() => {
-                sounds.playClick();
-                setActiveStory(story);
-              }}
-              className="flex flex-col items-center gap-1.5 shrink-0 group focus:outline-none"
-            >
-              <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-amber-500 via-yellow-300 to-amber-600 group-hover:scale-105 transition-transform duration-200">
-                <div className="size-14 rounded-full bg-slate-950 p-1 border-2 border-slate-950 flex items-center justify-center text-2xl shadow-lg">
-                  <span>{story.emoji}</span>
-                </div>
-              </div>
-              <span className="text-[11px] font-bold text-slate-300 group-hover:text-amber-400 transition-colors whitespace-nowrap">
-                {ar ? story.titleAr : story.titleEn}
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* 3. HERO PROMO BANNER CAROUSEL */}
-      <section className="px-4 pt-3">
-        <div className="max-w-md mx-auto">
-          <div className="relative rounded-3xl bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-600 p-4 text-slate-950 overflow-hidden shadow-xl shadow-amber-500/10">
-            <div className="absolute -end-6 -bottom-6 size-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
-            <div className="relative z-10 space-y-1.5">
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-950 text-amber-400 text-[10px] font-black shadow-md">
-                <Sparkles className="size-3" />
-                <span>{ar ? "عرض ترويجي حصري" : "Exclusive Offer"}</span>
-              </div>
-              <h2 className="text-lg font-black leading-tight">
-                {ar ? "خصم 50% على طلبك الأول!" : "50% OFF Your First Order!"}
-              </h2>
-              <p className="text-xs font-bold text-slate-900/90">
-                {ar ? "استخدم كود الخصم" : "Use code"}{" "}
-                <span className="bg-slate-950 text-amber-300 px-2 py-0.5 rounded-md font-mono font-black">
-                  FOODHUB
-                </span>{" "}
-                {ar ? "مع توصيل بـ 0 ريال" : "with 0 SAR delivery"}
-              </p>
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <span className="font-bold text-slate-300">5G</span>
+            <div className="w-4 h-2.5 rounded-sm border border-slate-400 p-0.5 flex items-center">
+              <div className="h-full w-full bg-slate-300 rounded-[1px]" />
             </div>
           </div>
         </div>
-      </section>
 
-      {/* 4. CATEGORIES QUICK PILLS */}
-      <section className="px-4 pt-4 overflow-x-auto no-scrollbar">
-        <div className="max-w-md mx-auto flex items-center gap-2">
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
+        {/* 1. APP HEADER */}
+        <header className="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 shrink-0">
+          <div className="space-y-2.5">
+            {/* Location Selector & Quick Action Buttons */}
+            <div className="flex items-center justify-between gap-2">
               <button
-                key={cat.id}
                 onClick={() => {
                   sounds.playClick();
-                  setSelectedCategory(cat.id);
+                  setDistrictModalOpen(true);
                 }}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-200 ${
-                  isSelected
-                    ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 scale-105"
-                    : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
-                }`}
+                className="flex items-center gap-2 text-start p-1 rounded-xl hover:bg-slate-900 transition-colors group max-w-[70%]"
               >
-                <span className="text-sm">{cat.emoji}</span>
-                <span>{ar ? cat.nameAr : cat.nameEn}</span>
+                <div className="flex size-8.5 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
+                  <MapPin className="size-4" />
+                </div>
+                <div className="truncate">
+                  <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
+                    <span>{ar ? "التوصيل إلى" : "Deliver to"}</span>
+                    <ChevronDown className="size-3 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
+                  </div>
+                  <div className="text-xs font-black text-white group-hover:text-amber-400 transition-colors truncate">
+                    {selectedDistrict}
+                  </div>
+                </div>
               </button>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* 5. HOT CLOUD KITCHENS */}
-      <section className="px-4 pt-5 space-y-3">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="size-4 text-amber-400" />
-            <h3 className="text-sm font-black text-white">
-              {ar ? "المطابخ السحابية الأكثر طلباً" : "Top Cloud Kitchens"}
-            </h3>
-          </div>
-          <span className="text-[11px] text-amber-400 font-bold">
-            {ar ? "الرياض 📍" : "Riyadh 📍"}
-          </span>
-        </div>
-
-        <div className="max-w-md mx-auto overflow-x-auto no-scrollbar">
-          <div className="flex gap-3 pb-1">
-            {RESTAURANTS.map((resto) => (
-              <div
-                key={resto.id}
-                className="w-64 shrink-0 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-lg hover:border-amber-500/40 transition-all flex flex-col justify-between"
-              >
-                <div className="relative h-28 overflow-hidden">
-                  <img
-                    src={resto.image}
-                    alt={resto.nameAr}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                  <span className="absolute top-2 start-2 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg border border-amber-500/30">
-                    {resto.badge}
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Link
+                  to="/orders"
+                  onClick={() => sounds.playClick()}
+                  className="relative size-8.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
+                  title={ar ? "تتبع الطلبات الحية" : "Live Radar"}
+                >
+                  <Zap className="size-4 text-amber-400" />
+                  <span className="absolute -top-1 -end-1 flex size-2.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full size-2.5 bg-amber-500" />
                   </span>
-                  <div className="absolute bottom-2 start-2 flex items-center gap-1 bg-slate-950/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                    <Star className="size-3 fill-amber-400 text-amber-400" />
-                    <span>{resto.rating}</span>
-                  </div>
-                </div>
+                </Link>
 
-                <div className="p-3 space-y-1.5">
-                  <h4 className="font-bold text-xs text-white truncate">
-                    {ar ? resto.nameAr : resto.nameEn}
-                  </h4>
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span className="flex items-center gap-1 text-slate-300">
-                      <Clock className="size-3 text-amber-400" />
-                      {resto.eta}
+                <Link
+                  to="/cart"
+                  onClick={() => sounds.playClick()}
+                  className="relative size-8.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
+                  title={ar ? "السلة" : "Cart"}
+                >
+                  <ShoppingBag className="size-4" />
+                  {totalItemCount > 0 && (
+                    <span className="absolute -top-1 -end-1 size-4 rounded-full bg-red-500 text-white font-black text-[9px] flex items-center justify-center shadow-md animate-pulse">
+                      {totalItemCount}
                     </span>
-                    <span className="text-emerald-400 font-bold">{resto.deliveryFee}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. POPULAR DISHES GRID (1-TAP ADD TO CART) */}
-      <section className="px-4 pt-5 space-y-3">
-        <div className="max-w-md mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="size-4 text-amber-400" />
-            <h3 className="text-sm font-black text-white">
-              {ar ? "أطباق لا تقاوم (أضف بلمسة واحدة)" : "Trending Meals (1-Tap Add)"}
-            </h3>
-          </div>
-          <span className="text-[11px] text-slate-400">
-            {filteredMeals.length} {ar ? "وجبة متوفرة" : "meals available"}
-          </span>
-        </div>
-
-        <div className="max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredMeals.map((meal) => (
-            <div
-              key={meal.id}
-              className="flex items-center gap-3 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-all shadow-md group"
-            >
-              <div className="relative size-20 rounded-xl overflow-hidden shrink-0">
-                <img
-                  src={meal.image}
-                  alt={meal.nameAr}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  loading="lazy"
-                />
-              </div>
-
-              <div className="flex-1 min-w-0 space-y-1">
-                <h4 className="font-bold text-xs text-white line-clamp-1 group-hover:text-amber-400 transition-colors">
-                  {ar ? meal.nameAr : meal.nameEn}
-                </h4>
-                <p className="text-[10px] text-slate-400 line-clamp-1">{ar ? meal.descAr : meal.descEn}</p>
-                <div className="text-[10px] text-amber-400/90 font-mono font-bold">{meal.calories}</div>
-
-                <div className="flex items-center justify-between pt-1">
-                  <div className="text-xs font-black text-white">
-                    {meal.price} <span className="text-[10px] text-amber-400">{ar ? "ر.س" : "SAR"}</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleQuickAdd(meal)}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs hover:bg-amber-400 active:scale-95 transition-all shadow-md shadow-amber-500/20"
-                  >
-                    <Plus className="size-3.5 stroke-[3]" />
-                    <span>{ar ? "أضف" : "Add"}</span>
-                  </button>
-                </div>
+                  )}
+                </Link>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* 8. DISTRICT PICKER MODAL */}
-      {districtModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-          <div className="w-full max-w-sm rounded-3xl bg-slate-900 border border-slate-800 p-5 space-y-4 animate-in slide-in-from-bottom-6 duration-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <MapPin className="size-5 text-amber-400" />
-                <h3 className="font-black text-sm text-white">
-                  {ar ? "اختر حي التوصيل في الرياض" : "Select Riyadh District"}
-                </h3>
+            {/* Search Input Bar */}
+            <div className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={ar ? "ابحث عن برجر، شاورما، كيتو، أو مطبخ..." : "Search burger, shawarma, keto, kitchen..."}
+                  className="w-full h-10 ps-9 pe-8 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1 rounded bg-slate-800"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
               <button
-                onClick={() => setDistrictModalOpen(false)}
-                className="text-slate-400 hover:text-white text-xs px-2 py-1 rounded-lg bg-slate-800"
+                onClick={() => {
+                  sounds.playClick();
+                  toast.info(ar ? "فلترة متقدمة حسب السرعة والسعر والتقييم" : "Filter by speed, price & rating");
+                }}
+                className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-slate-700 transition-colors shrink-0"
               >
-                ✕
+                <Filter className="size-4" />
               </button>
             </div>
+          </div>
+        </header>
 
-            <div className="space-y-1.5 max-h-60 overflow-y-auto">
-              {DISTRICTS.map((dist) => (
-                <button
-                  key={dist}
-                  onClick={() => {
-                    sounds.playClick();
-                    setSelectedDistrict(dist);
-                    setDistrictModalOpen(false);
-                    toast.success(ar ? `تم ضبط موقع التوصيل: ${dist}` : `Location set to: ${dist}`);
-                  }}
-                  className={`w-full flex items-center justify-between p-3 rounded-xl text-xs font-bold transition-all text-start ${
-                    selectedDistrict === dist
-                      ? "bg-amber-500 text-slate-950 shadow-md"
-                      : "bg-slate-950/60 border border-slate-800/80 text-slate-300 hover:bg-slate-800"
-                  }`}
-                >
-                  <span>{dist}</span>
-                  {selectedDistrict === dist && <Check className="size-4 stroke-[3]" />}
-                </button>
-              ))}
+        {/* 2. SCROLLABLE APP CONTENT */}
+        <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none pb-28 space-y-4">
+          {/* STORIES SECTION */}
+          <div className="pt-3 px-4">
+            <div className="overflow-x-auto no-scrollbar scrollbar-none">
+              <div className="flex items-center gap-3 pb-1">
+                {STORIES.map((story) => (
+                  <button
+                    key={story.id}
+                    onClick={() => {
+                      sounds.playClick();
+                      setActiveStory(story);
+                    }}
+                    className="flex flex-col items-center gap-1 shrink-0 group focus:outline-none"
+                  >
+                    <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 group-hover:scale-105 transition-transform duration-200">
+                      <div className="size-13 rounded-full bg-slate-950 p-1 border-2 border-slate-950 flex items-center justify-center text-2xl shadow-md">
+                        <span>{story.emoji}</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-amber-400 transition-colors whitespace-nowrap">
+                      {ar ? story.titleAr : story.titleEn}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-      )}
 
-      {/* 9. STORY PREVIEW POPUP */}
-      {activeStory && (
-        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-xs rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/40 p-6 text-center space-y-4 shadow-2xl animate-in zoom-in-95 duration-200">
-            <div className="size-20 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-4xl shadow-lg">
-              {activeStory.emoji}
+          {/* HERO PROMO CARD */}
+          <div className="px-4">
+            <div className="relative rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-600 p-4 text-slate-950 overflow-hidden shadow-lg shadow-amber-500/10">
+              <div className="absolute -end-4 -bottom-4 size-28 rounded-full bg-white/15 blur-xl pointer-events-none" />
+              <div className="relative z-10 space-y-1.5">
+                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-950 text-amber-400 text-[9px] font-black shadow-md">
+                  <Sparkles className="size-3" />
+                  <span>{ar ? "عرض ترويجي حصري" : "Exclusive Offer"}</span>
+                </div>
+                <h2 className="text-base font-black leading-tight text-slate-950">
+                  {ar ? "خصم 50% على طلبك الأول!" : "50% OFF Your First Order!"}
+                </h2>
+                <div className="flex items-center justify-between gap-2 pt-1">
+                  <p className="text-[11px] font-bold text-slate-900 leading-none">
+                    {ar ? "استخدم كود" : "Use code"}{" "}
+                    <span className="bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded font-mono font-black text-xs">
+                      FOODHUB
+                    </span>
+                  </p>
+                  <span className="text-[10px] font-black bg-white/30 text-slate-950 px-2 py-0.5 rounded-full">
+                    {ar ? "توصيل بـ 0 ر.س" : "0 SAR Delivery"}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <span className="text-[10px] text-amber-400 font-black px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">
-                {activeStory.tag}
+          </div>
+
+          {/* CATEGORIES CHIPS */}
+          <div className="px-4">
+            <div className="overflow-x-auto no-scrollbar scrollbar-none">
+              <div className="flex items-center gap-2 pb-1">
+                {CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        sounds.playClick();
+                        setSelectedCategory(cat.id);
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 ${
+                        isSelected
+                          ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20 scale-[1.02]"
+                          : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
+                      }`}
+                    >
+                      <span>{cat.emoji}</span>
+                      <span>{ar ? cat.nameAr : cat.nameEn}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* HOT CLOUD KITCHENS */}
+          <div className="px-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Flame className="size-4 text-amber-400" />
+                <h3 className="text-xs font-black text-white">
+                  {ar ? "المطابخ السحابية الأكثر طلباً" : "Top Cloud Kitchens"}
+                </h3>
+              </div>
+              <span className="text-[10px] text-amber-400 font-bold">
+                {ar ? "الرياض 📍" : "Riyadh 📍"}
               </span>
-              <h3 className="text-lg font-black text-white mt-2">
-                {ar ? activeStory.titleAr : activeStory.titleEn}
-              </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                {ar
-                  ? "عرض متاح لجميع الطلبات اليوم عبر مطابخ FoodHub المركزية في الرياض."
-                  : "Offer available across FoodHub cloud kitchens today in Riyadh."}
-              </p>
             </div>
-            <Button
-              onClick={() => {
-                sounds.playSuccess();
-                setActiveStory(null);
-                toast.success(ar ? "تم تفعيل العرض بنجاح!" : "Offer activated successfully!");
-              }}
-              className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-xl text-xs"
-            >
-              {ar ? "تطبيق العرض الآن ⚡" : "Apply Offer Now ⚡"}
-            </Button>
-            <button
-              onClick={() => setActiveStory(null)}
-              className="text-xs text-slate-400 hover:text-white"
-            >
-              {ar ? "إغلاق" : "Close"}
-            </button>
+
+            <div className="overflow-x-auto no-scrollbar scrollbar-none">
+              <div className="flex gap-3 pb-1">
+                {RESTAURANTS.map((resto) => (
+                  <div
+                    key={resto.id}
+                    className="w-56 shrink-0 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between"
+                  >
+                    <div className="relative h-24 overflow-hidden">
+                      <img
+                        src={resto.image}
+                        alt={resto.nameAr}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+                      <span className="absolute top-2 start-2 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-500/30">
+                        {resto.badge}
+                      </span>
+                      <div className="absolute bottom-1.5 start-2 flex items-center gap-1 bg-slate-950/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                        <Star className="size-2.5 fill-amber-400 text-amber-400" />
+                        <span>{resto.rating}</span>
+                      </div>
+                    </div>
+
+                    <div className="p-2.5 space-y-1">
+                      <h4 className="font-bold text-xs text-white truncate">
+                        {ar ? resto.nameAr : resto.nameEn}
+                      </h4>
+                      <div className="flex items-center justify-between text-[10px] text-slate-400">
+                        <span className="flex items-center gap-1 text-slate-300">
+                          <Clock className="size-3 text-amber-400" />
+                          {resto.eta}
+                        </span>
+                        <span className="text-emerald-400 font-bold">{resto.deliveryFee}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* POPULAR MEALS FOR 1-TAP QUICK ORDER */}
+          <div className="px-4 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="size-4 text-amber-400" />
+                <h3 className="text-xs font-black text-white">
+                  {ar ? "أشهى الوجبات للطلب السريع" : "Popular Dishes"}
+                </h3>
+              </div>
+              <span className="text-[10px] text-slate-400">
+                {filteredMeals.length} {ar ? "وجبة" : "meals"}
+              </span>
+            </div>
+
+            <div className="space-y-2.5">
+              {filteredMeals.map((meal) => {
+                const qty = getItemQuantity(meal.id);
+                return (
+                  <div
+                    key={meal.id}
+                    className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 flex items-center gap-3 hover:border-slate-700 transition-all"
+                  >
+                    <div className="relative size-18 rounded-xl overflow-hidden shrink-0 bg-slate-950">
+                      <img
+                        src={meal.image}
+                        alt={meal.nameAr}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <h4 className="font-bold text-xs text-white truncate">
+                        {ar ? meal.nameAr : meal.nameEn}
+                      </h4>
+                      <p className="text-[10px] text-slate-400 line-clamp-1">
+                        {ar ? meal.descAr : meal.nameEn}
+                      </p>
+                      <div className="flex items-center justify-between pt-0.5">
+                        <span className="text-xs font-black text-amber-400">
+                          {meal.price} {ar ? "ر.س" : "SAR"}
+                        </span>
+
+                        {qty === 0 ? (
+                          <button
+                            onClick={() => handleQuickAdd(meal)}
+                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-[11px] hover:bg-amber-400 active:scale-95 transition-all shadow-sm"
+                          >
+                            <Plus className="size-3 stroke-[3]" />
+                            <span>{ar ? "أضف" : "Add"}</span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                            <button
+                              onClick={() => handleUpdateQuantity(meal.id, -1)}
+                              className="size-6 rounded bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 active:scale-95"
+                            >
+                              <Minus className="size-3" />
+                            </button>
+                            <span className="text-xs font-black text-amber-400 px-1">{qty}</span>
+                            <button
+                              onClick={() => handleUpdateQuantity(meal.id, 1)}
+                              className="size-6 rounded bg-amber-500 text-slate-950 flex items-center justify-center hover:bg-amber-400 active:scale-95"
+                            >
+                              <Plus className="size-3 stroke-[3]" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
-      )}
+
+        {/* 3. FLOATING QUICK CHECKOUT BAR (When cart has items) */}
+        {totalItemCount > 0 && (
+          <div className="absolute bottom-16 inset-x-3 z-30 pointer-events-auto animate-in slide-in-from-bottom-2 duration-200">
+            <Link
+              to="/cart"
+              onClick={() => sounds.playClick()}
+              className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-xl shadow-amber-500/30 border border-yellow-300 hover:brightness-105 active:scale-[0.99] transition-all"
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex size-7 items-center justify-center rounded-lg bg-slate-950 text-amber-400 font-black text-xs">
+                  {totalItemCount}
+                </div>
+                <div className="text-start leading-none">
+                  <div className="text-[10px] opacity-80 font-bold">
+                    {ar ? "سلتك النشطة" : "Active Cart"}
+                  </div>
+                  <div className="text-xs font-black pt-0.5">
+                    {tn(cart.subtotal)} {ar ? "ر.س" : "SAR"}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 text-[11px] font-black bg-slate-950 text-amber-400 px-2.5 py-1.5 rounded-lg shadow-inner">
+                <span>{ar ? "إتمام الطلب ⚡" : "Checkout ⚡"}</span>
+                <ArrowRight className="size-3 rtl:rotate-180" />
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* 4. DOCKED INTEGRATED BOTTOM NAVIGATION */}
+        <nav className="absolute inset-x-0 bottom-0 z-30 border-t border-slate-800/90 bg-slate-950/95 backdrop-blur-xl px-2 pt-2 pb-2">
+          <div className="flex items-center justify-around">
+            <Link
+              to="/"
+              onClick={() => sounds.playClick()}
+              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-amber-400 font-black select-none"
+            >
+              <Home className="size-5 stroke-[2.5]" />
+              <span className="text-[9px]">{ar ? "الرئيسية" : "Home"}</span>
+            </Link>
+
+            <Link
+              to="/restaurant/food-hub-prime"
+              onClick={() => sounds.playClick()}
+              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
+            >
+              <UtensilsCrossed className="size-5 stroke-2" />
+              <span className="text-[9px]">{ar ? "المطابخ" : "Kitchens"}</span>
+            </Link>
+
+            <Link
+              to="/cart"
+              onClick={() => sounds.playClick()}
+              className="relative flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
+            >
+              <ShoppingBag className="size-5 stroke-2" />
+              {totalItemCount > 0 && (
+                <span className="absolute -top-1 end-1 flex size-3.5 items-center justify-center rounded-full bg-red-500 text-white font-black text-[8px]">
+                  {totalItemCount}
+                </span>
+              )}
+              <span className="text-[9px]">{ar ? "السلة" : "Cart"}</span>
+            </Link>
+
+            <Link
+              to="/orders"
+              onClick={() => sounds.playClick()}
+              className="relative flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
+            >
+              <Radar className="size-5 stroke-2" />
+              <span className="absolute 0 end-1.5 flex size-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+              </span>
+              <span className="text-[9px]">{ar ? "الرادار" : "Radar"}</span>
+            </Link>
+
+            <Link
+              to="/profile"
+              onClick={() => sounds.playClick()}
+              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
+            >
+              <User className="size-5 stroke-2" />
+              <span className="text-[9px]">{ar ? "حسابي" : "Profile"}</span>
+            </Link>
+          </div>
+
+          {/* iOS Home Indicator */}
+          <div className="w-28 h-1 bg-slate-700/60 rounded-full mx-auto mt-2" />
+        </nav>
+
+        {/* 5. DISTRICT PICKER MODAL */}
+        {districtModalOpen && (
+          <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center p-4">
+            <div className="w-full rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 animate-in slide-in-from-bottom-4 duration-150">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="size-4 text-amber-400" />
+                  <h3 className="font-black text-xs text-white">
+                    {ar ? "اختر حي التوصيل في الرياض" : "Select Riyadh District"}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setDistrictModalOpen(false)}
+                  className="text-slate-400 hover:text-white text-xs px-2 py-0.5 rounded-lg bg-slate-800"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar scrollbar-none">
+                {DISTRICTS.map((dist) => (
+                  <button
+                    key={dist}
+                    onClick={() => {
+                      sounds.playClick();
+                      setSelectedDistrict(dist);
+                      setDistrictModalOpen(false);
+                      toast.success(ar ? `تم ضبط موقع التوصيل: ${dist}` : `Location set to: ${dist}`);
+                    }}
+                    className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-start ${
+                      selectedDistrict === dist
+                        ? "bg-amber-500 text-slate-950 shadow-md"
+                        : "bg-slate-950/60 border border-slate-800/80 text-slate-300 hover:bg-slate-800"
+                    }`}
+                  >
+                    <span>{dist}</span>
+                    {selectedDistrict === dist && <Check className="size-3.5 stroke-[3]" />}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 6. STORY PREVIEW POPUP */}
+        {activeStory && (
+          <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="w-full max-w-xs rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/40 p-5 text-center space-y-3 shadow-2xl animate-in zoom-in-95 duration-150">
+              <div className="size-16 mx-auto rounded-full bg-amber-500/20 border-2 border-amber-400 flex items-center justify-center text-3xl shadow-lg">
+                {activeStory.emoji}
+              </div>
+              <div>
+                <span className="text-[9px] text-amber-400 font-black px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                  {activeStory.tag}
+                </span>
+                <h3 className="text-base font-black text-white mt-1.5">
+                  {ar ? activeStory.titleAr : activeStory.titleEn}
+                </h3>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  {ar
+                    ? "عرض متاح لجميع الطلبات اليوم عبر مطابخ FoodHub المركزية في الرياض."
+                    : "Offer available across FoodHub cloud kitchens today in Riyadh."}
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  sounds.playSuccess();
+                  setActiveStory(null);
+                  toast.success(ar ? "تم تفعيل العرض بنجاح!" : "Offer activated successfully!");
+                }}
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-xl text-xs"
+              >
+                {ar ? "تطبيق العرض الآن ⚡" : "Apply Offer Now ⚡"}
+              </Button>
+              <button
+                onClick={() => setActiveStory(null)}
+                className="text-xs text-slate-400 hover:text-white"
+              >
+                {ar ? "إغلاق" : "Close"}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -449,5 +449,18 @@ html:not(.dark) .shadow-2xl {
   box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.07), 0 2px 8px -2px rgba(0, 0, 0, 0.04) !important;
 }
 
+/* Hide scrollbars completely while keeping full touch/drag scroll capability */
+.no-scrollbar::-webkit-scrollbar,
+.scrollbar-none::-webkit-scrollbar,
+[data-no-scrollbar]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
 
-
+.no-scrollbar,
+.scrollbar-none,
+[data-no-scrollbar] {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
