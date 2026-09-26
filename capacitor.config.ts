@@ -6,12 +6,13 @@ const config: CapacitorConfig = {
   webDir: ".output/public",
   bundledWebRuntime: false,
   server: {
-    androidScheme: "https",
+    url: "https://foodhub.delivery",
     cleartext: false,
+    allowNavigation: ["foodhub.delivery", "*.foodhub.delivery", "*.supabase.co"],
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 2500,
       launchAutoHide: true,
       backgroundColor: "#020617",
       androidSplashResourceName: "splash",

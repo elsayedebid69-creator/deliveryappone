@@ -65,8 +65,10 @@
     </div>
 
     <script>
-      // Automatically redirect to the root application view or server route
-      window.location.replace('/');
+      // Navigate to live FoodHub application
+      if (window.location.href.indexOf('foodhub.delivery') === -1) {
+        window.location.replace('https://foodhub.delivery');
+      }
     </script>
   </body>
 </html>
