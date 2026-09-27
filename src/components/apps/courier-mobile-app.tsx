@@ -51,6 +51,10 @@ import {
   Vibrate,
   Sparkles,
   Wifi,
+  Plus,
+  Minus,
+  ExternalLink,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -232,18 +236,13 @@ export function CourierMobileApp() {
   // Rejection Policy: Max 1 rejection per day
   const [dailyRejectionsLeft, setDailyRejectionsLeft] = useState<number>(1);
 
-  // In-App Leaflet Navigation Map
-  const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const mapInstanceRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const captainMarkerRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routePolylineRef = useRef<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const targetMarkersGroupRef = useRef<any>(null);
+  // Real-Time In-App Google Maps Navigation Engine
   const [captainCoords, setCaptainCoords] = useState<[number, number]>([24.7136, 46.6753]);
   const [gpsAccuracy, setGpsAccuracy] = useState<string>("عالية (± 4م)");
+  const [googleMapType, setGoogleMapType] = useState<"m" | "k">("m"); // m: standard street, k: satellite
+  const [googleMapZoom, setGoogleMapZoom] = useState<number>(15);
+  const [googleMapFocus, setGoogleMapFocus] = useState<"captain" | "kitchen" | "customer" | "route">("captain");
+  const [isGoogleMapLoading, setIsGoogleMapLoading] = useState<boolean>(false);
 
   // Real-Time Radar Dispatch State (Price hidden, max 10km)
   const [showIncomingOrder, setShowIncomingOrder] = useState(false);
@@ -295,14 +294,11 @@ export function CourierMobileApp() {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setCaptainCoords(coords);
         setGpsAccuracy(`عالية (± ${Math.round(pos.coords.accuracy)}م)`);
-        if (captainMarkerRef.current) {
-          captainMarkerRef.current.setLatLng(coords);
-        }
       },
       () => {
         setGpsAccuracy("GPS الرياض (معتمد)");
       },
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
     );
 
     return () => {
@@ -310,179 +306,81 @@ export function CourierMobileApp() {
     };
   }, []);
 
-  // In-App Leaflet Map Initialization with Mobile Container Fixes
-  useEffect(() => {
-    if (typeof window === "undefined" || !mapContainerRef.current) return;
-    let isMounted = true;
+  // Real-time Google Maps Embed URL Generator
+  const getGoogleMapsEmbedUrl = () => {
+    // 1. If in active delivery and route view is selected: compute route between captain and current stop
+    if (activeDelivery && googleMapFocus === "route") {
+      const destCoords = activeDelivery.step <= 2 ? activeDelivery.kitchenCoords : activeDelivery.customerCoords;
+      return `https://maps.google.com/maps?saddr=${captainCoords[0]},${captainCoords[1]}&daddr=${destCoords[0]},${destCoords[1]}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
+    }
 
-    import("leaflet").then((L) => {
-      if (!isMounted || !mapContainerRef.current) return;
+    // 2. Focused target coordinates
+    let targetLat = captainCoords[0];
+    let targetLng = captainCoords[1];
 
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
+    if (activeDelivery) {
+      if (googleMapFocus === "kitchen") {
+        targetLat = activeDelivery.kitchenCoords[0];
+        targetLng = activeDelivery.kitchenCoords[1];
+      } else if (googleMapFocus === "customer") {
+        targetLat = activeDelivery.customerCoords[0];
+        targetLng = activeDelivery.customerCoords[1];
       }
+    }
 
-      const map = L.map(mapContainerRef.current, {
-        center: captainCoords,
-        zoom: 14,
-        zoomControl: false,
-        attributionControl: false,
-      });
-      mapInstanceRef.current = map;
+    return `https://maps.google.com/maps?q=${targetLat},${targetLng}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
+  };
 
-      // Reliable Fastly CartoDB dark tiles with fallback to standard OSM
-      const darkTileLayer = L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        subdomains: "abcd",
-      });
-
-      let fallbackAdded = false;
-      darkTileLayer.on("tileerror", () => {
-        if (!fallbackAdded) {
-          fallbackAdded = true;
-          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
-        }
-      });
-      darkTileLayer.addTo(map);
-
-      targetMarkersGroupRef.current = L.layerGroup().addTo(map);
-
-      // Captain Beacon Icon
-      const captainIcon = L.divIcon({
-        className: "custom-captain-beacon",
-        html: `
-          <div style="position:relative; width:48px; height:48px; display:flex; align-items:center; justify-content:center;">
-            <div style="position:absolute; width:48px; height:48px; border-radius:50%; background:rgba(14,165,233,0.3); animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></div>
-            <div style="position:absolute; width:34px; height:34px; border-radius:50%; background:rgba(14,165,233,0.5);"></div>
-            <div style="width:24px; height:24px; border-radius:50%; background:#0284c7; border:3px solid #ffffff; box-shadow:0 0 14px #38bdf8; display:flex; align-items:center; justify-content:center;">
-              <div style="width:0; height:0; border-left:4px solid transparent; border-right:4px solid transparent; border-bottom:7px solid #ffffff; transform:rotate(-45deg);"></div>
-            </div>
-          </div>
-        `,
-        iconSize: [48, 48],
-        iconAnchor: [24, 24],
-      });
-
-      captainMarkerRef.current = L.marker(captainCoords, { icon: captainIcon }).addTo(map);
-
-      // Hotspots (Demand indicator without cash bonus)
-      HOTSPOTS.forEach((h) => {
-        const circle = L.circle(h.coords, {
-          color: "#f59e0b",
-          fillColor: "#f59e0b",
-          fillOpacity: 0.18,
-          radius: 700,
-          weight: 2,
-          dashArray: "4, 6",
-        });
-
-        circle.bindPopup(`
-          <div style="direction:rtl; font-family:Cairo,sans-serif; text-align:right; padding:4px;">
-            <strong style="color:#d97706; font-size:13px;">🔥 ${h.name}</strong><br/>
-            <span style="font-size:12px; color:#333;">كثافة الطلب: <b>مرتفعة</b></span><br/>
-            <span style="font-size:11px; color:#666;">الطلبات الجارية: ${h.orders} طلب</span>
-          </div>
-        `);
-
-        if (targetMarkersGroupRef.current) {
-          targetMarkersGroupRef.current.addLayer(circle);
-        }
-      });
-
-      // Force size invalidation on mobile render passes so map is NEVER black
-      setTimeout(() => map.invalidateSize(), 200);
-      setTimeout(() => map.invalidateSize(), 600);
-      setTimeout(() => map.invalidateSize(), 1200);
-    });
-
-    const handleWindowResize = () => {
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.invalidateSize();
-      }
-    };
-    window.addEventListener("resize", handleWindowResize);
-
-    return () => {
-      isMounted = false;
-      window.removeEventListener("resize", handleWindowResize);
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-      }
-    };
-  }, []);
-
-  // Update In-App Route Polyline & Markers
-  useEffect(() => {
-    if (typeof window === "undefined" || !mapInstanceRef.current) return;
-
-    import("leaflet").then((L) => {
-      const map = mapInstanceRef.current;
-      if (!map) return;
-
-      if (routePolylineRef.current) {
-        map.removeLayer(routePolylineRef.current);
-        routePolylineRef.current = null;
-      }
-
-      if (activeDelivery) {
-        const points = [
-          captainCoords,
-          activeDelivery.kitchenCoords,
-          activeDelivery.customerCoords,
-        ];
-
-        const polyline = L.polyline(points, {
-          color: "#06b6d4",
-          weight: 5,
-          opacity: 0.9,
-          dashArray: "8, 12",
-        }).addTo(map);
-
-        routePolylineRef.current = polyline;
-
-        const kitchenIcon = L.divIcon({
-          className: "custom-kitchen-marker",
-          html: `
-            <div style="background:#10b981; color:#fff; padding:6px 10px; border-radius:12px; border:2px solid #fff; font-family:Cairo,sans-serif; font-size:11px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5); display:flex; align-items:center; gap:4px; white-space:nowrap;">
-              <span>🍳</span> <span>المطبخ: ${activeDelivery.kitchenName}</span>
-            </div>
-          `,
-          iconSize: [120, 32],
-          iconAnchor: [60, 16],
-        });
-
-        const customerIcon = L.divIcon({
-          className: "custom-customer-marker",
-          html: `
-            <div style="background:#ef4444; color:#fff; padding:6px 10px; border-radius:12px; border:2px solid #fff; font-family:Cairo,sans-serif; font-size:11px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5); display:flex; align-items:center; gap:4px; white-space:nowrap;">
-              <span>📍</span> <span>العميل: ${activeDelivery.customerName}</span>
-            </div>
-          `,
-          iconSize: [120, 32],
-          iconAnchor: [60, 16],
-        });
-
-        const m1 = L.marker(activeDelivery.kitchenCoords, { icon: kitchenIcon });
-        const m2 = L.marker(activeDelivery.customerCoords, { icon: customerIcon });
-
-        if (targetMarkersGroupRef.current) {
-          targetMarkersGroupRef.current.addLayer(m1);
-          targetMarkersGroupRef.current.addLayer(m2);
-        }
-
-        map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
-      }
-    });
-  }, [activeDelivery, captainCoords]);
-
-  // Recenter in-app map on captain
+  // Recenter in-app Google Map on captain's live coordinates
   const handleRecenter = () => {
     playWebAudioTone("click");
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.setView(captainCoords, 16, { animate: true });
+    setGoogleMapFocus("captain");
+    setGoogleMapZoom(16);
+    setIsGoogleMapLoading(true);
+    setTimeout(() => setIsGoogleMapLoading(false), 500);
+    toast.success("تم إعادة تمركز خرائط Google على موقعك اللحظي 🎯");
+  };
+
+  const handleZoomIn = () => {
+    playWebAudioTone("click");
+    setGoogleMapZoom((prev) => Math.min(prev + 1, 20));
+  };
+
+  const handleZoomOut = () => {
+    playWebAudioTone("click");
+    setGoogleMapZoom((prev) => Math.max(prev - 1, 10));
+  };
+
+  const handleToggleMapType = () => {
+    playWebAudioTone("click");
+    setGoogleMapType((prev) => (prev === "m" ? "k" : "m"));
+    toast.info(googleMapType === "m" ? "تم التحويل إلى وضع القمر الصناعي (Satellite) 🛰️" : "تم التحويل إلى وضع شوارع Google Maps 🗺️");
+  };
+
+  // Direct turn-by-turn voice navigation in native Google Maps app
+  const handleLaunchGoogleMapsApp = () => {
+    playWebAudioTone("click");
+    if (activeDelivery) {
+      const dest = activeDelivery.step <= 2 ? activeDelivery.kitchenCoords : activeDelivery.customerCoords;
+      const destName = activeDelivery.step <= 2 ? activeDelivery.kitchenName : activeDelivery.customerName;
+      window.open(
+        `https://www.google.com/maps/dir/?api=1&origin=${captainCoords[0]},${captainCoords[1]}&destination=${dest[0]},${dest[1]}&travelmode=driving`,
+        "_blank"
+      );
+      toast.success(`تم فتح التوجيه الصوتي في تطبيق خرائط Google إلى ${destName} 🗺️`);
+    } else {
+      window.open(`https://www.google.com/maps/search/?api=1&query=${captainCoords[0]},${captainCoords[1]}`, "_blank");
+      toast.success("تم فتح موقعك الحالي في خرائط Google 🗺️");
     }
+  };
+
+  const handleSelectHotspot = (h: { name: string; coords: [number, number]; orders: number }) => {
+    playWebAudioTone("click");
+    setCaptainCoords(h.coords);
+    setGoogleMapFocus("captain");
+    setIsGoogleMapLoading(true);
+    setTimeout(() => setIsGoogleMapLoading(false), 500);
+    toast.info(`خريطة Google تتجه إلى منطقة الطلب: ${h.name} (${h.orders} طلب نشط) 🔥`);
   };
 
   // =========================================================
@@ -1045,13 +943,41 @@ export function CourierMobileApp() {
         {/* ==================================================== */}
         {activeTab === "map" && (
           <div className="relative w-full h-full flex flex-col bg-slate-950">
-            {/* Embedded In-App Leaflet Map Canvas */}
-            <div
-              ref={mapContainerRef}
-              id="captain-leaflet-map"
-              className="absolute inset-0 z-0 bg-slate-950"
-              style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
-            />
+            {/* Embedded Live Google Maps Navigation Canvas */}
+            <div className="absolute inset-0 z-0 bg-slate-950 overflow-hidden">
+              <iframe
+                title="Google Maps Live Navigation"
+                src={getGoogleMapsEmbedUrl()}
+                className="w-full h-full border-0 absolute inset-0 z-0 pointer-events-auto"
+                style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                allowFullScreen
+                onLoad={() => setIsGoogleMapLoading(false)}
+              />
+
+              {/* In-App Map Loading State Overlay */}
+              {isGoogleMapLoading && (
+                <div className="absolute inset-0 z-10 bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center gap-2 pointer-events-none">
+                  <div className="w-10 h-10 rounded-full border-3 border-sky-400 border-t-transparent animate-spin" />
+                  <span className="text-xs font-bold text-sky-200">جارٍ تحميل خرائط Google الحية...</span>
+                </div>
+              )}
+
+              {/* Captain GPS Radar Center Beacon */}
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
+                <div className="relative flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-sky-500/20 animate-ping absolute" />
+                  <div className="w-12 h-12 rounded-full bg-sky-500/30 animate-pulse absolute" />
+                  <div className="w-8 h-8 rounded-full bg-sky-600 border-2 border-white shadow-xl flex items-center justify-center text-white z-10">
+                    <Bike className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="absolute -bottom-5 bg-slate-900/90 text-sky-300 px-2 py-0.5 rounded-full text-[9px] font-mono border border-sky-500/40 whitespace-nowrap shadow-md backdrop-blur-sm">
+                    كابتن FOODHUB 📍
+                  </div>
+                </div>
+              </div>
+            </div>
 
             {/* TOP COCKPIT HEADER (Status Pill, Headset Support, Menu) */}
             <div className="relative z-20 pt-4 px-4 flex items-center justify-between pointer-events-none">
@@ -1096,47 +1022,170 @@ export function CourierMobileApp() {
 
             {/* GPS Accuracy & In-App Routing Indicator */}
             <div className="relative z-10 px-4 mt-2 flex justify-between items-center pointer-events-none">
-              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-xl px-2.5 py-1 text-[10px] text-slate-300 flex items-center gap-1.5 shadow-md">
-                <Compass className="w-3 h-3 text-sky-400 animate-spin" />
-                <span>نظام الملاحة داخل التطبيق نشط</span>
+              <div className="bg-slate-900/85 backdrop-blur-md border border-sky-500/40 rounded-xl px-2.5 py-1 text-[10px] text-sky-200 flex items-center gap-1.5 shadow-md">
+                <Globe className="w-3 h-3 text-sky-400 animate-spin" />
+                <span className="font-bold">خرائط Google نشطة لحظياً</span>
+                <span className="text-[9px] text-slate-400 font-mono">({captainCoords[0].toFixed(3)}, {captainCoords[1].toFixed(3)})</span>
               </div>
 
-              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-xl px-2.5 py-1 text-[10px] text-emerald-400 flex items-center gap-1 shadow-md">
+              <div className="bg-slate-900/85 backdrop-blur-md border border-emerald-500/40 rounded-xl px-2.5 py-1 text-[10px] text-emerald-400 flex items-center gap-1 shadow-md font-bold">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>نطاق التوصيل: 10 كم كحد أقصى</span>
+                <span>نطاق 10 كم كحد أقصى</span>
               </div>
+            </div>
+
+            {/* Live Demand Hotspots Chips Bar (Horizontal Quick Focus) */}
+            <div className="relative z-10 px-4 mt-1.5 flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 pointer-events-auto">
+              <span className="text-[10px] text-amber-400 font-bold whitespace-nowrap flex items-center gap-0.5">
+                <Flame className="w-3 h-3" />
+                مناطق الطلب:
+              </span>
+              {HOTSPOTS.map((h, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSelectHotspot(h)}
+                  className="px-2 py-0.5 rounded-lg bg-slate-900/90 border border-slate-700 text-[10px] text-slate-200 whitespace-nowrap hover:border-amber-500/60 active:scale-95 transition-all flex items-center gap-1 shadow-sm"
+                >
+                  <span>{h.name.replace("حي ", "")}</span>
+                  <span className="text-amber-400 font-mono font-bold">({h.orders})</span>
+                </button>
+              ))}
             </div>
 
             {/* In-App Turn-By-Turn HUD Overlay (Active Route) */}
             {activeDelivery && (
-              <div className="relative z-20 mx-4 mt-2 p-3 rounded-2xl bg-sky-950/90 border border-sky-500/40 text-sky-100 shadow-xl backdrop-blur-md flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center font-bold">
-                    <Navigation className="w-4 h-4" />
+              <div className="relative z-20 mx-4 mt-2 p-3 rounded-2xl bg-sky-950/95 border border-sky-500/50 text-sky-100 shadow-xl backdrop-blur-md">
+                <div className="flex items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center font-bold shrink-0">
+                      <Navigation className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">
+                        {activeDelivery.step === 1 && `استمر للأمام باتجاه المطبخ (${activeDelivery.kitchenName})`}
+                        {activeDelivery.step === 2 && "وصلت لنقطة الاستلام - استلم الوجبة وتأكد من الأصناف"}
+                        {activeDelivery.step >= 3 && `توجه إلى عنوان العميل (${activeDelivery.customerName})`}
+                      </p>
+                      <p className="text-[10px] text-sky-300 font-mono">
+                        المسافة: {activeDelivery.distanceKm} كم • وقت الوصول: {activeDelivery.eta}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-white">
-                      {activeDelivery.step === 1 && "استمر للأمام 450 م باتجاه المطبخ"}
-                      {activeDelivery.step === 2 && "وصلت لنقطة الاستلام - استلم الوجبة"}
-                      {activeDelivery.step >= 3 && "بعد 200 م انعطف يميناً لشارع العميل"}
-                    </p>
-                    <p className="text-[10px] text-sky-300 font-mono">
-                      المسافة: {activeDelivery.distanceKm} كم • {activeDelivery.eta}
-                    </p>
-                  </div>
+
+                  {/* Open in Native Google Maps Button */}
+                  <button
+                    onClick={handleLaunchGoogleMapsApp}
+                    title="فتح الملاحة الصوتية في تطبيق خرائط Google"
+                    className="px-2 py-1.5 rounded-xl bg-sky-500 text-slate-950 font-bold text-[10px] flex items-center gap-1 shadow-lg shrink-0 active:scale-95 transition-transform"
+                  >
+                    <ExternalLink className="w-3 h-3" />
+                    <span>توجيه صوتي</span>
+                  </button>
+                </div>
+
+                {/* Target Focus Switcher */}
+                <div className="grid grid-cols-4 gap-1 mt-2.5 pt-2 border-t border-sky-800/60 text-[10px] text-center font-semibold">
+                  <button
+                    onClick={() => {
+                      playWebAudioTone("click");
+                      setGoogleMapFocus("captain");
+                    }}
+                    className={`py-1 rounded-lg border transition-all ${
+                      googleMapFocus === "captain"
+                        ? "bg-sky-500 text-slate-950 border-sky-400 font-bold"
+                        : "bg-slate-900/80 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    📍 موقعي
+                  </button>
+                  <button
+                    onClick={() => {
+                      playWebAudioTone("click");
+                      setGoogleMapFocus("kitchen");
+                    }}
+                    className={`py-1 rounded-lg border transition-all ${
+                      googleMapFocus === "kitchen"
+                        ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
+                        : "bg-slate-900/80 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    🍳 المطبخ
+                  </button>
+                  <button
+                    onClick={() => {
+                      playWebAudioTone("click");
+                      setGoogleMapFocus("customer");
+                    }}
+                    className={`py-1 rounded-lg border transition-all ${
+                      googleMapFocus === "customer"
+                        ? "bg-emerald-500 text-slate-950 border-emerald-400 font-bold"
+                        : "bg-slate-900/80 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    🏠 العميل
+                  </button>
+                  <button
+                    onClick={() => {
+                      playWebAudioTone("click");
+                      setGoogleMapFocus("route");
+                    }}
+                    className={`py-1 rounded-lg border transition-all ${
+                      googleMapFocus === "route"
+                        ? "bg-purple-500 text-white border-purple-400 font-bold"
+                        : "bg-slate-900/80 text-slate-300 border-slate-700"
+                    }`}
+                  >
+                    🛣️ المسار
+                  </button>
                 </div>
               </div>
             )}
 
-            {/* Floating Map Controls */}
-            <div className="absolute right-4 top-40 z-20 flex flex-col gap-2.5">
-              {/* Recenter */}
+            {/* Floating Google Maps Controls */}
+            <div className="absolute right-4 top-40 z-20 flex flex-col gap-2">
+              {/* Recenter on Captain */}
               <button
                 onClick={handleRecenter}
-                title="إعادة تمركز على موقعي"
-                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
+                title="إعادة تمركز على موقعي في خرائط Google"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-sky-500/50 text-white flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
               >
                 <LocateFixed className="w-5 h-5 text-sky-400" />
+              </button>
+
+              {/* Satellite / Streets Toggle */}
+              <button
+                onClick={handleToggleMapType}
+                title="تبديل وضع الخريطة (قمر صناعي / شوارع)"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform text-[11px] font-bold"
+              >
+                {googleMapType === "m" ? "🛰️" : "🗺️"}
+              </button>
+
+              {/* Zoom In */}
+              <button
+                onClick={handleZoomIn}
+                title="تكبير الخريطة"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
+              >
+                <Plus className="w-5 h-5 text-slate-200" />
+              </button>
+
+              {/* Zoom Out */}
+              <button
+                onClick={handleZoomOut}
+                title="تصغير الخريطة"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-slate-700 text-white flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
+              >
+                <Minus className="w-5 h-5 text-slate-200" />
+              </button>
+
+              {/* Voice Navigation Hand-off (Google Maps External App) */}
+              <button
+                onClick={handleLaunchGoogleMapsApp}
+                title="فتح تطبيق خرائط Google للملاحة الصوتية"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-emerald-500/60 text-emerald-400 flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
+              >
+                <Navigation className="w-5 h-5 animate-pulse" />
               </button>
 
               {/* Hardware Vibration Motor Test */}
@@ -1149,7 +1198,7 @@ export function CourierMobileApp() {
                 title="فحص اهتزاز الجوال"
                 className="w-10 h-10 rounded-xl bg-slate-900/90 border border-purple-500/50 text-purple-400 flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
               >
-                <Vibrate className="w-5 h-5 animate-pulse" />
+                <Vibrate className="w-5 h-5" />
               </button>
 
               {/* Real Database Order Trigger */}
