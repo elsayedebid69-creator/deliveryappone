@@ -490,10 +490,11 @@ export function CourierMobileApp() {
 
         if (data && data.length > 0) {
           const order = data[0];
+          if (!order) return;
           const orderTime = order.created_at ? new Date(order.created_at).getTime() : 0;
           // Only auto-dispatch if order was created recently (within last 3 minutes) or after session start
           if (order.id !== lastDispatchedOrderId && orderTime >= appStartTimeRef.current - 180000) {
-            dispatchOrderToCaptain(order);
+            dispatchOrderToCaptain({ id: order.id, phone: order.phone, address: order.address });
           }
         }
       } catch {
@@ -535,6 +536,8 @@ export function CourierMobileApp() {
       const { data, error } = await supabase
         .from("orders")
         .insert({
+          customer_id: "",
+          restaurant_id: "",
           total: 86.0,
           delivery_fee: 18.0,
           status: "ready",

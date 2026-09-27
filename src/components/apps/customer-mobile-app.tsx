@@ -194,14 +194,12 @@ export function CustomerMobileApp() {
   // Quick Add To Cart
   const handleQuickAdd = (meal: typeof POPULAR_MEALS[0]) => {
     sounds.playAdd();
-    cart.addItem({
-      menu_item_id: meal.id,
+    cart.add({
+      id: meal.id,
       restaurant_id: "fh-prime",
       name_ar: meal.nameAr,
       name_en: meal.nameEn,
       price: meal.price,
-      quantity: 1,
-      image_url: meal.image,
     });
     toast.success(
       ar ? `✓ أُضيف للسلة: ${meal.nameAr}` : `✓ Added to Cart: ${meal.nameEn}`,
@@ -214,18 +212,18 @@ export function CustomerMobileApp() {
 
   const handleUpdateQuantity = (mealId: string, delta: number) => {
     sounds.playClick();
-    const existing = cart.lines.find((item) => item.menu_item_id === mealId);
+    const existing = cart.lines.find((item) => item.id === mealId);
     if (!existing) return;
     const newQty = existing.quantity + delta;
     if (newQty <= 0) {
-      cart.removeItem(mealId);
+      cart.remove(mealId);
     } else {
-      cart.updateQuantity(mealId, newQty);
+      cart.setQty(mealId, newQty);
     }
   };
 
   const getItemQuantity = (mealId: string) => {
-    const item = cart.lines.find((line) => line.menu_item_id === mealId);
+    const item = cart.lines.find((line) => line.id === mealId);
     return item ? item.quantity : 0;
   };
 
@@ -587,7 +585,7 @@ export function CustomerMobileApp() {
                     {ar ? "سلتك النشطة" : "Active Cart"}
                   </div>
                   <div className="text-xs font-black pt-0.5">
-                    {tn(cart.subtotal)} {ar ? "ر.س" : "SAR"}
+                    {cart.subtotal.toFixed(2)} {ar ? "ر.س" : "SAR"}
                   </div>
                 </div>
               </div>
@@ -613,7 +611,8 @@ export function CustomerMobileApp() {
             </Link>
 
             <Link
-              to="/restaurant/food-hub-prime"
+              to="/restaurant/$id"
+              params={{ id: "food-hub-prime" }}
               onClick={() => sounds.playClick()}
               className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
             >

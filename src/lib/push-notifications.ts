@@ -91,7 +91,7 @@ export function sendLocalNotification(title: string, body: string, type: "kitche
   if (type === "kitchen") {
     sounds.playNewOrder();
   } else if (type === "courier") {
-    sounds.playNotification();
+    sounds.playNewOrder();
   } else {
     sounds.playSuccess();
   }

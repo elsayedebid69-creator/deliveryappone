@@ -119,7 +119,7 @@ export function CustomerMobileNav() {
                     {lang === "ar" ? "سلة طلبك الحالية" : "Your Active Cart"}
                   </div>
                   <div className="text-sm sm:text-base font-black leading-tight">
-                    {tn(cart.subtotal)} {lang === "ar" ? "ر.س" : "SAR"}
+                    {cart.subtotal.toFixed(2)} {lang === "ar" ? "ر.س" : "SAR"}
                   </div>
                 </div>
               </div>
