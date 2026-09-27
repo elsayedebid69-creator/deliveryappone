@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Bike,
   Navigation,
@@ -236,13 +236,29 @@ export function CourierMobileApp() {
   // Rejection Policy: Max 1 rejection per day
   const [dailyRejectionsLeft, setDailyRejectionsLeft] = useState<number>(1);
 
-  // Real-Time In-App Google Maps Navigation Engine
+  // Real-Time In-App Google Maps Navigation Engine (Stabilized & Jitter-Free)
   const [captainCoords, setCaptainCoords] = useState<[number, number]>([24.7136, 46.6753]);
+  const [mapViewportCoords, setMapViewportCoords] = useState<[number, number]>([24.7136, 46.6753]);
+  const lastMapCenterRef = useRef<[number, number]>([24.7136, 46.6753]);
+  const appStartTimeRef = useRef<number>(Date.now());
   const [gpsAccuracy, setGpsAccuracy] = useState<string>("عالية (± 4م)");
   const [googleMapType, setGoogleMapType] = useState<"m" | "k">("m"); // m: standard street, k: satellite
   const [googleMapZoom, setGoogleMapZoom] = useState<number>(15);
   const [googleMapFocus, setGoogleMapFocus] = useState<"captain" | "kitchen" | "customer" | "route">("captain");
-  const [isGoogleMapLoading, setIsGoogleMapLoading] = useState<boolean>(false);
+
+  // Spherical distance calculator between two GPS coordinates in meters
+  const calculateDistanceMeters = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371e3;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
 
   // Real-Time Radar Dispatch State (Price hidden, max 10km)
   const [showIncomingOrder, setShowIncomingOrder] = useState(false);
@@ -285,7 +301,7 @@ export function CourierMobileApp() {
     insurance: "قيد المراجعة 🟡",
   });
 
-  // Real-time GPS Watcher
+  // Real-time GPS Watcher with Deadband Filter (prevents iframe reloading on micro-jitter)
   useEffect(() => {
     if (typeof window === "undefined" || !navigator.geolocation) return;
 
@@ -294,6 +310,18 @@ export function CourierMobileApp() {
         const coords: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setCaptainCoords(coords);
         setGpsAccuracy(`عالية (± ${Math.round(pos.coords.accuracy)}م)`);
+
+        // Only update the underlying Google Map viewport if courier moved > 250m
+        const dist = calculateDistanceMeters(
+          lastMapCenterRef.current[0],
+          lastMapCenterRef.current[1],
+          coords[0],
+          coords[1]
+        );
+        if (dist > 250) {
+          lastMapCenterRef.current = coords;
+          setMapViewportCoords(coords);
+        }
       },
       () => {
         setGpsAccuracy("GPS الرياض (معتمد)");
@@ -306,17 +334,15 @@ export function CourierMobileApp() {
     };
   }, []);
 
-  // Real-time Google Maps Embed URL Generator
-  const getGoogleMapsEmbedUrl = () => {
-    // 1. If in active delivery and route view is selected: compute route between captain and current stop
+  // Stabilized Google Maps Embed URL (Memoized to prevent reload loops / black screens)
+  const googleMapsEmbedUrl = useMemo(() => {
     if (activeDelivery && googleMapFocus === "route") {
       const destCoords = activeDelivery.step <= 2 ? activeDelivery.kitchenCoords : activeDelivery.customerCoords;
-      return `https://maps.google.com/maps?saddr=${captainCoords[0]},${captainCoords[1]}&daddr=${destCoords[0]},${destCoords[1]}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
+      return `https://maps.google.com/maps?saddr=${mapViewportCoords[0].toFixed(5)},${mapViewportCoords[1].toFixed(5)}&daddr=${destCoords[0].toFixed(5)},${destCoords[1].toFixed(5)}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
     }
 
-    // 2. Focused target coordinates
-    let targetLat = captainCoords[0];
-    let targetLng = captainCoords[1];
+    let targetLat = mapViewportCoords[0];
+    let targetLng = mapViewportCoords[1];
 
     if (activeDelivery) {
       if (googleMapFocus === "kitchen") {
@@ -328,16 +354,16 @@ export function CourierMobileApp() {
       }
     }
 
-    return `https://maps.google.com/maps?q=${targetLat},${targetLng}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
-  };
+    return `https://maps.google.com/maps?q=${targetLat.toFixed(5)},${targetLng.toFixed(5)}&hl=ar&t=${googleMapType}&z=${googleMapZoom}&output=embed`;
+  }, [mapViewportCoords, activeDelivery?.step, activeDelivery?.kitchenCoords, activeDelivery?.customerCoords, googleMapFocus, googleMapType, googleMapZoom]);
 
   // Recenter in-app Google Map on captain's live coordinates
   const handleRecenter = () => {
     playWebAudioTone("click");
     setGoogleMapFocus("captain");
     setGoogleMapZoom(16);
-    setIsGoogleMapLoading(true);
-    setTimeout(() => setIsGoogleMapLoading(false), 500);
+    lastMapCenterRef.current = captainCoords;
+    setMapViewportCoords([...captainCoords]);
     toast.success("تم إعادة تمركز خرائط Google على موقعك اللحظي 🎯");
   };
 
@@ -377,9 +403,9 @@ export function CourierMobileApp() {
   const handleSelectHotspot = (h: { name: string; coords: [number, number]; orders: number }) => {
     playWebAudioTone("click");
     setCaptainCoords(h.coords);
+    lastMapCenterRef.current = h.coords;
+    setMapViewportCoords(h.coords);
     setGoogleMapFocus("captain");
-    setIsGoogleMapLoading(true);
-    setTimeout(() => setIsGoogleMapLoading(false), 500);
     toast.info(`خريطة Google تتجه إلى منطقة الطلب: ${h.name} (${h.orders} طلب نشط) 🔥`);
   };
 
@@ -463,12 +489,17 @@ export function CourierMobileApp() {
           .limit(1);
 
         if (data && data.length > 0) {
-          dispatchOrderToCaptain(data[0]);
+          const order = data[0];
+          const orderTime = order.created_at ? new Date(order.created_at).getTime() : 0;
+          // Only auto-dispatch if order was created recently (within last 3 minutes) or after session start
+          if (order.id !== lastDispatchedOrderId && orderTime >= appStartTimeRef.current - 180000) {
+            dispatchOrderToCaptain(order);
+          }
         }
       } catch {
         // ignore
       }
-    }, 4500);
+    }, 5000);
 
     return () => {
       supabase.removeChannel(channel);
@@ -943,26 +974,18 @@ export function CourierMobileApp() {
         {/* ==================================================== */}
         {activeTab === "map" && (
           <div className="relative w-full h-full flex flex-col bg-slate-950">
-            {/* Embedded Live Google Maps Navigation Canvas */}
-            <div className="absolute inset-0 z-0 bg-slate-950 overflow-hidden">
+            {/* Embedded Live Google Maps Navigation Canvas (Stable & Jitter-Free) */}
+            <div className="absolute inset-0 z-0 bg-[#e5e3df] dark:bg-[#1a1d24] overflow-hidden">
               <iframe
+                key="stable-google-maps-live-iframe"
                 title="Google Maps Live Navigation"
-                src={getGoogleMapsEmbedUrl()}
+                src={googleMapsEmbedUrl}
                 className="w-full h-full border-0 absolute inset-0 z-0 pointer-events-auto"
                 style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 allowFullScreen
-                onLoad={() => setIsGoogleMapLoading(false)}
               />
-
-              {/* In-App Map Loading State Overlay */}
-              {isGoogleMapLoading && (
-                <div className="absolute inset-0 z-10 bg-slate-950/70 backdrop-blur-sm flex flex-col items-center justify-center gap-2 pointer-events-none">
-                  <div className="w-10 h-10 rounded-full border-3 border-sky-400 border-t-transparent animate-spin" />
-                  <span className="text-xs font-bold text-sky-200">جارٍ تحميل خرائط Google الحية...</span>
-                </div>
-              )}
 
               {/* Captain GPS Radar Center Beacon */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
