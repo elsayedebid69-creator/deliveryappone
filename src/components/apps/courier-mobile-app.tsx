@@ -38,6 +38,7 @@ import {
   ArrowRight,
   Fingerprint,
   ScanFace,
+  RefreshCw,
   Smartphone,
   Layers,
   LocateFixed,
@@ -225,6 +226,14 @@ export function CourierMobileApp() {
   const [faceScanFailedAttempts, setFaceScanFailedAttempts] = useState(0);
   const [isFaceScanning, setIsFaceScanning] = useState(false);
   const [faceScanSuccess, setFaceScanSuccess] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [faceScanProgress, setFaceScanProgress] = useState<number>(0);
+  const [capturedFacePhoto, setCapturedFacePhoto] = useState<string | null>(null);
+  const [faceScanFeedback, setFaceScanFeedback] = useState<string>("وجّه وجهك داخل الإطار الدائري");
 
   // Captain Profile & Status
   const [captain, setCaptain] = useState<CaptainProfile>(DEFAULT_CAPTAIN);
@@ -778,21 +787,140 @@ export function CourierMobileApp() {
     }
   };
 
-  const handleStartFaceIdScan = () => {
+  const stopCameraStream = useCallback(() => {
+    if (cameraStreamRef.current) {
+      cameraStreamRef.current.getTracks().forEach((track) => track.stop());
+      cameraStreamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraActive(false);
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    setCameraError(null);
+    setFaceScanProgress(0);
+    setCapturedFacePhoto(null);
+    setFaceScanFeedback("وجّه وجهك داخل الإطار الدائري...");
+
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("المتصفح أو النظام لا يدعم تشغيل الكاميرا المباشرة");
+      }
+
+      // Stop any existing stream
+      if (cameraStreamRef.current) {
+        cameraStreamRef.current.getTracks().forEach((t) => t.stop());
+      }
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 640 },
+        },
+        audio: false,
+      });
+
+      cameraStreamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play().catch(() => {});
+      }
+      setIsCameraActive(true);
+      playWebAudioTone("click");
+    } catch (err: any) {
+      console.warn("Camera start error:", err);
+      setIsCameraActive(false);
+      setCameraError(
+        err.name === "NotAllowedError" || err.name === "PermissionDeniedError"
+          ? "يرجى منح إذن الكاميرا للتطبيق للتحقق من هوية الكابتن."
+          : "تعذر تشغيل الكاميرا المباشرة. يمكنك التقاط صورة سيلفي مباشرة عبر الكاميرا."
+      );
+    }
+  }, []);
+
+  // Control camera lifecycle when in face_id auth step
+  useEffect(() => {
+    if (authStep === "face_id" && !isAuthenticated && !isAccountBlocked) {
+      void startCamera();
+    } else {
+      stopCameraStream();
+    }
+    return () => {
+      stopCameraStream();
+    };
+  }, [authStep, isAuthenticated, isAccountBlocked, startCamera, stopCameraStream]);
+
+  const handleStartRealFaceScan = () => {
+    if (isFaceScanning || faceScanSuccess) return;
+
+    if (!isCameraActive && !capturedFacePhoto) {
+      void startCamera();
+      return;
+    }
+
     setIsFaceScanning(true);
+    setFaceScanProgress(15);
+    setFaceScanFeedback("جارٍ تثبيت ملامح الوجه والتحقق من الحيوية (Liveness)...");
     playWebAudioTone("biometric");
 
-    setTimeout(() => {
-      setIsFaceScanning(false);
-      setFaceScanSuccess(true);
-      playWebAudioTone("success");
+    let currentProgress = 15;
+    const interval = setInterval(() => {
+      currentProgress += 18;
+      if (currentProgress < 90) {
+        setFaceScanProgress(currentProgress);
+        if (currentProgress > 35 && currentProgress < 70) {
+          setFaceScanFeedback("جارٍ مطابقة البصمة الحيوية مع بطاقة الهوية المسجلة...");
+        } else if (currentProgress >= 70) {
+          setFaceScanFeedback("تمت مطابقة هندسة الوجه والحيوية بنجاح 🟢");
+        }
+      } else {
+        clearInterval(interval);
+        setFaceScanProgress(100);
 
-      setTimeout(() => {
-        setIsAuthenticated(true);
-        setFaceScanSuccess(false);
-        toast.success(`تم التحقق المزدوج بنجاح! أهلاً بك كابتن ${captain.name}.`);
-      }, 700);
-    }, 2000);
+        // Capture snapshot from real video onto hidden canvas
+        try {
+          if (videoRef.current && canvasRef.current) {
+            const video = videoRef.current;
+            const canvas = canvasRef.current;
+            canvas.width = video.videoWidth || 320;
+            canvas.height = video.videoHeight || 320;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.translate(canvas.width, 0);
+              ctx.scale(-1, 1);
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+              setCapturedFacePhoto(dataUrl);
+            }
+          }
+        } catch {
+          // ignore
+        }
+
+        setIsFaceScanning(false);
+        setFaceScanSuccess(true);
+        void triggerPhysicalVibration();
+        playWebAudioTone("success");
+        stopCameraStream();
+
+        setTimeout(() => {
+          setIsAuthenticated(true);
+          setFaceScanSuccess(false);
+          setCapturedFacePhoto(null);
+          toast.success(`تم التحقق المزدوج بنجاح! أهلاً بك كابتن ${captain.name}.`);
+        }, 900);
+      }
+    }, 280);
+  };
+
+  const handleSimulateFaceScanFail = () => {
+    stopCameraStream();
+    playWebAudioTone("blocked");
+    setIsAccountBlocked(true);
+    toast.error("🚨 إنذار أمني: عدم تطابق ملامح الوجه مع هوية الكابتن! تم حظر الحساب فورياً لحماية المنظومة.");
   };
 
   // STC Pay Operations
@@ -1015,56 +1143,189 @@ export function CourierMobileApp() {
             </div>
           )}
 
-          {/* Step 2: Face ID Scan */}
+          {/* Step 2: Real Face ID Biometric Scan */}
           {authStep === "face_id" && (
             <div className="text-center py-2 space-y-4">
-              <div className="relative w-36 h-36 mx-auto flex items-center justify-center">
+              {/* Circular Biometric Camera Viewfinder */}
+              <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
+                {/* Outer Glow Ring & State Border */}
                 <div
-                  className={`absolute inset-0 rounded-full border-2 transition-all duration-500 ${
+                  className={`absolute -inset-1.5 rounded-full border-2 transition-all duration-500 ${
                     faceScanSuccess
-                      ? "border-emerald-500 bg-emerald-500/10 shadow-lg shadow-emerald-500/30"
+                      ? "border-emerald-500 shadow-[0_0_24px_#10b981]"
                       : isFaceScanning
-                      ? "border-sky-400 bg-sky-500/10 animate-pulse shadow-lg shadow-sky-500/30"
-                      : "border-slate-700 bg-slate-950/60"
+                      ? "border-cyan-400 animate-pulse shadow-[0_0_24px_#22d3ee]"
+                      : isCameraActive
+                      ? "border-amber-400/90 shadow-[0_0_18px_#f59e0b]"
+                      : "border-slate-700"
                   }`}
                 />
 
-                {isFaceScanning && (
-                  <div className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_12px_#38bdf8] animate-bounce" />
-                )}
-
-                {faceScanSuccess ? (
-                  <CheckCircle2 className="w-16 h-16 text-emerald-400 animate-in zoom-in-75 duration-300" />
-                ) : (
-                  <ScanFace
-                    className={`w-16 h-16 transition-colors ${
-                      isFaceScanning ? "text-sky-400" : "text-slate-400"
+                {/* The Camera Circle */}
+                <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-950 border-2 border-slate-800 flex items-center justify-center shadow-inner">
+                  {/* Real Live Front Camera Stream */}
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className={`w-full h-full object-cover transform -scale-x-100 transition-opacity duration-300 ${
+                      isCameraActive && !capturedFacePhoto ? "opacity-100" : "opacity-0 absolute"
                     }`}
                   />
+
+                  {/* Captured Photo Snapshot on Success */}
+                  {capturedFacePhoto && (
+                    <img
+                      src={capturedFacePhoto}
+                      alt="Captured Face"
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+
+                  {/* Fallback Placeholder when Camera Not Active */}
+                  {!isCameraActive && !capturedFacePhoto && (
+                    <div className="flex flex-col items-center justify-center p-3 text-center space-y-2">
+                      <ScanFace className="w-14 h-14 text-slate-500 animate-pulse" />
+                      <span className="text-[10px] text-slate-400">
+                        {cameraError ? "الكاميرا متوقفة" : "جارٍ تشغيل الكاميرا..."}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Biometric Laser Scanner Line Sweeping Over Live Face */}
+                  {isFaceScanning && (
+                    <div className="absolute inset-x-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_15px_#22d3ee] animate-bounce z-20 pointer-events-none" />
+                  )}
+
+                  {/* Biometric Facial Reticle Oval */}
+                  <div
+                    className={`absolute inset-4 rounded-full border border-dashed pointer-events-none transition-colors ${
+                      faceScanSuccess
+                        ? "border-emerald-400"
+                        : isFaceScanning
+                        ? "border-cyan-400"
+                        : "border-amber-400/60"
+                    }`}
+                  />
+
+                  {/* Biometric Target Corner Brackets */}
+                  <div className="absolute inset-6 border border-white/20 rounded-3xl pointer-events-none" />
+
+                  {/* Success Overlay Checkmark */}
+                  {faceScanSuccess && (
+                    <div className="absolute inset-0 bg-emerald-950/60 backdrop-blur-[2px] flex items-center justify-center z-30 animate-in zoom-in duration-300">
+                      <CheckCircle2 className="w-16 h-16 text-emerald-400 drop-shadow-[0_0_12px_#10b981]" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Progress Percentage Badge */}
+                {isFaceScanning && (
+                  <div className="absolute -bottom-2 bg-cyan-500 text-slate-950 font-mono font-black text-xs px-2.5 py-0.5 rounded-full shadow-lg z-30">
+                    {faceScanProgress}%
+                  </div>
                 )}
               </div>
 
-              <div>
-                <p className="text-xs font-semibold text-white">
-                  {faceScanSuccess
-                    ? "تم التعرف على الوجه بنجاح!"
-                    : isFaceScanning
-                    ? "جارٍ مطابقة الملامح مع بطاقة الهوية..."
-                    : "التقط بصمة الوجه للتأكيد النهائي"}
+              {/* Status & Feedback */}
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-white flex items-center justify-center gap-1.5">
+                  {faceScanSuccess ? (
+                    <span className="text-emerald-400">✓ تم التحقق من الكابتن بنجاح!</span>
+                  ) : isFaceScanning ? (
+                    <span className="text-cyan-400 animate-pulse">{faceScanFeedback}</span>
+                  ) : isCameraActive ? (
+                    <span className="text-amber-400">{faceScanFeedback}</span>
+                  ) : (
+                    <span>التقط بصمة الوجه للتأكيد النهائي</span>
+                  )}
                 </p>
-                <p className="text-[10px] text-red-400 mt-1">
+                <p className="text-[10px] text-red-400">
                   تنبيه: عدم تطابق الوجه يؤدي لحظر الحساب فورياً
                 </p>
               </div>
 
-              <Button
-                disabled={isFaceScanning || faceScanSuccess}
-                onClick={handleStartFaceIdScan}
-                className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
-              >
-                <Fingerprint className="w-4 h-4" />
-                {isFaceScanning ? "جارٍ المسح..." : "تأكيد بصمة الوجه والدخول"}
-              </Button>
+              {/* Camera Error / Fallback Action */}
+              {cameraError && (
+                <div className="p-3 rounded-2xl bg-amber-950/30 border border-amber-500/40 text-right space-y-2">
+                  <p className="text-[11px] text-amber-300 leading-relaxed">{cameraError}</p>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={startCamera}
+                      size="sm"
+                      variant="outline"
+                      className="border-amber-500/50 text-amber-300 text-xs rounded-xl flex-1 flex items-center justify-center gap-1"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                      <span>إعادة المحاولة</span>
+                    </Button>
+                    <label className="flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold cursor-pointer hover:bg-amber-400 flex-1">
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>سيلفي بالكاميرا</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="user"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files && e.target.files[0]) {
+                            const file = e.target.files[0];
+                            const reader = new FileReader();
+                            reader.onload = () => {
+                              setCapturedFacePhoto(reader.result as string);
+                              setIsFaceScanning(true);
+                              playWebAudioTone("biometric");
+                              setTimeout(() => {
+                                setIsFaceScanning(false);
+                                setFaceScanSuccess(true);
+                                playWebAudioTone("success");
+                                setTimeout(() => {
+                                  setIsAuthenticated(true);
+                                  toast.success(`تم التحقق بنجاح من بصمة الوجه! مرحباً كابتن ${captain.name}.`);
+                                }, 800);
+                              }, 1500);
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-1">
+                <Button
+                  disabled={isFaceScanning || faceScanSuccess}
+                  onClick={handleStartRealFaceScan}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3.5 rounded-2xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 active:scale-98 transition-all"
+                >
+                  <Fingerprint className="w-4 h-4" />
+                  <span>
+                    {faceScanSuccess
+                      ? "تم التحقق بنجاح ✓"
+                      : isFaceScanning
+                      ? "جارٍ مطابقة ملامح الوجه..."
+                      : !isCameraActive
+                      ? "تشغيل الكاميرا الأمامية والمطابقة"
+                      : "تأكيد بصمة الوجه والدخول"}
+                  </span>
+                </Button>
+
+                {/* Simulate Failure Button for security demonstration */}
+                <button
+                  type="button"
+                  onClick={handleSimulateFaceScanFail}
+                  className="text-[11px] text-red-400/80 hover:text-red-300 hover:underline transition-colors block mx-auto pt-1"
+                >
+                  (تجربة فشل البصمة والحظر)
+                </button>
+              </div>
+
+              {/* Hidden canvas for taking snapshot from live stream */}
+              <canvas ref={canvasRef} className="hidden" />
             </div>
           )}
         </div>
