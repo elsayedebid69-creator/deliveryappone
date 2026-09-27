@@ -1627,7 +1627,7 @@ export function CourierMobileApp() {
                 className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 rounded-2xl py-3 text-xs flex items-center justify-center gap-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span>تسجيل الخروج والتبديل</span>
+                <span>تسجيل الخروج</span>
               </Button>
             </div>
           </div>
