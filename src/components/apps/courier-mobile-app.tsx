@@ -254,6 +254,12 @@ export function CourierMobileApp() {
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [lastDispatchedOrderId, setLastDispatchedOrderId] = useState<string>("");
 
+  // Emergency SOS State (زر الطوارئ الميداني)
+  const [showEmergencyModal, setShowEmergencyModal] = useState(false);
+  const [emergencyReason, setEmergencyReason] = useState("حادث سير بالمركبة 🚗");
+  const [emergencyDescription, setEmergencyDescription] = useState("");
+  const [emergencyPhoto, setEmergencyPhoto] = useState<string | null>(null);
+
   // Wallet STC Pay State
   const [walletSubTab, setWalletSubTab] = useState<"main" | "stc_deposit" | "stc_withdraw">("main");
   const [stcPhone, setStcPhone] = useState("0559876543");
@@ -1060,29 +1066,20 @@ export function CourierMobileApp() {
                 <MenuIcon className="w-5 h-5 text-slate-100" />
               </button>
 
-              {/* Status Pill */}
-              <button
+              {/* Status Pill (Locked / Automatic during 12-hour shift) */}
+              <div
                 onClick={() => {
                   playWebAudioTone("click");
-                  setIsOnline(!isOnline);
-                  toast(isOnline ? "أنت الآن غير متصل 🔴" : "أنت الآن متصل والرادار يستمع للطلبات الحية 🟢");
+                  toast.info("الحالة تعمل تلقائياً طوال فترة الشفت (12 ساعة) بنظام المنصة ولا يمكن إيقافها إلا عبر زر الطوارئ.");
                 }}
-                className={`px-4 py-2 rounded-full border shadow-lg backdrop-blur-md flex items-center gap-2.5 pointer-events-auto transition-all active:scale-95 ${
-                  isOnline
-                    ? "bg-slate-900/90 border-emerald-500/60 text-white"
-                    : "bg-slate-900/90 border-red-500/60 text-slate-300"
-                }`}
+                className="px-4 py-2 rounded-full border border-emerald-500/60 bg-slate-900/90 text-white shadow-lg backdrop-blur-md flex items-center gap-2.5 pointer-events-auto cursor-default active:scale-98 transition-transform"
               >
-                <div
-                  className={`w-2.5 h-2.5 rounded-full ${
-                    isOnline ? "bg-emerald-500 animate-ping" : "bg-red-500"
-                  }`}
-                />
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
                 <span className="text-xs font-bold tracking-wide">
-                  الحالة: {isOnline ? "يعمل" : "لا يعمل"}
+                  الحالة: يعمل (تلقائي)
                 </span>
-                <span className="text-xs font-mono">{isOnline ? "🟢" : "🔴"}</span>
-              </button>
+                <span className="text-xs font-mono">🟢</span>
+              </div>
 
               {/* Headset: Dedicated Support Page Button */}
               <button
@@ -1327,6 +1324,21 @@ export function CourierMobileApp() {
                 </Badge>
               </div>
             )}
+
+            {/* EMERGENCY SOS BUTTON (زر الطوارئ الميداني) */}
+            <div className="relative z-20 mx-3 mb-3">
+              <button
+                type="button"
+                onClick={() => {
+                  playWebAudioTone("warning");
+                  setShowEmergencyModal(true);
+                }}
+                className="w-full py-2.5 px-4 rounded-2xl bg-gradient-to-r from-red-600/30 via-red-950/80 to-red-600/30 border border-red-500/70 text-red-200 font-bold text-xs flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all hover:bg-red-600/30 backdrop-blur-md"
+              >
+                <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
+                <span>🚨 زر الطوارئ (بلاغ الحوادث والأعطال الميدانية)</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -2435,6 +2447,165 @@ export function CourierMobileApp() {
                 >
                   تأكيد التسليم
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* MODAL 3: EMERGENCY SOS REPORT (زر الطوارئ)            */}
+        {/* ==================================================== */}
+        {showEmergencyModal && (
+          <div className="absolute inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col p-4 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-red-500/30 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-2xl bg-red-600/20 border border-red-500/50 flex items-center justify-center text-red-400">
+                  <AlertTriangle className="w-5 h-5 animate-pulse" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">بلاغ طوارئ ميداني عاجل 🚨</h3>
+                  <p className="text-[10px] text-red-400">إشعار فوري لغرفة العمليات المركزية</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEmergencyModal(false)}
+                className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Form Content */}
+            <div className="space-y-4 flex-1">
+              {/* Reason Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 text-right">
+                  سبب حالة الطوارئ
+                </label>
+                <div className="grid grid-cols-1 gap-1.5">
+                  {[
+                    "حادث سير بالمركبة 🚗",
+                    "عطل ميكانيكي / بنشر إطار مفاجئ 🏍️",
+                    "ظرف صحي أو إعياء مفاجئ 🏥",
+                    "خطر أمني أو مشاجرة في الطريق ⚠️",
+                    "عطل في الهاتف أو شبكة الإنترنت 📱",
+                  ].map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setEmergencyReason(r)}
+                      className={`w-full py-2.5 px-3 rounded-xl border text-xs font-medium text-right flex items-center justify-between transition-colors ${
+                        emergencyReason === r
+                          ? "bg-red-950/60 border-red-500 text-white font-bold"
+                          : "bg-slate-900/60 border-slate-800 text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>{r}</span>
+                      {emergencyReason === r && <CheckCircle2 className="w-4 h-4 text-red-400" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 text-right">
+                  وصف المشكلة وتفاصيل ما حدث
+                </label>
+                <textarea
+                  rows={3}
+                  value={emergencyDescription}
+                  onChange={(e) => setEmergencyDescription(e.target.value)}
+                  placeholder="اكتب وصفاً مختصراً للحادث أو العطل وموقعك الحالي..."
+                  className="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white outline-none focus:border-red-500 resize-none text-right"
+                />
+              </div>
+
+              {/* Photo Attachment (Real Camera capture) */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1.5 text-right">
+                  إرفاق صورة المشكلة (صورة الحادث أو العطل) 📷
+                </label>
+
+                {emergencyPhoto ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-red-500/50 bg-slate-900">
+                    <img src={emergencyPhoto} alt="صورة البلاغ" className="w-full h-40 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setEmergencyPhoto(null)}
+                      className="absolute top-2 left-2 bg-red-600/90 text-white px-2 py-1 rounded-xl text-[11px] flex items-center gap-1 shadow-md"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>حذف الصورة</span>
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl bg-slate-900/80 border-2 border-dashed border-red-500/40 text-red-300 hover:border-red-500 cursor-pointer transition-colors text-center">
+                    <div className="w-10 h-10 rounded-full bg-red-600/20 text-red-400 flex items-center justify-center">
+                      <Camera className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-white">التقاط صورة بكاميرا الهاتف أو الاختيار من المعرض</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">صورة الضرر أو مكان الحادث لتوثيق البلاغ</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          const file = e.target.files[0];
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setEmergencyPhoto(reader.result as string);
+                            playWebAudioTone("click");
+                            toast.success("تم إرفاق صورة البلاغ بنجاح!");
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-4 border-t border-slate-800 space-y-2">
+              <Button
+                onClick={() => {
+                  if (!emergencyDescription.trim() && !emergencyPhoto) {
+                    toast.error("يرجى كتابة وصف للمشكلة أو التقاط صورة لتوثيق البلاغ");
+                    return;
+                  }
+                  playWebAudioTone("success");
+                  setShowEmergencyModal(false);
+                  toast.success("🚨 تم إرسال بلاغ الطوارئ والصورة بنجاح لغرفة العمليات! جاري التواصل معك وتوجيه الدعم الميداني.");
+                }}
+                className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3.5 rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/30"
+              >
+                <Send className="w-4 h-4" />
+                <span>إرسال البلاغ للدعم والعمليات فوراً</span>
+              </Button>
+
+              <div className="flex gap-2">
+                <a
+                  href="tel:920000000"
+                  className="flex-1 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-1.5"
+                >
+                  <Phone className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>اتصال هاتفي مباشر</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setShowEmergencyModal(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-800 text-slate-400 text-xs"
+                >
+                  إلغاء
+                </button>
               </div>
             </div>
           </div>
