@@ -793,9 +793,11 @@ export function CourierMobileApp() {
       <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center p-4 relative font-sans">
         <div className="w-full max-w-sm bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl relative z-10">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-gradient-to-tr from-amber-500 to-amber-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-amber-500/25 mb-3">
-              <Bike className="w-9 h-9 text-slate-950 stroke-[2.2]" />
-            </div>
+            <img
+              src="/app-logo.png"
+              alt="FOODHUB Logo"
+              className="w-20 h-20 rounded-3xl mx-auto shadow-xl shadow-amber-500/20 mb-3 object-contain border-2 border-amber-500/30"
+            />
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
               FOODHUB <span className="text-amber-400">CAPTAIN</span>
             </h1>
@@ -990,12 +992,12 @@ export function CourierMobileApp() {
               {/* Captain GPS Radar Center Beacon */}
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
                 <div className="relative flex items-center justify-center">
-                  <div className="w-20 h-20 rounded-full bg-sky-500/20 animate-ping absolute" />
-                  <div className="w-12 h-12 rounded-full bg-sky-500/30 animate-pulse absolute" />
-                  <div className="w-8 h-8 rounded-full bg-sky-600 border-2 border-white shadow-xl flex items-center justify-center text-white z-10">
-                    <Bike className="w-4 h-4 text-white" />
+                  <div className="w-20 h-20 rounded-full bg-amber-500/20 animate-ping absolute" />
+                  <div className="w-12 h-12 rounded-full bg-amber-500/30 animate-pulse absolute" />
+                  <div className="w-9 h-9 rounded-2xl bg-[#fabd23] border-2 border-white shadow-xl flex items-center justify-center z-10 overflow-hidden">
+                    <img src="/app-logo.png" alt="FOODHUB" className="w-full h-full object-contain" />
                   </div>
-                  <div className="absolute -bottom-5 bg-slate-900/90 text-sky-300 px-2 py-0.5 rounded-full text-[9px] font-mono border border-sky-500/40 whitespace-nowrap shadow-md backdrop-blur-sm">
+                  <div className="absolute -bottom-5 bg-slate-900/90 text-amber-300 px-2 py-0.5 rounded-full text-[9px] font-mono border border-amber-500/40 whitespace-nowrap shadow-md backdrop-blur-sm">
                     كابتن FOODHUB 📍
                   </div>
                 </div>
@@ -1713,6 +1715,15 @@ export function CourierMobileApp() {
                 <LogOut className="w-4 h-4" />
                 <span>تسجيل الخروج</span>
               </Button>
+
+              {/* App Identity Banner with New F Logo */}
+              <div className="pt-3 border-t border-slate-900 flex items-center justify-between text-xs text-slate-500">
+                <div className="flex items-center gap-2">
+                  <img src="/app-logo.png" alt="FOODHUB" className="w-5 h-5 rounded-md object-contain" />
+                  <span className="font-bold text-slate-300">FOODHUB Captain</span>
+                </div>
+                <span className="font-mono text-[10px] text-amber-400/90 font-bold">v2.5.0 Pro</span>
+              </div>
             </div>
           </div>
         )}
