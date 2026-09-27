@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import {
   Bike,
   Navigation,
@@ -229,9 +229,21 @@ export function CourierMobileApp() {
   // Captain Profile & Status
   const [captain, setCaptain] = useState<CaptainProfile>(DEFAULT_CAPTAIN);
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState<
-    "map" | "drawer" | "wallet" | "payouts" | "inbox" | "schedule" | "scoring" | "rewards" | "settings" | "profile" | "support"
-  >("map");
+  type CourierTab =
+    | "map"
+    | "drawer"
+    | "wallet"
+    | "payouts"
+    | "inbox"
+    | "schedule"
+    | "scoring"
+    | "rewards"
+    | "settings"
+    | "profile"
+    | "support";
+
+  const [activeTab, setActiveTab] = useState<CourierTab>("map");
+  const [historyStack, setHistoryStack] = useState<CourierTab[]>(["map"]);
 
   // Rejection Policy: Max 1 rejection per day
   const [dailyRejectionsLeft, setDailyRejectionsLeft] = useState<number>(1);
@@ -280,6 +292,105 @@ export function CourierMobileApp() {
   const [stcPhone, setStcPhone] = useState("0559876543");
   const [stcDepositAmount, setStcDepositAmount] = useState("50");
   const [stcWithdrawAmount, setStcWithdrawAmount] = useState("100");
+
+  // Navigation stack handler (الرجوع للصفحة السابقة في أي صفحة)
+  const navigateToTab = useCallback((newTab: CourierTab) => {
+    playWebAudioTone("click");
+    setActiveTab(newTab);
+    setHistoryStack((prev) => {
+      if (prev[prev.length - 1] === newTab) return prev;
+      return [...prev, newTab];
+    });
+    try {
+      if (typeof window !== "undefined" && window.history) {
+        window.history.pushState({ tab: newTab }, "");
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  const handleGoBack = useCallback((): boolean => {
+    playWebAudioTone("click");
+
+    // 1. If emergency SOS modal is open, close it
+    if (showEmergencyModal) {
+      setShowEmergencyModal(false);
+      return true;
+    }
+
+    // 2. If OTP delivery modal is open, close it
+    if (showOtpModal) {
+      setShowOtpModal(false);
+      return true;
+    }
+
+    // 3. If in wallet sub-tabs (stc_deposit or stc_withdraw), return to main wallet overview
+    if (activeTab === "wallet" && walletSubTab !== "main") {
+      setWalletSubTab("main");
+      return true;
+    }
+
+    // 4. Pop from historyStack
+    if (historyStack.length > 1) {
+      const newStack = [...historyStack];
+      newStack.pop(); // remove current active tab
+      const previousTab = newStack[newStack.length - 1] || "map";
+      setHistoryStack(newStack);
+      setActiveTab(previousTab);
+      return true;
+    }
+
+    // 5. If somehow on any other tab without history, return to map
+    if (activeTab !== "map") {
+      setActiveTab("map");
+      setHistoryStack(["map"]);
+      return true;
+    }
+
+    return false; // Already on root (map)
+  }, [showEmergencyModal, showOtpModal, activeTab, walletSubTab, historyStack]);
+
+  // Hardware Back Button (Android Capacitor & Browser popstate)
+  useEffect(() => {
+    let backListener: any = null;
+    let lastBackPressTime = 0;
+
+    const setupBackHandler = async () => {
+      try {
+        const { App } = await import("@capacitor/app");
+        backListener = await App.addListener("backButton", () => {
+          const handled = handleGoBack();
+          if (!handled) {
+            // Already on main map screen -> double tap to exit
+            const now = Date.now();
+            if (now - lastBackPressTime < 2000) {
+              App.exitApp();
+            } else {
+              lastBackPressTime = now;
+              toast("اضغط رجوع مرة أخرى للخروج من التطبيق", { duration: 2000 });
+            }
+          }
+        });
+      } catch {
+        // Not running in Capacitor
+      }
+    };
+
+    void setupBackHandler();
+
+    const onPopState = () => {
+      handleGoBack();
+    };
+    window.addEventListener("popstate", onPopState);
+
+    return () => {
+      if (backListener && typeof backListener.remove === "function") {
+        backListener.remove();
+      }
+      window.removeEventListener("popstate", onPopState);
+    };
+  }, [handleGoBack]);
 
   // Shifts State: Exactly 2 shifts (12 hours each)
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
@@ -1012,8 +1123,7 @@ export function CourierMobileApp() {
               {/* Hamburger Drawer */}
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("drawer");
+                  navigateToTab("drawer");
                 }}
                 className="w-11 h-11 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-white flex items-center justify-center shadow-lg backdrop-blur-md pointer-events-auto active:scale-95 transition-transform"
               >
@@ -1038,8 +1148,7 @@ export function CourierMobileApp() {
               {/* Headset: Dedicated Support Page Button */}
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("support");
+                  navigateToTab("support");
                 }}
                 title="الدعم الفني وغرفة العمليات"
                 className="w-11 h-11 rounded-2xl bg-slate-900/90 border border-amber-500/60 text-amber-400 flex items-center justify-center shadow-lg backdrop-blur-md pointer-events-auto active:scale-95 transition-transform"
@@ -1426,11 +1535,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -1543,13 +1650,12 @@ export function CourierMobileApp() {
               </div>
 
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+                onClick={handleGoBack}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white active:scale-95 transition-transform"
+                title="رجوع"
               >
-                <X className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold">رجوع</span>
               </button>
             </div>
 
@@ -1557,10 +1663,9 @@ export function CourierMobileApp() {
             <div className="p-4 grid grid-cols-4 gap-2 border-b border-slate-800/80">
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("inbox");
+                  navigateToTab("inbox");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 active:scale-95 transition-transform"
               >
                 <div className="relative">
                   <Inbox className="w-5 h-5 text-amber-400" />
@@ -1571,10 +1676,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("schedule");
+                  navigateToTab("schedule");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 active:scale-95 transition-transform"
               >
                 <Calendar className="w-5 h-5 text-sky-400" />
                 <span className="text-[10px] font-semibold text-slate-300">الشفتات</span>
@@ -1582,10 +1686,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("wallet");
+                  navigateToTab("wallet");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 active:scale-95 transition-transform"
               >
                 <CreditCard className="w-5 h-5 text-emerald-400" />
                 <span className="text-[10px] font-semibold text-slate-300">المحفظة</span>
@@ -1593,10 +1696,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("payouts");
+                  navigateToTab("payouts");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 active:scale-95 transition-transform"
               >
                 <DollarSign className="w-5 h-5 text-purple-400" />
                 <span className="text-[10px] font-semibold text-slate-300">المدفوعات</span>
@@ -1607,10 +1709,9 @@ export function CourierMobileApp() {
             <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("support");
+                  navigateToTab("support");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors active:scale-98"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
@@ -1626,10 +1727,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("profile");
+                  navigateToTab("profile");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 active:scale-98 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
@@ -1645,10 +1745,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("scoring");
+                  navigateToTab("scoring");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 active:scale-98 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
@@ -1664,10 +1763,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("rewards");
+                  navigateToTab("rewards");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 active:scale-98 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
@@ -1683,10 +1781,9 @@ export function CourierMobileApp() {
 
               <button
                 onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("settings");
+                  navigateToTab("settings");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 active:scale-98 transition-all"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center">
@@ -1701,8 +1798,17 @@ export function CourierMobileApp() {
               </button>
             </div>
 
-            {/* Logout */}
-            <div className="p-4 border-t border-slate-800">
+            {/* Drawer Actions */}
+            <div className="p-4 border-t border-slate-800 space-y-2">
+              <Button
+                onClick={handleGoBack}
+                variant="outline"
+                className="w-full border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 rounded-2xl py-3 text-xs flex items-center justify-center gap-2 active:scale-98 transition-all"
+              >
+                <ChevronRight className="w-4 h-4 text-amber-400" />
+                <span className="font-bold">الرجوع للشاشة السابقة</span>
+              </Button>
+
               <Button
                 onClick={() => {
                   playWebAudioTone("click");
@@ -1738,11 +1844,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -1938,11 +2042,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -1994,11 +2096,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -2096,11 +2196,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -2157,11 +2255,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -2215,11 +2311,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -2280,11 +2374,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -2343,11 +2435,9 @@ export function CourierMobileApp() {
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setActiveTab("map");
-                }}
-                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+                onClick={handleGoBack}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
+                title="رجوع"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
