@@ -56,6 +56,14 @@ import {
   Minus,
   ExternalLink,
   Globe,
+  Star,
+  Zap,
+  Gauge,
+  Timer,
+  CheckCheck,
+  Crown,
+  Store,
+  ShoppingBag,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -177,12 +185,15 @@ interface CaptainProfile {
   vehicleType: string;
   plateNumber: string;
   rating: number;
-  tier: "Silver" | "Gold" | "Platinum";
+  tier: "Bronze" | "Silver" | "Gold" | "Diamond" | "Platinum";
   walletBalance: number;
   points: number;
   totalDeliveries: number;
   acceptanceRate: number;
   completionRate: number;
+  pickupSpeedMinutes?: number;
+  deliverySpeedMinutes?: number;
+  onTimeRate?: number;
 }
 
 const DEFAULT_CAPTAIN: CaptainProfile = {
@@ -199,6 +210,9 @@ const DEFAULT_CAPTAIN: CaptainProfile = {
   totalDeliveries: 142,
   acceptanceRate: 98,
   completionRate: 100,
+  pickupSpeedMinutes: 8.5,
+  deliverySpeedMinutes: 17.2,
+  onTimeRate: 99.4,
 };
 
 // Riyadh Hotspots (Surge areas: indicator only, NO bonus cash)
@@ -256,6 +270,118 @@ export function CourierMobileApp() {
 
   // Rejection Policy: Max 1 rejection per day
   const [dailyRejectionsLeft, setDailyRejectionsLeft] = useState<number>(1);
+
+  // Scoring View & 1 SAR 100% Rating Bonus States
+  const [scoringSubTab, setScoringSubTab] = useState<"all" | "tiers" | "speed" | "bonus" | "reviews">("all");
+  const [bonusEarnedThisWeek, setBonusEarnedThisWeek] = useState<number>(48.0);
+  const [bonusEarnedToday, setBonusEarnedToday] = useState<number>(7.0);
+  const [totalRatingBonusEarned, setTotalRatingBonusEarned] = useState<number>(118.0);
+  const [ratingBonusHistory, setRatingBonusHistory] = useState<Array<{
+    id: string;
+    orderNum: string;
+    source: "restaurant" | "store" | "customer";
+    sourceName: string;
+    amount: number;
+    rating: number;
+    timeAgo: string;
+    details: string;
+    speedMinutes: number;
+  }>>([
+    {
+      id: "b-1",
+      orderNum: "#4928",
+      source: "restaurant",
+      sourceName: "شاورمر (فرع العليا)",
+      amount: 1.0,
+      rating: 5,
+      timeAgo: "منذ 25 دقيقة",
+      details: "سرعة استلام فورية خلال 6 دقائق وتجهيز الصندوق الحراري",
+      speedMinutes: 6,
+    },
+    {
+      id: "b-2",
+      orderNum: "#4925",
+      source: "customer",
+      sourceName: "العميل: فهد العتيبي (حي الملقا)",
+      amount: 1.0,
+      rating: 5,
+      timeAgo: "منذ ساعتين",
+      details: "تسليم سريع لباب الشقة مع مطابقة رمز التحقق واللباقة",
+      speedMinutes: 14,
+    },
+    {
+      id: "b-3",
+      orderNum: "#4921",
+      source: "store",
+      sourceName: "متجر تمور الصالحية (حي الياسمين)",
+      amount: 1.0,
+      rating: 5,
+      timeAgo: "اليوم 03:15 م",
+      details: "حضور خلال 7 دقائق وحرص تام على سلامة المنتجات",
+      speedMinutes: 7,
+    },
+    {
+      id: "b-4",
+      orderNum: "#4917",
+      source: "customer",
+      sourceName: "العميلة: ريم القحطاني (حي حطين)",
+      amount: 1.0,
+      rating: 5,
+      timeAgo: "اليوم 01:40 م",
+      details: "توصيل فائق السرعة خلال 15 دقيقة وأدب جم في التعامل",
+      speedMinutes: 15,
+    },
+    {
+      id: "b-5",
+      orderNum: "#4910",
+      source: "restaurant",
+      sourceName: "برجر بوتيك (حي السليمانية)",
+      amount: 1.0,
+      rating: 5,
+      timeAgo: "أمس 09:20 م",
+      details: "استلام سلس وانطلاق فوري نحو وجهة العميل",
+      speedMinutes: 8,
+    },
+  ]);
+
+  const handleSimulate1SarBonus = () => {
+    const randomSources: Array<{ source: "restaurant" | "store" | "customer"; name: string; details: string; speedMinutes: number }> = [
+      { source: "restaurant", name: "مطعم ماما نورة (الروضة)", details: "استلام فوري خلال 5 دقائق وجودة تعامل", speedMinutes: 5 },
+      { source: "store", name: "متجر الدانوب (حطين)", details: "سرعة استلام وسلامة الأصناف الحساسة", speedMinutes: 7 },
+      { source: "customer", name: "العميل: سلطان الحربي (النرجس)", details: "تسليم مبكر بـ 6 دقائق قبل الموعد المحدد", speedMinutes: 13 },
+      { source: "customer", name: "العميلة: أريج السبيعي (العليا)", details: "تعامل راقٍ ووصول سريع مع رمز الاستلام", speedMinutes: 11 },
+    ];
+    const picked = randomSources[Math.floor(Math.random() * randomSources.length)];
+    const orderNum = `#${Math.floor(4930 + Math.random() * 50)}`;
+
+    setRatingBonusHistory(prev => [
+      {
+        id: `bonus-${Date.now()}`,
+        orderNum,
+        source: picked.source,
+        sourceName: picked.name,
+        amount: 1.0,
+        rating: 5,
+        timeAgo: "الآن",
+        details: picked.details,
+        speedMinutes: picked.speedMinutes,
+      },
+      ...prev,
+    ]);
+
+    setBonusEarnedToday(prev => prev + 1.0);
+    setBonusEarnedThisWeek(prev => prev + 1.0);
+    setTotalRatingBonusEarned(prev => prev + 1.0);
+    setCaptain(prev => ({
+      ...prev,
+      walletBalance: prev.walletBalance + 1.0,
+    }));
+
+    playWebAudioTone("success");
+    void triggerPhysicalVibration();
+    const sourceLabel = picked.source === "customer" ? "العميل" : picked.source === "restaurant" ? "المطعم" : "المتجر";
+    toast.success(`🎉 مبروك! حصلت على بونص +1.00 ر.س لتقييم 100% من ${sourceLabel} وأُضيف لمحفظتك فوراً!`);
+  };
 
   // Real-Time In-App Google Maps Navigation Engine (Stabilized & Jitter-Free)
   const [captainCoords, setCaptainCoords] = useState<[number, number]>([24.7136, 46.6753]);
@@ -2514,7 +2640,8 @@ export function CourierMobileApp() {
         {/* ==================================================== */}
         {activeTab === "scoring" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+            {/* Top Navigation Bar */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 backdrop-blur-md">
               <button
                 onClick={handleGoBack}
                 className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white flex items-center justify-center active:scale-95 transition-transform"
@@ -2522,41 +2649,567 @@ export function CourierMobileApp() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <h2 className="text-sm font-bold text-white">مستوى الأداء ونقاط التميز</h2>
-              <div className="w-9" />
+              <div className="text-center">
+                <h2 className="text-sm font-bold text-white">مستويات الأداء وسرعة الاستلام والتسليم</h2>
+                <p className="text-[10px] text-amber-400 font-medium">المستوى الذهبي • بونص التقييم 100%</p>
+              </div>
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center">
+                <Crown className="w-4 h-4 text-amber-400" />
+              </div>
+            </div>
+
+            {/* Quick Filter Navigation Sub-Tabs */}
+            <div className="px-3 pt-3 pb-1 border-b border-slate-900 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              {[
+                { id: "all", label: "نظرة شاملة", icon: Award },
+                { id: "tiers", label: "المستويات والرتب", icon: Crown },
+                { id: "speed", label: "سرعة الاستلام والتسليم", icon: Timer },
+                { id: "bonus", label: "بونص 1 ريال (تقييم 100%)", icon: DollarSign },
+                { id: "reviews", label: "تقييم 360°", icon: Star },
+              ].map((tab) => {
+                const IconComponent = tab.icon;
+                const isActive = scoringSubTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setScoringSubTab(tab.id as typeof scoringSubTab);
+                      playWebAudioTone("click");
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                      isActive
+                        ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20 font-bold"
+                        : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-slate-200"
+                    }`}
+                  >
+                    <IconComponent className="w-3.5 h-3.5" />
+                    <span>{tab.label}</span>
+                  </button>
+                );
+              })}
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 text-center">
-                <Award className="w-10 h-10 text-amber-400 mx-auto mb-2" />
-                <h3 className="text-base font-bold text-white">المستوى الذهبي (Gold Captain)</h3>
-                <p className="text-xs text-slate-300 mt-1">
-                  أنت من أفضل 5% من كباتن المنصة في الرياض!
-                </p>
-              </div>
+              {/* ==================================================== */}
+              {/* SECTION 1: CURRENT TIER & DIAMOND PROGRESSION         */}
+              {/* ==================================================== */}
+              {(scoringSubTab === "all" || scoringSubTab === "tiers") && (
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-amber-950/20 border border-amber-500/40 relative overflow-hidden shadow-lg shadow-amber-500/5">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                      <Crown className="w-3.5 h-3.5" />
+                      <span>مستواك الحالي: المستوى الذهبي (Gold)</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-slate-400">142 طلب مكتمل</span>
+                  </div>
+
+                  <h3 className="text-lg font-black text-white flex items-center gap-2">
+                    كابتن ذهبي متميز
+                    <Sparkles className="w-4 h-4 text-amber-400" />
+                  </h3>
+                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                    مستوى متقدم يُمنح للكباتن الملتزمين بسرعة الاستلام والتسليم ونيل تقييمات ممتازة من المتاجر والعملاء.
+                  </p>
+
+                  {/* Diamond Upgrade Progression */}
+                  <div className="mt-4 pt-3 border-t border-slate-800">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <span className="text-slate-300 font-medium flex items-center gap-1">
+                        <Award className="w-3.5 h-3.5 text-sky-400" />
+                        الترقية إلى <strong className="text-sky-300">المستوى الماسي (Diamond)</strong>
+                      </span>
+                      <span className="text-amber-400 font-mono font-bold">71%</span>
+                    </div>
+                    <div className="w-full h-2.5 rounded-full bg-slate-800 overflow-hidden p-0.5 border border-slate-700/50">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-amber-400 via-sky-400 to-sky-300 transition-all duration-500"
+                        style={{ width: "71%" }}
+                      />
+                    </div>
+                    <div className="grid grid-cols-3 gap-2 mt-3 pt-2 text-center text-[10px]">
+                      <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                        <p className="text-slate-400">الطلبات المنجزة</p>
+                        <p className="text-white font-bold font-mono mt-0.5">142 / 200</p>
+                        <span className="text-emerald-400 text-[9px]">متبقي 58 طلباً</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                        <p className="text-slate-400">سرعة الاستلام</p>
+                        <p className="text-emerald-400 font-bold font-mono mt-0.5">8.5 دقيقة</p>
+                        <span className="text-emerald-400 text-[9px]">الهدف أقل من 9 د ✓</span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-slate-950/60 border border-slate-800">
+                        <p className="text-slate-400">سرعة التسليم</p>
+                        <p className="text-emerald-400 font-bold font-mono mt-0.5">17.2 دقيقة</p>
+                        <span className="text-emerald-400 text-[9px]">الهدف أقل من 18 د ✓</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Active Tier Perks */}
+                  <div className="mt-3.5 p-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-[11px] space-y-1 text-slate-300">
+                    <p className="font-bold text-amber-300 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                      مزايا مستواك الذهبي المفعلة:
+                    </p>
+                    <ul className="space-y-1 text-[10.5px] pr-4 list-disc text-slate-300 leading-tight">
+                      <li>أولوية إسناد الطلبات الأقرب لموقعك بنطاق الـ 10 كم المحدد</li>
+                      <li>استحقاق بونص +1.00 ر.س عن كل تقييم 100% من الشركاء</li>
+                      <li>خصم 15% على صيانة وتغيير زيت الدراجة النارية بالورش المعتمدة</li>
+                      <li>دعم فني وتشغيلي مباشر ومخصص للحالات الطارئة</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* SECTION 2: 1 SAR 100% RATING BONUS SHOWCASE          */}
+              {/* ==================================================== */}
+              {(scoringSubTab === "all" || scoringSubTab === "bonus") && (
+                <div className="p-5 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-slate-900 to-amber-950/30 border border-emerald-500/40 shadow-lg relative overflow-hidden">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-emerald-500 flex items-center justify-center text-slate-950 font-black shadow-lg shadow-emerald-500/20">
+                        <DollarSign className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold">
+                          بونص إضافي فوري
+                        </span>
+                        <h3 className="text-sm font-bold text-white mt-1">
+                          بونص التقييم الكامل 100% (+1.00 ر.س)
+                        </h3>
+                      </div>
+                    </div>
+                    <div className="text-left">
+                      <span className="text-xl font-black text-emerald-400 font-mono">+1.00</span>
+                      <span className="text-[10px] text-slate-400 block font-medium">ر.س / لكل طلب</span>
+                    </div>
+                  </div>
+
+                  {/* Explicit Explanation of the 1 SAR Bonus Rule */}
+                  <div className="mt-3.5 p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-xs leading-relaxed text-slate-300">
+                    <p className="text-slate-200">
+                      <strong className="text-emerald-400 font-bold">آلية احتساب البونص: </strong>
+                      يحصل المندوب فورياً على <strong>1.00 ريال بونص إضافي</strong> يُودع مباشرة في رصيد المحفظة في كل طلب يحقق فيه <strong>تقييم 100% (5 نجوم كاملة)</strong> سواء من <strong>المطعم أو المتجر أو العميل</strong>، تقديراً لسرعة الاستلام والالتزام التام بالتسليم.
+                    </p>
+                  </div>
+
+                  {/* Bonus Balance Cards */}
+                  <div className="grid grid-cols-3 gap-2.5 mt-3.5">
+                    <div className="p-3 rounded-2xl bg-slate-950/80 border border-emerald-500/30 text-center">
+                      <p className="text-[10px] text-slate-400 font-medium">بونص اليوم</p>
+                      <p className="text-lg font-black text-emerald-400 font-mono mt-0.5">
+                        +{bonusEarnedToday.toFixed(2)}
+                      </p>
+                      <span className="text-[9px] text-slate-500">7 طلبات 100%</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-950/80 border border-amber-500/30 text-center">
+                      <p className="text-[10px] text-slate-400 font-medium">بونص هذا الأسبوع</p>
+                      <p className="text-lg font-black text-amber-400 font-mono mt-0.5">
+                        +{bonusEarnedThisWeek.toFixed(2)}
+                      </p>
+                      <span className="text-[9px] text-slate-500">48 طلباً 100%</span>
+                    </div>
+                    <div className="p-3 rounded-2xl bg-slate-950/80 border border-purple-500/30 text-center">
+                      <p className="text-[10px] text-slate-400 font-medium">إجمالي التراكمي</p>
+                      <p className="text-lg font-black text-purple-400 font-mono mt-0.5">
+                        +{totalRatingBonusEarned.toFixed(2)}
+                      </p>
+                      <span className="text-[9px] text-slate-500">ر.س مضافة للمحفظة</span>
+                    </div>
+                  </div>
+
+                  {/* Interactive Test Action for Bonus */}
+                  <div className="mt-3.5 flex items-center justify-between gap-2 p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-[11px] text-emerald-200">
+                        اختبار أثر البونص الفوري على المحفظة
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleSimulate1SarBonus}
+                      className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-bold text-xs flex items-center gap-1 shadow-md shadow-emerald-500/20 transition-all shrink-0"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>قيد +1 ريال تجريبي</span>
+                    </button>
+                  </div>
+
+                  {/* Recent 100% Rating Bonus Records */}
+                  <div className="mt-4 pt-3 border-t border-slate-800">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <CheckCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        سجل آخر بونصات التقييم 100% المستلمة:
+                      </h4>
+                      <span className="text-[10px] text-slate-400 font-mono">{ratingBonusHistory.length} طلبات</span>
+                    </div>
+
+                    <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                      {ratingBonusHistory.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-2.5 rounded-2xl bg-slate-950/70 border border-slate-800/80 flex items-start justify-between gap-2 hover:border-slate-700 transition-colors"
+                        >
+                          <div className="flex items-start gap-2">
+                            <div
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                                item.source === "customer"
+                                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                  : item.source === "restaurant"
+                                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                  : "bg-sky-500/20 text-sky-400 border border-sky-500/30"
+                              }`}
+                            >
+                              {item.source === "customer" ? (
+                                <User className="w-3.5 h-3.5" />
+                              ) : item.source === "restaurant" ? (
+                                <Store className="w-3.5 h-3.5" />
+                              ) : (
+                                <ShoppingBag className="w-3.5 h-3.5" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-white">{item.orderNum}</span>
+                                <span className="text-[10px] text-slate-400">• {item.sourceName}</span>
+                                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">
+                                  تقييم 100% ★ 5.0
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] text-slate-400 mt-0.5 leading-snug">{item.details}</p>
+                              <div className="flex items-center gap-2 mt-1 text-[9.5px] text-slate-500">
+                                <span>{item.timeAgo}</span>
+                                <span>•</span>
+                                <span className="text-sky-400">إنجاز في {item.speedMinutes} دقائق</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-left shrink-0">
+                            <span className="text-xs font-bold text-emerald-400 font-mono">+1.00 ر.س</span>
+                            <span className="text-[8.5px] text-emerald-300/70 block">بونص فوري</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* SECTION 3: PICKUP & DELIVERY SPEED METRICS (SLA)      */}
+              {/* ==================================================== */}
+              {(scoringSubTab === "all" || scoringSubTab === "speed") && (
+                <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
+                        <Timer className="w-5 h-5 text-sky-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">مؤشرات سرعة الاستلام والتسليم</h3>
+                        <p className="text-[10px] text-slate-400">معايير الدقة والزمن ضمن نطاق الـ 10 كم الأقصى</p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 font-mono font-bold">
+                      التزام 99.4%
+                    </span>
+                  </div>
+
+                  {/* Dual Speed Cards: Pickup Speed vs Delivery Speed */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Pickup Speed (سرعة استلام الطلب من المطعم/المتجر) */}
+                    <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Store className="w-4 h-4 text-amber-400" />
+                          سرعة استلام الطلب (المتجر/المطعم)
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">
+                          فائق السرعة ⚡
+                        </span>
+                      </div>
+
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-black text-amber-400 font-mono">8.5</span>
+                        <span className="text-xs text-slate-400 font-medium">دقائق (متوسط الاستلام)</span>
+                      </div>
+
+                      <div className="space-y-1.5 pt-1 text-[11px] text-slate-300">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">المعيار المستهدف للمنصة:</span>
+                          <span className="font-mono text-slate-200">أقل من 10 دقائق</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">الوصول للمتجر بالموعد:</span>
+                          <span className="font-mono text-emerald-400 font-bold">99.2%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">متوسط وقت الانتظار بالمتجر:</span>
+                          <span className="font-mono text-sky-400">2.1 دقيقة</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Delivery Speed (سرعة تسليم الطلب إلى العميل) */}
+                    <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <Navigation className="w-4 h-4 text-sky-400" />
+                          سرعة تسليم الطلب (إلى العميل)
+                        </span>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 font-bold">
+                          تسليم قياسي 🚀
+                        </span>
+                      </div>
+
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-black text-sky-400 font-mono">17.2</span>
+                        <span className="text-xs text-slate-400 font-medium">دقيقة (متوسط التوصيل)</span>
+                      </div>
+
+                      <div className="space-y-1.5 pt-1 text-[11px] text-slate-300">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">المعيار المستهدف (نطاق 10 كم):</span>
+                          <span className="font-mono text-slate-200">أقل من 22 دقيقة</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">الوصول للعميل بالموعد:</span>
+                          <span className="font-mono text-emerald-400 font-bold">99.7%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">المصادقة برمز التسليم OTP:</span>
+                          <span className="font-mono text-emerald-400 font-bold">100%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Total Cycle Time Banner */}
+                  <div className="p-3 rounded-2xl bg-gradient-to-r from-sky-950/40 to-slate-950 border border-sky-500/20 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-sky-400 shrink-0" />
+                      <span className="text-xs text-slate-300">
+                        متوسط إجمالي دورة الطلب (من القبول حتى التسليم للعميل):
+                      </span>
+                    </div>
+                    <span className="text-sm font-black text-white font-mono shrink-0">25.7 دقيقة</span>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* SECTION 4: ALL 4 TIERS ROADMAP & REQUIREMENTS         */}
+              {/* ==================================================== */}
+              {(scoringSubTab === "all" || scoringSubTab === "tiers") && (
+                <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Crown className="w-4 h-4 text-amber-400" />
+                      سلم مستويات الكباتن وتقييم الأداء
+                    </h3>
+                    <span className="text-[10px] text-slate-400">4 مستويات رئيسية</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* Bronze Tier */}
+                    <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-orange-950/60 border border-orange-700/50 flex items-center justify-center text-orange-400 font-bold shrink-0 mt-0.5">
+                          B
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-slate-200">المستوى البرونزي (Bronze)</h4>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">مبدئي</span>
+                          </div>
+                          <p className="text-[10.5px] text-slate-400 mt-0.5">
+                            0 - 50 طلب | استلام &lt; 16 د | تسليم &lt; 30 د | تقييم &gt; 4.6
+                          </p>
+                          <span className="text-[9.5px] text-slate-400 mt-1 block">
+                            بونص التقييم 100%: +0.50 ر.س • إسناد طلبات اعتيادي
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono">مكتمل ✓</span>
+                    </div>
+
+                    {/* Silver Tier */}
+                    <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-600 flex items-center justify-center text-slate-200 font-bold shrink-0 mt-0.5">
+                          S
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-slate-200">المستوى الفضي (Silver)</h4>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400">منتظم</span>
+                          </div>
+                          <p className="text-[10.5px] text-slate-400 mt-0.5">
+                            51 - 120 طلب | استلام &lt; 13 د | تسليم &lt; 24 د | تقييم &gt; 4.8
+                          </p>
+                          <span className="text-[9.5px] text-slate-400 mt-1 block">
+                            بونص التقييم 100%: +0.75 ر.س • أولوية خفيفة في الإسناد
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono">مكتمل ✓</span>
+                    </div>
+
+                    {/* Gold Tier (CURRENT) */}
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border-2 border-amber-500/50 flex items-start justify-between gap-3 relative overflow-hidden">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-black flex items-center justify-center shrink-0 mt-0.5 shadow-md shadow-amber-500/30">
+                          G
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-black text-amber-300">المستوى الذهبي (Gold)</h4>
+                            <span className="text-[9px] px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold">
+                              مستواك الحالي
+                            </span>
+                          </div>
+                          <p className="text-[10.5px] text-slate-300 mt-0.5">
+                            121 - 250 طلب | استلام &lt; 10 د | تسليم &lt; 18 د | تقييم &gt; 4.90
+                          </p>
+                          <span className="text-[10px] text-emerald-400 font-bold mt-1 block">
+                            بونص التقييم 100%: +1.00 ر.س كامل • أولوية ذكية • خصم صيانة 15%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-left shrink-0">
+                        <span className="text-xs font-bold text-amber-400 font-mono">142 طلب</span>
+                      </div>
+                    </div>
+
+                    {/* Diamond Tier (VIP) */}
+                    <div className="p-3 rounded-2xl bg-sky-950/20 border border-sky-500/30 flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/50 text-sky-300 font-black flex items-center justify-center shrink-0 mt-0.5">
+                          D
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs font-bold text-sky-200">المستوى الماسي (Diamond VIP)</h4>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-medium">
+                              المستوى الأعلى
+                            </span>
+                          </div>
+                          <p className="text-[10.5px] text-slate-400 mt-0.5">
+                            251+ طلب | استلام &lt; 8 د | تسليم &lt; 15 د | تقييم &gt; 4.95
+                          </p>
+                          <span className="text-[9.5px] text-sky-300/80 mt-1 block">
+                            بونص التقييم 100%: +1.50 ر.س • أولوية قصوى مطلقة • دعم VIP مباشر
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-sky-400 font-mono">الهدف القادم</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* SECTION 5: 360° PARTNER RATINGS BREAKDOWN             */}
+              {/* ==================================================== */}
+              {(scoringSubTab === "all" || scoringSubTab === "reviews") && (
+                <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
+                        <Star className="w-4 h-4 text-purple-400 fill-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-white">التقييم الثلاثي الشامل (360°)</h3>
+                        <p className="text-[10px] text-slate-400">تقييم الأطراف الثلاثة لأدائك وسرعتك</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-black text-purple-400 font-mono">★ 4.96</span>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {/* Restaurant Rating */}
+                    <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                          <Store className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">تقييم المطاعم والمتاجر</p>
+                          <p className="text-[10px] text-slate-400">سرعة الحضور، استخدام الصندوق الحراري</p>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-black text-amber-400 font-mono">100%</span>
+                        <span className="text-[9px] text-emerald-400 block font-semibold">★ 5.0 / 5.0</span>
+                      </div>
+                    </div>
+
+                    {/* Customer Rating */}
+                    <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">تقييم العملاء</p>
+                          <p className="text-[10px] text-slate-400">سرعة التسليم، لباقة التواصل، سلامة الوجبة</p>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-black text-emerald-400 font-mono">99.8%</span>
+                        <span className="text-[9px] text-emerald-400 block font-semibold">★ 4.98 / 5.0</span>
+                      </div>
+                    </div>
+
+                    {/* Platform Operations Compliance */}
+                    <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-white">مؤشر الامتثال لمنصة ميلفاي</p>
+                          <p className="text-[10px] text-slate-400">الالتزام بنطاق 10 كم، التحقق برمز OTP، الشيفت</p>
+                        </div>
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-black text-sky-400 font-mono">99.5%</span>
+                        <span className="text-[9px] text-sky-300 block font-semibold">التزام نموذجي</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ==================================================== */}
+              {/* SECTION 6: GENERAL STATS GRID                         */}
+              {/* ==================================================== */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                   <p className="text-[10px] text-slate-400">نسبة قبول الطلبات</p>
-                  <p className="text-xl font-black text-emerald-400 font-mono mt-1">
+                  <p className="text-xl font-black text-emerald-400 font-mono mt-0.5">
                     {captain.acceptanceRate}%
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                   <p className="text-[10px] text-slate-400">نسبة إكمال التوصيل</p>
-                  <p className="text-xl font-black text-sky-400 font-mono mt-1">
+                  <p className="text-xl font-black text-sky-400 font-mono mt-0.5">
                     {captain.completionRate}%
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                   <p className="text-[10px] text-slate-400">إجمالي الطلبات المكتملة</p>
-                  <p className="text-xl font-black text-amber-400 font-mono mt-1">
+                  <p className="text-xl font-black text-amber-400 font-mono mt-0.5">
                     {captain.totalDeliveries}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
-                  <p className="text-[10px] text-slate-400">متوسط التقييم</p>
-                  <p className="text-xl font-black text-purple-400 font-mono mt-1">
+                <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 text-center">
+                  <p className="text-[10px] text-slate-400">متوسط التقييم العام</p>
+                  <p className="text-xl font-black text-purple-400 font-mono mt-0.5">
                     ★ {captain.rating}
                   </p>
                 </div>
