@@ -137,7 +137,7 @@ function ProfilePage() {
             <div className="text-center sm:text-start flex-1 space-y-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-white">
-                  {user?.user_metadata?.full_name || (lang === "ar" ? "عميل FoodHub المميز" : "FoodHub VIP Customer")}
+                  {user?.user_metadata?.["full_name"] || (lang === "ar" ? "عميل FoodHub المميز" : "FoodHub VIP Customer")}
                 </h1>
                 <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-[10px] font-black">
                   👑 {lang === "ar" ? "عضوية ذهبية VIP" : "VIP Gold Member"}
@@ -172,7 +172,7 @@ function ProfilePage() {
 
             <div>
               <div className="text-3xl font-black text-white font-mono tracking-tight">
-                {tn(walletBalance)} <span className="text-sm font-sans text-amber-400">{lang === "ar" ? "ر.س" : "SAR"}</span>
+                {walletBalance.toFixed(2)} <span className="text-sm font-sans text-amber-400">{lang === "ar" ? "ر.س" : "SAR"}</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
                 {lang === "ar" ? "تُخصم تلقائياً عند الدفع السريع" : "Auto-applied at quick checkout"}
