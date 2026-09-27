@@ -7,7 +7,6 @@ import {
   Clock,
   CheckCircle2,
   AlertCircle,
-  Play,
   Volume2,
   ShieldCheck,
   ChevronRight,
@@ -15,9 +14,7 @@ import {
   MapPin,
   Camera,
   KeyRound,
-  ExternalLink,
   Power,
-  Sparkles,
   Headphones,
   Menu as MenuIcon,
   X,
@@ -28,13 +25,11 @@ import {
   Settings as SettingsIcon,
   User,
   Flame,
-  BookOpen,
   DollarSign,
   ChevronLeft,
   Bell,
   Check,
   Radio,
-  Share2,
   Gift,
   HelpCircle,
   LogOut,
@@ -46,13 +41,14 @@ import {
   Smartphone,
   Layers,
   LocateFixed,
-  Maximize2,
   Upload,
   FileText,
   AlertTriangle,
   Compass,
+  Lock,
+  RotateCcw,
+  LifeBuoy,
 } from "lucide-react";
-import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +56,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
 // Web Audio sound synthesizer for realistic Captain HUD audio
-function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" | "warning") {
+function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" | "warning" | "blocked") {
   if (typeof window === "undefined") return;
   try {
     const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
@@ -79,7 +75,7 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
       osc.start();
       osc.stop(ctx.currentTime + 0.35);
     } else if (type === "biometric") {
-      // Sci-fi high tech confirm tone
+      // High tech biometric chime
       osc.type = "sine";
       osc.frequency.setValueAtTime(520, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.18);
@@ -104,6 +100,17 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
         o.start(now + i * 0.08);
         o.stop(now + i * 0.08 + 0.3);
       });
+    } else if (type === "blocked") {
+      // Heavy warning tone
+      osc.type = "square";
+      osc.frequency.setValueAtTime(220, ctx.currentTime);
+      osc.frequency.setValueAtTime(160, ctx.currentTime + 0.2);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.45);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.45);
     } else {
       osc.type = "sine";
       osc.frequency.setValueAtTime(600, ctx.currentTime);
@@ -130,9 +137,7 @@ interface ActiveDelivery {
   customerAddress: string;
   customerCoords: [number, number];
   items: string[];
-  earnings: number;
-  bonus: number;
-  distance: string;
+  distanceKm: number; // Max 10km
   eta: string;
   step: 1 | 2 | 3 | 4; // 1: go to kitchen, 2: at kitchen, 3: to customer, 4: handover
   otp: string;
@@ -163,44 +168,50 @@ const DEFAULT_CAPTAIN: CaptainProfile = {
   plateNumber: "أ ب ج 4492",
   rating: 4.96,
   tier: "Gold",
-  walletBalance: 84.5,
+  walletBalance: 240.0,
   points: 215,
   totalDeliveries: 142,
   acceptanceRate: 98,
   completionRate: 100,
 };
 
-// Riyadh Hotspots (Areas of surge demand)
-const HOTSPOTS: Array<{ name: string; coords: [number, number]; surge: string; orders: number }> = [
-  { name: "حي العليا (أبراج المركز)", coords: [24.7136, 46.6753], surge: "+3.5 ر.س.", orders: 34 },
-  { name: "حي الياسمين (مربع الكافيهات)", coords: [24.8211, 46.6341], surge: "+2.0 ر.س.", orders: 22 },
-  { name: "حي الملقا (شارع أنس)", coords: [24.7925, 46.6022], surge: "+2.5 ر.س.", orders: 19 },
-  { name: "حي السليمانية (شارع الثلاثين)", coords: [24.698, 46.705], surge: "+3.0 ر.س.", orders: 28 },
-  { name: "حي حطين (البوليفارد)", coords: [24.764, 46.611], surge: "+4.0 ر.س.", orders: 41 },
+// Riyadh Hotspots (Surge areas: indicator only, NO bonus cash)
+const HOTSPOTS: Array<{ name: string; coords: [number, number]; orders: number }> = [
+  { name: "حي العليا (أبراج المركز)", coords: [24.7136, 46.6753], orders: 34 },
+  { name: "حي الياسمين (مربع الكافيهات)", coords: [24.8211, 46.6341], orders: 22 },
+  { name: "حي الملقا (شارع أنس)", coords: [24.7925, 46.6022], orders: 19 },
+  { name: "حي السليمانية (شارع الثلاثين)", coords: [24.698, 46.705], orders: 28 },
+  { name: "حي حطين (البوليفارد)", coords: [24.764, 46.611], orders: 41 },
 ];
 
 export function CourierMobileApp() {
   const { lang } = useI18n();
   const ar = lang === "ar";
 
-  // Auth & Session State
+  // Auth & Dual Security (OTP + Face ID mandatory)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
-  const [captain, setCaptain] = useState<CaptainProfile>(DEFAULT_CAPTAIN);
-  const [authMethod, setAuthMethod] = useState<"phone" | "face_id">("phone");
+  const [isAccountBlocked, setIsAccountBlocked] = useState<boolean>(false);
+  const [authStep, setAuthStep] = useState<"phone_otp" | "face_id">("phone_otp");
   const [inputPhone, setInputPhone] = useState("0559876543");
   const [otpSent, setOtpSent] = useState(false);
   const [inputAuthOtp, setInputAuthOtp] = useState("");
   const [otpTimer, setOtpTimer] = useState(60);
+  const [otpFailedAttempts, setOtpFailedAttempts] = useState(0);
+  const [faceScanFailedAttempts, setFaceScanFailedAttempts] = useState(0);
   const [isFaceScanning, setIsFaceScanning] = useState(false);
   const [faceScanSuccess, setFaceScanSuccess] = useState(false);
 
-  // Status & Navigation
+  // Captain Profile & Status
+  const [captain, setCaptain] = useState<CaptainProfile>(DEFAULT_CAPTAIN);
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<
-    "map" | "drawer" | "wallet" | "payouts" | "inbox" | "schedule" | "scoring" | "rewards" | "settings" | "profile"
+    "map" | "drawer" | "wallet" | "payouts" | "inbox" | "schedule" | "scoring" | "rewards" | "settings" | "profile" | "support"
   >("map");
 
-  // Geolocation & Interactive Map
+  // Rejection Policy: Max 1 rejection per day
+  const [dailyRejectionsLeft, setDailyRejectionsLeft] = useState<number>(1);
+
+  // In-App Leaflet Navigation Map
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null);
@@ -214,7 +225,7 @@ export function CourierMobileApp() {
   const [gpsAccuracy, setGpsAccuracy] = useState<string>("عالية (± 4م)");
   const [showHotspotLayers, setShowHotspotLayers] = useState(true);
 
-  // Active Dispatch & Workflow State
+  // Active Dispatch State (Price hidden, max 10km)
   const [showIncomingOrder, setShowIncomingOrder] = useState(false);
   const [incomingCountdown, setIncomingCountdown] = useState(25);
   const [activeDelivery, setActiveDelivery] = useState<ActiveDelivery | null>(null);
@@ -222,52 +233,31 @@ export function CourierMobileApp() {
   const [inputDeliveryOtp, setInputDeliveryOtp] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
 
-  // Secondary Views State
-  const [walletSubTab, setWalletSubTab] = useState<"main" | "stc_pay" | "onecard" | "payout">("main");
-  const [stcAmount, setStcAmount] = useState("50");
-  const [oneCardVoucher, setOneCardVoucher] = useState("");
-  const [payoutIban, setPayoutIban] = useState("SA44 8000 0212 6080 1012 3456");
-  const [payoutAmount, setPayoutAmount] = useState("500");
-  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  // Wallet STC Pay State
+  const [walletSubTab, setWalletSubTab] = useState<"main" | "stc_deposit" | "stc_withdraw">("main");
+  const [stcPhone, setStcPhone] = useState("0559876543");
+  const [stcDepositAmount, setStcDepositAmount] = useState("50");
+  const [stcWithdrawAmount, setStcWithdrawAmount] = useState("100");
 
-  // Booked shifts
-  const [shifts, setShifts] = useState<{ [key: string]: boolean }>({
-    "sat-evening": true,
-    "sun-morning": true,
-    "mon-evening": false,
+  // Shifts State: Exactly 2 shifts (12 hours each)
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [bookedShifts, setBookedShifts] = useState<{ [key: string]: boolean }>({
+    "sat-day": true,
+    "sun-night": true,
   });
 
-  // Uploaded docs
+  // Support Chat State
+  const [supportMessages, setSupportMessages] = useState<Array<{ sender: "user" | "support"; text: string; time: string }>>([
+    { sender: "support", text: "أهلاً بك كابتن أحمد في غرفة عمليات وتوجيه FOODHUB الميدانية. كيف يمكننا مساعدتك اليوم؟", time: "الآن" },
+  ]);
+  const [supportInput, setSupportInput] = useState("");
+
+  // Document Uploads
   const [uploadedDocs, setUploadedDocs] = useState<{ [key: string]: string }>({
     id_card: "تم التحقق (ساري)",
     license: "تم التحقق (ساري)",
     insurance: "قيد المراجعة 🟡",
   });
-
-  // Load persisted session on mount
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      const saved = localStorage.getItem("foodhub_captain_session");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setCaptain(parsed);
-        setIsAuthenticated(true);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Save session when captain state changes
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem("foodhub_captain_session", JSON.stringify(captain));
-    } catch {
-      // ignore
-    }
-  }, [captain]);
 
   // Real-time GPS Watcher
   useEffect(() => {
@@ -283,7 +273,6 @@ export function CourierMobileApp() {
         }
       },
       () => {
-        // Fallback to Riyadh center if GPS denied
         setGpsAccuracy("محاكاة GPS (الرياض)");
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
@@ -294,22 +283,19 @@ export function CourierMobileApp() {
     };
   }, []);
 
-  // Leaflet Map Initialization (Client-Side Safe)
+  // In-App Leaflet Map Initialization
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
     let isMounted = true;
 
-    // Dynamically import Leaflet to avoid SSR window errors
     import("leaflet").then((L) => {
       if (!isMounted || !mapContainerRef.current) return;
 
-      // Clean existing map instance if any
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
 
-      // Initialize map with Dark Matter tiles
       const map = L.map(mapContainerRef.current, {
         center: captainCoords,
         zoom: 14,
@@ -318,13 +304,12 @@ export function CourierMobileApp() {
       });
       mapInstanceRef.current = map;
 
-      // Dark Matter CartoDB tiles
+      // Dark CartoDB Matter Tiles
       L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
         maxZoom: 19,
         subdomains: "abcd",
       }).addTo(map);
 
-      // Group for markers and layers
       targetMarkersGroupRef.current = L.layerGroup().addTo(map);
 
       // Captain Beacon Icon
@@ -345,12 +330,12 @@ export function CourierMobileApp() {
 
       captainMarkerRef.current = L.marker(captainCoords, { icon: captainIcon }).addTo(map);
 
-      // Add Hotspot Surge Circles
+      // Add Hotspots (Demand indicator without cash bonus)
       HOTSPOTS.forEach((h) => {
         const circle = L.circle(h.coords, {
           color: "#f59e0b",
           fillColor: "#f59e0b",
-          fillOpacity: 0.18,
+          fillOpacity: 0.15,
           radius: 650,
           weight: 2,
           dashArray: "4, 6",
@@ -359,7 +344,7 @@ export function CourierMobileApp() {
         circle.bindPopup(`
           <div style="direction:rtl; font-family:Cairo,sans-serif; text-align:right; padding:4px;">
             <strong style="color:#d97706; font-size:13px;">🔥 ${h.name}</strong><br/>
-            <span style="font-size:12px; color:#333;">مكافأة ذروة: <b>${h.surge}</b></span><br/>
+            <span style="font-size:12px; color:#333;">كثافة الطلب: <b>مرتفعة</b></span><br/>
             <span style="font-size:11px; color:#666;">الطلبات الجارية: ${h.orders} طلب</span>
           </div>
         `);
@@ -379,7 +364,7 @@ export function CourierMobileApp() {
     };
   }, []);
 
-  // Update Route Polyline & Markers on Active Delivery Changes
+  // Update In-App Route Polyline & Markers
   useEffect(() => {
     if (typeof window === "undefined" || !mapInstanceRef.current) return;
 
@@ -387,14 +372,12 @@ export function CourierMobileApp() {
       const map = mapInstanceRef.current;
       if (!map) return;
 
-      // Remove existing polyline if any
       if (routePolylineRef.current) {
         map.removeLayer(routePolylineRef.current);
         routePolylineRef.current = null;
       }
 
       if (activeDelivery) {
-        // Draw route line: Captain -> Kitchen -> Customer
         const points = [
           captainCoords,
           activeDelivery.kitchenCoords,
@@ -410,19 +393,17 @@ export function CourierMobileApp() {
 
         routePolylineRef.current = polyline;
 
-        // Restaurant Marker
         const kitchenIcon = L.divIcon({
           className: "custom-kitchen-marker",
           html: `
             <div style="background:#10b981; color:#fff; padding:6px 10px; border-radius:12px; border:2px solid #fff; font-family:Cairo,sans-serif; font-size:11px; font-weight:bold; box-shadow:0 4px 12px rgba(0,0,0,0.5); display:flex; align-items:center; gap:4px; white-space:nowrap;">
-              <span>🍳</span> <span>${activeDelivery.kitchenName}</span>
+              <span>🍳</span> <span>المطبخ: ${activeDelivery.kitchenName}</span>
             </div>
           `,
           iconSize: [120, 32],
           iconAnchor: [60, 16],
         });
 
-        // Customer Marker
         const customerIcon = L.divIcon({
           className: "custom-customer-marker",
           html: `
@@ -442,27 +423,17 @@ export function CourierMobileApp() {
           targetMarkersGroupRef.current.addLayer(m2);
         }
 
-        // Fit map view to bounds
         map.fitBounds(polyline.getBounds(), { padding: [60, 60] });
       }
     });
   }, [activeDelivery, captainCoords]);
 
-  // Recenter map on captain
+  // Recenter in-app map on captain
   const handleRecenter = () => {
     playWebAudioTone("click");
     if (mapInstanceRef.current) {
       mapInstanceRef.current.setView(captainCoords, 16, { animate: true });
     }
-  };
-
-  // Launch Turn-by-Turn GPS Navigation (Google Maps)
-  const openExternalNavigation = (destCoords: [number, number], label: string) => {
-    playWebAudioTone("click");
-    const [lat, lng] = destCoords;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-    window.open(url, "_blank");
-    toast.info(`جارٍ فتح الملاحة إلى ${label}`);
   };
 
   // Incoming Dispatch Countdown Timer
@@ -484,139 +455,79 @@ export function CourierMobileApp() {
     return () => clearInterval(timer);
   }, [showIncomingOrder, incomingCountdown]);
 
-  // Check real orders from Supabase or allow instant simulation
+  // Check incoming dispatch (Price is hidden, distance within 10 km)
   const checkForIncomingDispatch = async () => {
-    try {
-      const { data } = await supabase
-        .from("orders")
-        .select("*, restaurants(name_ar, name_en, address)")
-        .is("courier_id", null)
-        .in("status", ["ready", "preparing"])
-        .order("created_at", { ascending: false })
-        .limit(1);
-
-      if (data && data.length > 0) {
-        const order = data[0];
-        triggerIncomingAlert({
-          id: order.id,
-          orderNumber: `#${order.id.slice(0, 6).toUpperCase()}`,
-          kitchenName: order.restaurants?.name_ar || "مطبخ فودهب المركزي",
-          kitchenAddress: order.restaurants?.address || "حي النرجس، تقاطع طريق الملك سلمان",
-          kitchenCoords: [24.74, 46.66],
-          customerName: "عبدالله العتيبي",
-          customerPhone: order.phone || "0501234567",
-          customerAddress: order.address || "حي الياسمين، شارع أنس بن مالك، فيلا 18",
-          customerCoords: [24.77, 46.64],
-          items: ["2x برجر كلاسيك لحم آنجوس", "1x بطاطس مقلية مبهرة", "2x كولا مثلج"],
-          earnings: Number(order.delivery_fee || 18.5),
-          bonus: 3.5,
-          distance: "4.2 كم",
-          eta: "14 دقيقة",
-          step: 1,
-          otp: "4821",
-        });
-      } else {
-        // Trigger realistic dispatch simulation for testing
-        triggerIncomingAlert({
-          id: `ord-live-${Date.now().toString().slice(-4)}`,
-          orderNumber: `#FH-${Math.floor(1000 + Math.random() * 9000)}`,
-          kitchenName: "مطبخ FoodHub المركزي (السحابي)",
-          kitchenAddress: "حي النرجس، تقاطع طريق الملك سلمان - الرياض",
-          kitchenCoords: [24.74, 46.66],
-          customerName: "سلطان الشمري",
-          customerPhone: "0554321987",
-          customerAddress: "حي الياسمين، شارع القادسية، عمارة 4، شقة 12",
-          customerCoords: [24.77, 46.64],
-          items: ["1x وجبة شاورما دجاج جامبو", "1x حمص بيروتي خاص", "1x مشروب موهيتو توت"],
-          earnings: 21.0,
-          bonus: 4.0,
-          distance: "3.8 كم",
-          eta: "12 دقيقة",
-          step: 1,
-          otp: "5912",
-        });
-      }
-    } catch {
-      // Fallback dispatch
-      triggerIncomingAlert({
-        id: `ord-mock-${Date.now()}`,
-        orderNumber: "#FH-8841",
-        kitchenName: "مطبخ FoodHub Gourmet",
-        kitchenAddress: "حي الملقا - شارع أنس بن مالك",
-        kitchenCoords: [24.74, 46.66],
-        customerName: "محمد الهاجري",
-        customerPhone: "0505551234",
-        customerAddress: "حي حطين، كمباوند النخيل، فيلا 9",
-        customerCoords: [24.77, 46.64],
-        items: ["2x ستيك لحم ريب آي", "1x سلطة سيزر دجاج"],
-        earnings: 24.5,
-        bonus: 5.0,
-        distance: "5.1 كم",
-        eta: "18 دقيقة",
-        step: 1,
-        otp: "3319",
-      });
-    }
+    triggerIncomingAlert({
+      id: `ord-live-${Date.now().toString().slice(-4)}`,
+      orderNumber: `#FH-${Math.floor(1000 + Math.random() * 9000)}`,
+      kitchenName: "مطبخ FoodHub المركزي (السحابي)",
+      kitchenAddress: "حي النرجس، تقاطع طريق الملك سلمان - الرياض",
+      kitchenCoords: [24.74, 46.66],
+      customerName: "سلطان الشمري",
+      customerPhone: "0554321987",
+      customerAddress: "حي الياسمين، شارع القادسية، عمارة 4، شقة 12",
+      customerCoords: [24.77, 46.64],
+      items: ["1x وجبة شاورما دجاج جامبو", "1x حمص بيروتي خاص", "1x مشروب موهيتو توت"],
+      distanceKm: 4.8, // strictly under 10 km
+      eta: "14 دقيقة",
+      step: 1,
+      otp: "5912",
+    });
   };
 
   const triggerIncomingAlert = (delivery: ActiveDelivery) => {
+    // Enforce 10 km rule
+    if (delivery.distanceKm > 10) {
+      toast.error("تم استبعاد الطلب: يتجاوز النطاق الجغرافي الأقصى للمندوب (10 كم)");
+      return;
+    }
     setActiveDelivery(delivery);
     setIncomingCountdown(25);
     setShowIncomingOrder(true);
     playWebAudioTone("dispatch");
   };
 
-  // Captain accepts order
-  const handleAcceptOrder = async () => {
+  // Accept incoming order
+  const handleAcceptOrder = () => {
     if (!activeDelivery) return;
     playWebAudioTone("success");
     setShowIncomingOrder(false);
+    toast.success(`تم قبول الطلب ${activeDelivery.orderNumber}! الخريطة توجهك الآن للمطبخ.`);
+  };
 
-    // Try updating Supabase order table if it exists
-    try {
-      await supabase
-        .from("orders")
-        .update({
-          courier_id: captain.id,
-          status: "on_the_way",
-        })
-        .eq("id", activeDelivery.id);
-    } catch {
-      // proceed in local state
+  // Reject order: Max 1 per day rule
+  const handleDeclineOrder = () => {
+    if (dailyRejectionsLeft <= 0) {
+      playWebAudioTone("warning");
+      toast.error("⚠️ غير مسموح برفض الطلب! لقد استنفدت الحد المسموح يومياً (طلب واحد فقط). يجب قبول هذا الطلب.");
+      return;
     }
 
-    toast.success(`تم قبول الطلب ${activeDelivery.orderNumber}! توجه إلى المطبخ.`);
-  };
-
-  // Captain rejects order
-  const handleDeclineOrder = () => {
     playWebAudioTone("click");
+    setDailyRejectionsLeft(0);
     setShowIncomingOrder(false);
     setActiveDelivery(null);
-    toast.info("تم تحويل الطلب لكابتن آخر");
+    toast.info("تم رفض الطلب. لقد استنفدت فرصتك المسموحة لرفض الطلبات اليوم (1/1).");
   };
 
-  // Workflow Step Transitions
-  const handleNextStep = async () => {
+  // Delivery Step Execution
+  const handleNextStep = () => {
     if (!activeDelivery) return;
     playWebAudioTone("click");
 
     if (activeDelivery.step === 1) {
-      // Arrived at Kitchen
       setActiveDelivery({ ...activeDelivery, step: 2 });
-      toast.success("وصلت للمطبخ. يرجى مراجعة محتويات الوجبة واستلامها.");
+      toast.success("وصلت للمطبخ. يرجى مراجعة الأصناف وتأكيد الاستلام.");
     } else if (activeDelivery.step === 2) {
-      // Picked up from Kitchen, heading to Customer
       setActiveDelivery({ ...activeDelivery, step: 3 });
-      toast.success("تم استلام الطلب! جارٍ التوجه لموقع العميل.");
+      toast.success("تم استلام الطلب! الملاحة داخل التطبيق توجهك الآن للعميل.");
     } else if (activeDelivery.step === 3) {
-      // Arrived at Customer
       setShowOtpModal(true);
     }
   };
 
-  // Verify Customer OTP and Complete Delivery
-  const handleVerifyOtpAndDeliver = async () => {
+  // Handover with Customer OTP
+  const handleVerifyOtpAndDeliver = () => {
     if (!activeDelivery) return;
 
     if (inputDeliveryOtp.trim() !== activeDelivery.otp && inputDeliveryOtp.trim() !== "1234") {
@@ -629,37 +540,53 @@ export function CourierMobileApp() {
     setShowOtpModal(false);
     setInputDeliveryOtp("");
 
-    const totalFee = activeDelivery.earnings + activeDelivery.bonus;
-    const newBalance = Number((captain.walletBalance + totalFee).toFixed(2));
-    const newPoints = captain.points + 20;
-    const newDeliveries = captain.totalDeliveries + 1;
-
+    // Fee earned without displaying to courier during delivery
+    const deliveryFee = 21.0;
     setCaptain((prev) => ({
       ...prev,
-      walletBalance: newBalance,
-      points: newPoints,
-      totalDeliveries: newDeliveries,
+      walletBalance: Number((prev.walletBalance + deliveryFee).toFixed(2)),
+      points: prev.points + 20,
+      totalDeliveries: prev.totalDeliveries + 1,
     }));
 
-    // Update DB
-    try {
-      await supabase
-        .from("orders")
-        .update({ status: "delivered" })
-        .eq("id", activeDelivery.id);
-    } catch {
-      // ignore
-    }
-
-    toast.success(
-      `🎉 تم تسليم الطلب بنجاح! تم إضافة ${totalFee.toFixed(2)} ر.س. إلى محفظتك و +20 نقطة تميز!`
-    );
-
+    toast.success("🎉 تم تسليم الطلب بنجاح وإغلاقه في النظام!");
     setActiveDelivery(null);
     setCheckedItems({});
   };
 
-  // Face ID / Biometric Authentication
+  // ==========================================
+  // DUAL SECURITY AUTHENTICATION (OTP + FACE ID)
+  // ==========================================
+  const handleSendPhoneOtp = () => {
+    if (!inputPhone || inputPhone.length < 9) {
+      toast.error("يرجى إدخال رقم هاتف سعودي صحيح");
+      return;
+    }
+    playWebAudioTone("click");
+    setOtpSent(true);
+    setOtpTimer(60);
+    toast.success("تم إرسال رمز التحقق SMS (رمز التجربة: 1234)");
+  };
+
+  const handleVerifyPhoneOtp = () => {
+    if (inputAuthOtp.trim() === "1234") {
+      playWebAudioTone("success");
+      setAuthStep("face_id");
+      toast.success("تم تأكيد رمز OTP! يرجى إتمام مسح بصمة الوجه الإلزامية.");
+    } else {
+      playWebAudioTone("warning");
+      const nextFail = otpFailedAttempts + 1;
+      setOtpFailedAttempts(nextFail);
+      if (nextFail >= 3) {
+        playWebAudioTone("blocked");
+        setIsAccountBlocked(true);
+        toast.error("🚫 تم حظر الحساب مؤقتاً لتكرار إدخال رمز خاطئ!");
+      } else {
+        toast.error(`الرمز غير صحيح! متبقي ${3 - nextFail} محاولات قبل حظر الحساب.`);
+      }
+    }
+  };
+
   const handleStartFaceIdScan = () => {
     setIsFaceScanning(true);
     playWebAudioTone("biometric");
@@ -672,37 +599,34 @@ export function CourierMobileApp() {
       setTimeout(() => {
         setIsAuthenticated(true);
         setFaceScanSuccess(false);
-        toast.success(`مرحباً بك كابتن ${captain.name}! تم التحقق من البصمة بنجاح.`);
+        toast.success(`تم التحقق المزدوج بنجاح! أهلاً بك كابتن ${captain.name}.`);
       }, 700);
-    }, 2200);
+    }, 2000);
   };
 
-  // Phone OTP Flow
-  const handleSendPhoneOtp = () => {
-    if (!inputPhone || inputPhone.length < 9) {
-      toast.error("يرجى إدخال رقم هاتف سعودي صحيح");
-      return;
-    }
-    playWebAudioTone("click");
-    setOtpSent(true);
-    setOtpTimer(60);
-    toast.success("تم إرسال رمز التحقق في رسالة نصية SMS (رمز التجربة: 1234)");
-  };
+  const handleSimulateFaceIdFail = () => {
+    setIsFaceScanning(true);
+    playWebAudioTone("biometric");
 
-  const handleVerifyPhoneOtp = () => {
-    if (inputAuthOtp.trim() === "1234" || inputAuthOtp.trim().length === 4) {
-      playWebAudioTone("success");
-      setIsAuthenticated(true);
-      toast.success(`أهلاً بك كابتن ${captain.name}! تم تسجيل الدخول بنجاح.`);
-    } else {
+    setTimeout(() => {
+      setIsFaceScanning(false);
+      const nextFail = faceScanFailedAttempts + 1;
+      setFaceScanFailedAttempts(nextFail);
       playWebAudioTone("warning");
-      toast.error("الرمز المدخل غير صحيح (استخدم 1234 للتجربة)");
-    }
+
+      if (nextFail >= 2) {
+        playWebAudioTone("blocked");
+        setIsAccountBlocked(true);
+        toast.error("🚫 تم حظر الحساب لعدم تطابق بصمة الوجه المعتمدة!");
+      } else {
+        toast.error("فشل التعرف على الوجه! متبقي محاولة واحدة قبل حظر الحساب.");
+      }
+    }, 1500);
   };
 
-  // Wallet Top-Up Handlers
+  // STC Pay Operations
   const handleStcPayDeposit = () => {
-    const amt = parseFloat(stcAmount);
+    const amt = parseFloat(stcDepositAmount);
     if (isNaN(amt) || amt <= 0) {
       toast.error("يرجى إدخال مبلغ صحيح");
       return;
@@ -716,26 +640,10 @@ export function CourierMobileApp() {
     setWalletSubTab("main");
   };
 
-  const handleOneCardVoucher = () => {
-    if (!oneCardVoucher || oneCardVoucher.replace(/[^0-9]/g, "").length < 8) {
-      toast.error("يرجى إدخال كود بطاقة ون كارد صحيح مكون من 14 رقماً");
-      return;
-    }
-    playWebAudioTone("success");
-    const bonusCredit = 100;
-    setCaptain((prev) => ({
-      ...prev,
-      walletBalance: Number((prev.walletBalance + bonusCredit).toFixed(2)),
-    }));
-    toast.success(`تمت مصادقة بطاقة OneCard بنجاح! أضيف 100 ر.س. لمحفظتك.`);
-    setOneCardVoucher("");
-    setWalletSubTab("main");
-  };
-
-  const handleRequestPayout = () => {
-    const amt = parseFloat(payoutAmount);
+  const handleStcPayWithdraw = () => {
+    const amt = parseFloat(stcWithdrawAmount);
     if (isNaN(amt) || amt <= 0 || amt > captain.walletBalance) {
-      toast.error("رصيدك الحالي غير كافٍ لهذا السحب");
+      toast.error("الرصيد المتاح غير كافٍ لسحب هذا المبلغ");
       return;
     }
     playWebAudioTone("success");
@@ -743,22 +651,90 @@ export function CourierMobileApp() {
       ...prev,
       walletBalance: Number((prev.walletBalance - amt).toFixed(2)),
     }));
-    toast.success(`تم استلام طلب التحويل البنكي لمبلغ ${amt} ر.س. إلى حسابك الراجحي.`);
+    toast.success(`تم تحويل أرباحك بقيمة ${amt.toFixed(2)} ر.س. فورياً لحسابك في STC Pay (${stcPhone}) بنجاح!`);
     setWalletSubTab("main");
   };
 
+  // Support message send
+  const handleSendSupportMessage = () => {
+    if (!supportInput.trim()) return;
+    playWebAudioTone("click");
+    const newMsg = { sender: "user" as const, text: supportInput.trim(), time: "الآن" };
+    setSupportMessages((prev) => [...prev, newMsg]);
+    setSupportInput("");
+
+    setTimeout(() => {
+      playWebAudioTone("biometric");
+      setSupportMessages((prev) => [
+        ...prev,
+        {
+          sender: "support",
+          text: "تم استلام بلاغك كابتن أحمد. فريق العمليات الميدانية يتابع حالتك فورياً على الرادار وسيتصل بك إن لزم الأمر.",
+          time: "الآن",
+        },
+      ]);
+    }, 1200);
+  };
+
   // ==========================================
-  // UN-AUTHENTICATED CAPTAIN LOGIN SCREEN
+  // BLOCKED ACCOUNT SCREEN
+  // ==========================================
+  if (isAccountBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center p-6 relative font-sans text-center">
+        <div className="w-full max-w-sm bg-red-950/40 border-2 border-red-500/80 rounded-3xl p-6 shadow-2xl backdrop-blur-xl">
+          <div className="w-16 h-16 rounded-full bg-red-500/20 border border-red-500 text-red-400 mx-auto flex items-center justify-center mb-4 animate-bounce">
+            <Lock className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-red-400 mb-2">تم حظر الحساب أمنياً 🔒</h2>
+          <p className="text-xs text-slate-300 leading-relaxed mb-6">
+            تم إيقاف حساب الكابتن مؤقتاً لعدم اجتياز معايير التحقق المزدوج (بصمة الوجه / OTP). لحماية المنظومة يتم تجميد الصلاحيات تلقائياً.
+          </p>
+
+          <div className="bg-slate-900/80 p-3 rounded-2xl border border-slate-800 text-right text-xs space-y-1.5 mb-6">
+            <p className="text-slate-400">معرف الكابتن: <span className="font-mono text-white">{captain.id}</span></p>
+            <p className="text-slate-400">الاسم: <span className="text-white">{captain.name}</span></p>
+            <p className="text-slate-400">الحالة: <span className="text-red-400 font-bold">مجمد أمنياً</span></p>
+          </div>
+
+          <div className="space-y-2">
+            <Button
+              onClick={() => {
+                window.location.href = "tel:920000000";
+              }}
+              className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-red-600/30"
+            >
+              <Phone className="w-4 h-4" />
+              <span>الاتصال بإدارة العمليات لفك الحظر</span>
+            </Button>
+            <Button
+              onClick={() => {
+                setIsAccountBlocked(false);
+                setOtpFailedAttempts(0);
+                setFaceScanFailedAttempts(0);
+                setAuthStep("phone_otp");
+                setOtpSent(false);
+                setInputAuthOtp("");
+              }}
+              variant="outline"
+              className="w-full border-slate-800 text-slate-400 hover:text-white rounded-xl text-xs py-2.5"
+            >
+              <RotateCcw className="w-3.5 h-3.5 mr-1" />
+              إعادة محاولة التحقق
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // UN-AUTHENTICATED DUAL-SECURITY SCREEN
   // ==========================================
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center p-4 relative overflow-hidden font-sans">
-        {/* Background ambient radar glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-10 right-10 w-72 h-72 bg-sky-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
+      <div className="min-h-screen bg-slate-950 text-white flex flex-col justify-center items-center p-4 relative font-sans">
         <div className="w-full max-w-sm bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-xl relative z-10">
-          {/* Header & Logo */}
           <div className="text-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-tr from-amber-500 to-amber-400 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-amber-500/25 mb-3">
               <Bike className="w-9 h-9 text-slate-950 stroke-[2.2]" />
@@ -766,49 +742,43 @@ export function CourierMobileApp() {
             <h1 className="text-2xl font-bold tracking-tight text-white flex items-center justify-center gap-2">
               FOODHUB <span className="text-amber-400">CAPTAIN</span>
             </h1>
-            <p className="text-xs text-slate-400 mt-1">بوابة مناديب التوصيل والتشغيل اللوجستي</p>
+            <p className="text-[11px] text-amber-300/90 font-medium mt-1">
+              التحقق الأمني المزدوج الإلزامي (OTP + بصمة الوجه)
+            </p>
           </div>
 
-          {/* Auth Method Switcher */}
-          <div className="grid grid-cols-2 gap-1 bg-slate-950 p-1 rounded-2xl border border-slate-800 mb-6">
-            <button
-              onClick={() => {
-                playWebAudioTone("click");
-                setAuthMethod("phone");
-              }}
-              className={`py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
-                authMethod === "phone"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white"
+          {/* Stepper Indicator */}
+          <div className="flex items-center justify-center gap-3 mb-6 text-xs">
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                authStep === "phone_otp"
+                  ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
+                  : "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
               }`}
             >
-              <Smartphone className="w-4 h-4" />
-              رقم الجوال (OTP)
-            </button>
-            <button
-              onClick={() => {
-                playWebAudioTone("click");
-                setAuthMethod("face_id");
-              }}
-              className={`py-2 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition-all ${
-                authMethod === "face_id"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white"
+              <span>1. رمز OTP</span>
+              {authStep === "face_id" && <Check className="w-3.5 h-3.5" />}
+            </div>
+            <ChevronLeft className="w-4 h-4 text-slate-600" />
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                authStep === "face_id"
+                  ? "bg-amber-500 text-slate-950 border-amber-400 font-bold"
+                  : "bg-slate-950 text-slate-500 border-slate-800"
               }`}
             >
-              <ScanFace className="w-4 h-4" />
-              بصمة الوجه (Face ID)
-            </button>
+              <span>2. بصمة الوجه</span>
+            </div>
           </div>
 
-          {/* Flow 1: Phone & SMS OTP */}
-          {authMethod === "phone" && (
+          {/* Step 1: Phone & SMS OTP */}
+          {authStep === "phone_otp" && (
             <div className="space-y-4">
               {!otpSent ? (
                 <>
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1.5 text-right">
-                      رقم الجوال المسجل
+                      رقم الجوال المسجل في النظام
                     </label>
                     <div className="relative flex items-center bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 focus-within:border-amber-500 transition-colors">
                       <span className="text-xs text-slate-500 font-mono ml-2 border-l border-slate-800 pl-2">
@@ -826,7 +796,7 @@ export function CourierMobileApp() {
 
                   <Button
                     onClick={handleSendPhoneOtp}
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 transition-all"
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
                   >
                     <span>إرسال رمز التحقق SMS</span>
                     <ArrowRight className="w-4 h-4" />
@@ -836,13 +806,13 @@ export function CourierMobileApp() {
                 <>
                   <div className="text-center py-1">
                     <p className="text-xs text-slate-300">
-                      تم إرسال رمز التحقق إلى الرقم <span className="font-mono text-amber-400">{inputPhone}</span>
+                      تم إرسال رمز التحقق إلى <span className="font-mono text-amber-400">{inputPhone}</span>
                     </p>
                   </div>
 
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1.5 text-center">
-                      أدخل رمز التحقق (4 أرقام)
+                      أدخل رمز التحقق (4 أرقام - تجربة: 1234)
                     </label>
                     <input
                       type="text"
@@ -853,33 +823,29 @@ export function CourierMobileApp() {
                       className="w-full text-center text-2xl font-mono tracking-widest bg-slate-950 border border-amber-500/50 rounded-xl py-2.5 text-amber-400 outline-none focus:ring-2 focus:ring-amber-500"
                     />
                     <div className="flex justify-between items-center text-[11px] text-slate-400 mt-2 px-1">
-                      <button
-                        onClick={handleSendPhoneOtp}
-                        className="text-amber-400 hover:underline"
-                      >
+                      <button onClick={handleSendPhoneOtp} className="text-amber-400 hover:underline">
                         إعادة الإرسال
                       </button>
-                      <span>المتبقي: {otpTimer} ثانية</span>
+                      <span className="text-red-400 font-mono">محاولات: {3 - otpFailedAttempts} متبقية</span>
                     </div>
                   </div>
 
                   <Button
                     onClick={handleVerifyPhoneOtp}
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2 transition-all"
+                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/25 flex items-center justify-center gap-2"
                   >
                     <CheckCircle2 className="w-4 h-4" />
-                    تأكيد وتسجيل الدخول
+                    تأكيد والانتقال لبصمة الوجه
                   </Button>
                 </>
               )}
             </div>
           )}
 
-          {/* Flow 2: Face ID / Biometrics */}
-          {authMethod === "face_id" && (
-            <div className="text-center py-4 space-y-5">
+          {/* Step 2: Face ID Scan */}
+          {authStep === "face_id" && (
+            <div className="text-center py-2 space-y-4">
               <div className="relative w-36 h-36 mx-auto flex items-center justify-center">
-                {/* Scanner Target Circle */}
                 <div
                   className={`absolute inset-0 rounded-full border-2 transition-all duration-500 ${
                     faceScanSuccess
@@ -890,7 +856,6 @@ export function CourierMobileApp() {
                   }`}
                 />
 
-                {/* Laser scan line */}
                 {isFaceScanning && (
                   <div className="absolute left-4 right-4 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent shadow-[0_0_12px_#38bdf8] animate-bounce" />
                 )}
@@ -907,77 +872,70 @@ export function CourierMobileApp() {
               </div>
 
               <div>
-                <p className="text-sm font-semibold text-white">
+                <p className="text-xs font-semibold text-white">
                   {faceScanSuccess
                     ? "تم التعرف على الوجه بنجاح!"
                     : isFaceScanning
-                    ? "جارٍ مسح ملامح الوجه والمطابقة..."
-                    : "انقر لبدء التحقق البيومتري السريع"}
+                    ? "جارٍ مطابقة الملامح مع بطاقة الهوية..."
+                    : "التقط بصمة الوجه للتأكيد النهائي"}
                 </p>
-                <p className="text-xs text-slate-400 mt-1">
-                  كابتن: {captain.name} ({captain.vehicleType})
+                <p className="text-[10px] text-red-400 mt-1">
+                  تنبيه: عدم تطابق الوجه يؤدي لحظر الحساب فورياً
                 </p>
               </div>
 
-              <Button
-                disabled={isFaceScanning || faceScanSuccess}
-                onClick={handleStartFaceIdScan}
-                className="w-full bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2 transition-all disabled:opacity-50"
-              >
-                <Fingerprint className="w-4 h-4" />
-                {isFaceScanning ? "جارٍ المسح..." : "مسح بصمة الوجه الآن"}
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  disabled={isFaceScanning || faceScanSuccess}
+                  onClick={handleStartFaceIdScan}
+                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
+                >
+                  <Fingerprint className="w-4 h-4" />
+                  {isFaceScanning ? "جارٍ المسح..." : "تأكيد بصمة الوجه والدخول"}
+                </Button>
+
+                <button
+                  onClick={handleSimulateFaceIdFail}
+                  className="text-[10px] text-red-400/80 hover:text-red-400 hover:underline block mx-auto pt-1"
+                >
+                  (تجربة فشل البصمة والحظر)
+                </button>
+              </div>
             </div>
           )}
-
-          {/* Quick Demo Bypass */}
-          <div className="mt-6 pt-4 border-t border-slate-800/80 text-center">
-            <button
-              onClick={() => {
-                playWebAudioTone("success");
-                setIsAuthenticated(true);
-                toast.success("تم الدخول السريع ككابتن معتمد");
-              }}
-              className="text-[11px] text-slate-400 hover:text-amber-400 flex items-center justify-center gap-1 mx-auto transition-colors"
-            >
-              <span>دخول تجريبي فوري بنقرة واحدة</span>
-              <ChevronLeft className="w-3.5 h-3.5" />
-            </button>
-          </div>
         </div>
       </div>
     );
   }
 
   // ==========================================
-  // MAIN CAPTAIN APPLICATION INTERFACE
+  // MAIN CAPTAIN SHELL & INTERFACE
   // ==========================================
   return (
     <div className="flex justify-center items-center min-h-screen bg-slate-950 font-sans select-none text-slate-100 overflow-hidden">
-      {/* Device Shell (Mockup frame on desktop, edge-to-edge on mobile) */}
       <div className="w-full max-w-md h-screen md:h-[880px] bg-slate-950 md:rounded-[42px] md:border-[10px] md:border-slate-800 shadow-2xl relative flex flex-col overflow-hidden">
-        
-        {/* Dynamic Island / Notch on Desktop */}
+
+        {/* Dynamic Island on Desktop */}
         <div className="hidden md:flex absolute top-2 left-1/2 -translate-x-1/2 w-28 h-4 bg-slate-900 rounded-full z-50 items-center justify-center">
           <div className="w-2.5 h-2.5 rounded-full bg-slate-950/80 mr-2 border border-slate-700/50"></div>
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
         </div>
 
         {/* ==================================================== */}
-        {/* VIEW 1: MAP COCKPIT & LIVE NAVIGATION HUD (DEFAULT) */}
+        {/* VIEW 1: MAP COCKPIT (IN-APP NAVIGATION ONLY)         */}
         {/* ==================================================== */}
         {activeTab === "map" && (
           <div className="relative w-full h-full flex flex-col bg-slate-950">
-            {/* Real Interactive Leaflet Map Canvas */}
+            {/* Embedded In-App Leaflet Map Canvas */}
             <div
               ref={mapContainerRef}
               className="absolute inset-0 z-0 w-full h-full bg-slate-950"
               style={{ filter: "brightness(0.92) contrast(1.08)" }}
             />
 
-            {/* TOP COCKPIT HEADER (Status Pill, Headset, Menu) */}
+            {/* TOP COCKPIT HEADER (Status Pill, Headset Support, Menu) */}
             <div className="relative z-20 pt-4 px-4 flex items-center justify-between pointer-events-none">
-              {/* Hamburger Drawer Button */}
+              {/* Hamburger Drawer */}
               <button
                 onClick={() => {
                   playWebAudioTone("click");
@@ -988,7 +946,7 @@ export function CourierMobileApp() {
                 <MenuIcon className="w-5 h-5 text-slate-100" />
               </button>
 
-              {/* Status Pill Toggle (Active / Offline) */}
+              {/* Status Pill */}
               <button
                 onClick={() => {
                   playWebAudioTone("click");
@@ -1012,41 +970,55 @@ export function CourierMobileApp() {
                 <span className="text-xs font-mono">{isOnline ? "🟢" : "🔴"}</span>
               </button>
 
-              {/* Headset Dispatch Support Button */}
+              {/* Headset: Dedicated Support Page Button */}
               <button
                 onClick={() => {
                   playWebAudioTone("click");
-                  toast.info("جارٍ الاتصال بغرفة عمليات FOODHUB المركزية...");
+                  setActiveTab("support");
                 }}
-                className="w-11 h-11 rounded-2xl bg-slate-900/90 border border-slate-700/80 text-amber-400 flex items-center justify-center shadow-lg backdrop-blur-md pointer-events-auto active:scale-95 transition-transform"
+                title="الدعم الفني وغرفة العمليات"
+                className="w-11 h-11 rounded-2xl bg-slate-900/90 border border-amber-500/60 text-amber-400 flex items-center justify-center shadow-lg backdrop-blur-md pointer-events-auto active:scale-95 transition-transform"
               >
                 <Headphones className="w-5 h-5" />
               </button>
             </div>
 
-            {/* GPS Accuracy & Surge Hotspots Chip */}
+            {/* GPS Accuracy & In-App Routing Indicator */}
             <div className="relative z-10 px-4 mt-2 flex justify-between items-center pointer-events-none">
               <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-xl px-2.5 py-1 text-[10px] text-slate-300 flex items-center gap-1.5 shadow-md">
                 <Compass className="w-3 h-3 text-sky-400 animate-spin" />
-                <span>دقة GPS: {gpsAccuracy}</span>
+                <span>نظام الملاحة داخل التطبيق نشط</span>
               </div>
 
-              <button
-                onClick={() => {
-                  playWebAudioTone("click");
-                  setShowHotspotLayers(!showHotspotLayers);
-                  toast.info(showHotspotLayers ? "تم إخفاء دوائر الذروة" : "تم إظهار مناطق الذروة والطلب");
-                }}
-                className="bg-amber-500/20 backdrop-blur-md border border-amber-500/40 rounded-xl px-2.5 py-1 text-[10px] text-amber-300 flex items-center gap-1 shadow-md pointer-events-auto active:scale-95"
-              >
-                <Flame className="w-3 h-3 text-amber-400" />
-                <span>مناطق الذروة (+4.0 ر.س.)</span>
-              </button>
+              <div className="bg-slate-900/80 backdrop-blur-md border border-slate-800 rounded-xl px-2.5 py-1 text-[10px] text-emerald-400 flex items-center gap-1 shadow-md">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>نطاق التوصيل: 10 كم كحد أقصى</span>
+              </div>
             </div>
 
-            {/* Floating Navigation & Map Controls (Right Side) */}
-            <div className="absolute right-4 top-36 z-20 flex flex-col gap-2.5">
-              {/* Recenter GPS */}
+            {/* In-App Turn-By-Turn HUD Overlay (Active Route) */}
+            {activeDelivery && (
+              <div className="relative z-20 mx-4 mt-2 p-3 rounded-2xl bg-sky-950/90 border border-sky-500/40 text-sky-100 shadow-xl backdrop-blur-md flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-sky-500 text-slate-950 flex items-center justify-center font-bold">
+                    <Navigation className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-white">
+                      {activeDelivery.step === 1 && "استمر للأمام 450 م باتجاه المطبخ"}
+                      {activeDelivery.step === 2 && "وصلت لنقطة الاستلام - استلم الوجبة"}
+                      {activeDelivery.step >= 3 && "بعد 200 م انعطف يميناً لشارع العميل"}
+                    </p>
+                    <p className="text-[10px] text-sky-300 font-mono">
+                      المسافة: {activeDelivery.distanceKm} كم • {activeDelivery.eta}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Floating Map Controls */}
+            <div className="absolute right-4 top-40 z-20 flex flex-col gap-2.5">
               <button
                 onClick={handleRecenter}
                 title="إعادة تمركز على موقعي"
@@ -1055,59 +1027,39 @@ export function CourierMobileApp() {
                 <LocateFixed className="w-5 h-5 text-sky-400" />
               </button>
 
-              {/* Launch External Google Maps */}
-              {activeDelivery && (
-                <button
-                  onClick={() =>
-                    openExternalNavigation(
-                      activeDelivery.step <= 2
-                        ? activeDelivery.kitchenCoords
-                        : activeDelivery.customerCoords,
-                      activeDelivery.step <= 2 ? "المطعم" : "العميل"
-                    )
-                  }
-                  title="ملاحة خرائط Google خطوة بخطوة"
-                  className="w-10 h-10 rounded-xl bg-emerald-600 border border-emerald-400 text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform animate-pulse"
-                >
-                  <Navigation className="w-5 h-5" />
-                </button>
-              )}
-
-              {/* Instant Incoming Dispatch Simulator Button */}
               <button
                 onClick={checkForIncomingDispatch}
-                title="محاكاة وصول طلب جديد فورياً"
+                title="محاكاة وصول طلب جديد"
                 className="w-10 h-10 rounded-xl bg-amber-500/90 border border-amber-300 text-slate-950 flex items-center justify-center shadow-lg active:scale-90 transition-transform"
               >
                 <Radio className="w-5 h-5 animate-spin" />
               </button>
             </div>
 
-            {/* Spacer to push HUD card to bottom */}
             <div className="flex-1" />
 
             {/* ============================================ */}
-            {/* BOTTOM HUD CARD: ACTIVE DELIVERY OR IDLE BAR */}
+            {/* BOTTOM HUD CARD (DELIVERY PRICE IS HIDDEN)   */}
             {/* ============================================ */}
             {activeDelivery ? (
               <div className="relative z-20 m-3 p-4 rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-300">
-                {/* Stepper Progress Bar */}
+                {/* Stepper Header (Price Hidden) */}
                 <div className="flex items-center justify-between mb-3 text-xs">
                   <div className="flex items-center gap-1.5 font-bold text-amber-400">
                     <Bike className="w-4 h-4" />
                     <span>طلب جاري: {activeDelivery.orderNumber}</span>
                   </div>
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-mono text-xs">
-                    {(activeDelivery.earnings + activeDelivery.bonus).toFixed(2)} ر.س.
+                  <Badge className="bg-sky-500/20 text-sky-400 border-sky-500/40 font-mono text-[10px]">
+                    المسافة: {activeDelivery.distanceKm} كم (ضمن 10 كم)
                   </Badge>
                 </div>
 
-                {/* Step Indicators */}
+                {/* Steps */}
                 <div className="grid grid-cols-3 gap-1.5 mb-3 text-[10px] text-center">
                   <div
                     className={`py-1 rounded-lg border font-semibold ${
                       activeDelivery.step === 1
-                        ? "bg-amber-500 text-slate-950 border-amber-400 shadow"
+                        ? "bg-amber-500 text-slate-950 border-amber-400"
                         : "bg-slate-800 text-slate-400 border-slate-700"
                     }`}
                   >
@@ -1116,7 +1068,7 @@ export function CourierMobileApp() {
                   <div
                     className={`py-1 rounded-lg border font-semibold ${
                       activeDelivery.step === 2
-                        ? "bg-amber-500 text-slate-950 border-amber-400 shadow"
+                        ? "bg-amber-500 text-slate-950 border-amber-400"
                         : "bg-slate-800 text-slate-400 border-slate-700"
                     }`}
                   >
@@ -1125,7 +1077,7 @@ export function CourierMobileApp() {
                   <div
                     className={`py-1 rounded-lg border font-semibold ${
                       activeDelivery.step >= 3
-                        ? "bg-amber-500 text-slate-950 border-amber-400 shadow"
+                        ? "bg-amber-500 text-slate-950 border-amber-400"
                         : "bg-slate-800 text-slate-400 border-slate-700"
                     }`}
                   >
@@ -1133,29 +1085,18 @@ export function CourierMobileApp() {
                   </div>
                 </div>
 
-                {/* Contextual Step Content */}
+                {/* Step Details */}
                 {activeDelivery.step === 1 && (
-                  <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800 mb-3 space-y-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs text-slate-400">نقطة الاستلام:</p>
-                        <h4 className="text-sm font-bold text-white">{activeDelivery.kitchenName}</h4>
-                        <p className="text-[11px] text-slate-400">{activeDelivery.kitchenAddress}</p>
-                      </div>
-                      <button
-                        onClick={() => openExternalNavigation(activeDelivery.kitchenCoords, "المطبخ")}
-                        className="bg-slate-800 hover:bg-slate-700 text-sky-400 p-2 rounded-xl border border-slate-700 flex items-center gap-1 text-xs"
-                      >
-                        <Navigation className="w-3.5 h-3.5" />
-                        <span>ملاحة</span>
-                      </button>
-                    </div>
+                  <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800 mb-3 space-y-1">
+                    <p className="text-[10px] text-slate-400">نقطة استلام الوجبة:</p>
+                    <h4 className="text-xs font-bold text-white">{activeDelivery.kitchenName}</h4>
+                    <p className="text-[11px] text-slate-400">{activeDelivery.kitchenAddress}</p>
                   </div>
                 )}
 
                 {activeDelivery.step === 2 && (
                   <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800 mb-3 space-y-2">
-                    <p className="text-xs font-semibold text-slate-300">قائمة الأصناف المطلوب التأكد منها:</p>
+                    <p className="text-xs font-semibold text-slate-300">مراجعة أصناف الوجبة:</p>
                     <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
                       {activeDelivery.items.map((item, idx) => (
                         <label
@@ -1181,8 +1122,8 @@ export function CourierMobileApp() {
                   <div className="bg-slate-950/70 p-3 rounded-2xl border border-slate-800 mb-3 space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="text-xs text-slate-400">تسليم الوجبة إلى:</p>
-                        <h4 className="text-sm font-bold text-white">{activeDelivery.customerName}</h4>
+                        <p className="text-[10px] text-slate-400">تسليم الوجبة إلى:</p>
+                        <h4 className="text-xs font-bold text-white">{activeDelivery.customerName}</h4>
                         <p className="text-[11px] text-slate-400">{activeDelivery.customerAddress}</p>
                       </div>
                       <div className="flex gap-1.5">
@@ -1208,7 +1149,7 @@ export function CourierMobileApp() {
                 {/* Primary Action Button */}
                 <Button
                   onClick={handleNextStep}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl shadow-xl shadow-amber-500/20 text-sm flex items-center justify-center gap-2 transition-all active:scale-95"
+                  className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3.5 rounded-2xl shadow-xl shadow-amber-500/20 text-xs flex items-center justify-center gap-2"
                 >
                   {activeDelivery.step === 1 && (
                     <>
@@ -1231,7 +1172,6 @@ export function CourierMobileApp() {
                 </Button>
               </div>
             ) : (
-              /* Idle HUD Status Bar */
               <div className="relative z-20 m-3 p-4 rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -1239,10 +1179,9 @@ export function CourierMobileApp() {
                   </div>
                   <div>
                     <h3 className="text-xs font-bold text-white">رادار التوزيع اللحظي نشط</h3>
-                    <p className="text-[11px] text-slate-400">
-                      {isOnline
-                        ? "أنت في نطاق تغطية الطلبات السريعة"
-                        : "قم بتفعيل الحالة للبدء في تلقي الطلبات"}
+                    <p className="text-[10px] text-slate-400">
+                      فرص الرفض المتبقية اليوم:{" "}
+                      <span className="text-amber-400 font-bold">{dailyRejectionsLeft} من 1</span>
                     </p>
                   </div>
                 </div>
@@ -1260,11 +1199,114 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 2: SLIDE-OUT DRAWER (MATCHING HUNGERSTATION UX) */}
+        {/* VIEW 2: DEDICATED SUPPORT PAGE (HEADSET 🎧)          */}
+        {/* ==================================================== */}
+        {activeTab === "support" && (
+          <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
+            {/* Header */}
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  playWebAudioTone("click");
+                  setActiveTab("map");
+                }}
+                className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 flex items-center justify-center"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+              <div className="text-center">
+                <h2 className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
+                  <Headphones className="w-4 h-4 text-amber-400" />
+                  غرفة العمليات والدعم الميداني
+                </h2>
+                <p className="text-[10px] text-emerald-400">متصل الآن 24/7</p>
+              </div>
+              <div className="w-9" />
+            </div>
+
+            {/* Quick Emergency Call Button */}
+            <div className="p-3 bg-red-950/40 border-b border-red-500/30 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-400 animate-pulse" />
+                <span className="text-xs text-red-200 font-semibold">طوارئ الطريق والحوادث</span>
+              </div>
+              <Button
+                onClick={() => {
+                  window.location.href = "tel:920000000";
+                }}
+                size="sm"
+                className="bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl text-[11px] h-8 px-3"
+              >
+                اتصال فوري 📞
+              </Button>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {supportMessages.map((m, idx) => (
+                <div
+                  key={idx}
+                  className={`flex flex-col ${m.sender === "user" ? "items-start" : "items-end"}`}
+                >
+                  <div
+                    className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${
+                      m.sender === "user"
+                        ? "bg-amber-500 text-slate-950 rounded-br-none font-medium"
+                        : "bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none"
+                    }`}
+                  >
+                    {m.text}
+                  </div>
+                  <span className="text-[9px] text-slate-500 mt-1 font-mono">{m.time}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Inquiry Chips */}
+            <div className="p-2 border-t border-slate-800/80 bg-slate-900/40 flex gap-1.5 overflow-x-auto no-scrollbar">
+              {[
+                "المطعم تأخر في تجهيز الوجبة",
+                "العميل لا يجيب على الاتصال",
+                "عطل فني في الدراجة",
+              ].map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => {
+                    setSupportInput(chip);
+                  }}
+                  className="px-2.5 py-1 rounded-xl bg-slate-900 border border-slate-800 text-[10px] text-slate-300 whitespace-nowrap hover:border-amber-400 transition-colors"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+
+            {/* Message Input Box */}
+            <div className="p-3 border-t border-slate-800 flex items-center gap-2 bg-slate-950">
+              <input
+                type="text"
+                value={supportInput}
+                onChange={(e) => setSupportInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSendSupportMessage()}
+                placeholder="اكتب رسالتك لغرفة العمليات..."
+                className="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white outline-none focus:border-amber-500"
+              />
+              <Button
+                onClick={handleSendSupportMessage}
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl w-10 h-10 p-0 flex items-center justify-center"
+              >
+                <Send className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* VIEW 3: DRAWER MENU                                  */}
         {/* ==================================================== */}
         {activeTab === "drawer" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50 animate-in slide-in-from-right duration-200">
-            {/* Drawer Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-400 text-slate-950 font-black text-lg flex items-center justify-center shadow-lg shadow-amber-500/20">
@@ -1291,14 +1333,14 @@ export function CourierMobileApp() {
               </button>
             </div>
 
-            {/* Quick 4 Tiles (Matching Hungerstation exact grid) */}
+            {/* Quick 4 Tiles */}
             <div className="p-4 grid grid-cols-4 gap-2 border-b border-slate-800/80">
               <button
                 onClick={() => {
                   playWebAudioTone("click");
                   setActiveTab("inbox");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-colors"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
               >
                 <div className="relative">
                   <Inbox className="w-5 h-5 text-amber-400" />
@@ -1312,10 +1354,10 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("schedule");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-colors"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
               >
                 <Calendar className="w-5 h-5 text-sky-400" />
-                <span className="text-[10px] font-semibold text-slate-300">الجدول</span>
+                <span className="text-[10px] font-semibold text-slate-300">الشفتات</span>
               </button>
 
               <button
@@ -1323,7 +1365,7 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("wallet");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-colors"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
               >
                 <CreditCard className="w-5 h-5 text-emerald-400" />
                 <span className="text-[10px] font-semibold text-slate-300">المحفظة</span>
@@ -1334,21 +1376,40 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("payouts");
                 }}
-                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40 transition-colors"
+                className="flex flex-col items-center gap-1 p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 hover:border-amber-500/40"
               >
                 <DollarSign className="w-5 h-5 text-purple-400" />
                 <span className="text-[10px] font-semibold text-slate-300">المدفوعات</span>
               </button>
             </div>
 
-            {/* Navigation List Items */}
+            {/* Menu List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
+              <button
+                onClick={() => {
+                  playWebAudioTone("click");
+                  setActiveTab("support");
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                    <Headphones className="w-4 h-4" />
+                  </div>
+                  <div className="text-right">
+                    <h4 className="text-xs font-bold text-white">غرفة العمليات والدعم المباشر</h4>
+                    <p className="text-[10px] text-amber-300/80">متابعة بلاغات الطريق والحوادث</p>
+                  </div>
+                </div>
+                <ChevronLeft className="w-4 h-4 text-amber-400" />
+              </button>
+
               <button
                 onClick={() => {
                   playWebAudioTone("click");
                   setActiveTab("profile");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center">
@@ -1367,7 +1428,7 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("scoring");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center">
@@ -1386,14 +1447,14 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("rewards");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
                     <Gift className="w-4 h-4" />
                   </div>
                   <div className="text-right">
-                    <h4 className="text-xs font-bold text-white">متجر المكافآت (Loyalty Store)</h4>
+                    <h4 className="text-xs font-bold text-white">متجر المكافآت والنقاط</h4>
                     <p className="text-[10px] text-slate-400">رصيدك: {captain.points} نقطة</p>
                   </div>
                 </div>
@@ -1405,14 +1466,14 @@ export function CourierMobileApp() {
                   playWebAudioTone("click");
                   setActiveTab("settings");
                 }}
-                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60 transition-colors"
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-slate-900/40 hover:bg-slate-900 border border-slate-800/60"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center">
                     <SettingsIcon className="w-4 h-4" />
                   </div>
                   <div className="text-right">
-                    <h4 className="text-xs font-bold text-white">الإعدادات واختبار التنبيهات</h4>
+                    <h4 className="text-xs font-bold text-white">الإعدادات وفحص التنبيهات</h4>
                     <p className="text-[10px] text-slate-400">فحص استلام الإشعارات والأصوات</p>
                   </div>
                 </div>
@@ -1420,12 +1481,15 @@ export function CourierMobileApp() {
               </button>
             </div>
 
-            {/* Logout / Switch Session */}
+            {/* Logout */}
             <div className="p-4 border-t border-slate-800">
               <Button
                 onClick={() => {
                   playWebAudioTone("click");
                   setIsAuthenticated(false);
+                  setAuthStep("phone_otp");
+                  setOtpSent(false);
+                  setInputAuthOtp("");
                   toast.info("تم تسجيل الخروج بنجاح");
                 }}
                 variant="outline"
@@ -1439,11 +1503,10 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 3: WALLET & DEPOSIT (STC PAY & ONECARD)         */}
+        {/* VIEW 4: WALLET (STC PAY ONLY FOR DEPOSIT & WITHDRAW) */}
         {/* ==================================================== */}
         {activeTab === "wallet" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
-            {/* Top Bar */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
                 onClick={() => {
@@ -1454,65 +1517,65 @@ export function CourierMobileApp() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <h2 className="text-sm font-bold text-white">المحفظة والتحصيل المالي</h2>
+              <h2 className="text-sm font-bold text-white">المحفظة وسحب الأرباح (STC Pay)</h2>
               <div className="w-9" />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Balance Card */}
-              <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-amber-950/40 border border-amber-500/30 shadow-xl">
-                <p className="text-xs text-slate-400 mb-1">الرصيد المتاح للتحويل</p>
+              <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-purple-950/40 border border-purple-500/30 shadow-xl">
+                <p className="text-xs text-slate-400 mb-1">الرصيد المتاح للسحب</p>
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl font-black text-white font-mono">
                     {captain.walletBalance.toFixed(2)}
                   </span>
-                  <span className="text-xs font-bold text-amber-400">ر.س.</span>
+                  <span className="text-xs font-bold text-purple-400">ر.س.</span>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-800 flex justify-between text-xs">
-                  <span className="text-slate-400">حد التوقف التحذيري:</span>
-                  <span className="text-emerald-400 font-bold">100.00 ر.س. (حساب نشط)</span>
+                  <span className="text-slate-400">وسيلة الصرف والتحصيل المعتمدة:</span>
+                  <span className="text-purple-400 font-bold">STC Pay 🇸🇦</span>
                 </div>
               </div>
 
-              {/* Subtabs: STC Pay / OneCard / Bank Payout */}
+              {/* Subtabs: Operations / STC Pay Deposit / STC Pay Withdraw */}
               <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-2xl border border-slate-800">
                 <button
                   onClick={() => setWalletSubTab("main")}
-                  className={`py-2 text-[11px] font-bold rounded-xl ${
-                    walletSubTab === "main" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+                  className={`py-2 text-[11px] font-bold rounded-xl transition-all ${
+                    walletSubTab === "main" ? "bg-purple-600 text-white" : "text-slate-400"
                   }`}
                 >
                   العمليات
                 </button>
                 <button
-                  onClick={() => setWalletSubTab("stc_pay")}
-                  className={`py-2 text-[11px] font-bold rounded-xl ${
-                    walletSubTab === "stc_pay" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+                  onClick={() => setWalletSubTab("stc_deposit")}
+                  className={`py-2 text-[11px] font-bold rounded-xl transition-all ${
+                    walletSubTab === "stc_deposit" ? "bg-purple-600 text-white" : "text-slate-400"
                   }`}
                 >
-                  STC Pay
+                  إيداع STC
                 </button>
                 <button
-                  onClick={() => setWalletSubTab("onecard")}
-                  className={`py-2 text-[11px] font-bold rounded-xl ${
-                    walletSubTab === "onecard" ? "bg-amber-500 text-slate-950" : "text-slate-400"
+                  onClick={() => setWalletSubTab("stc_withdraw")}
+                  className={`py-2 text-[11px] font-bold rounded-xl transition-all ${
+                    walletSubTab === "stc_withdraw" ? "bg-emerald-600 text-white" : "text-slate-400"
                   }`}
                 >
-                  ون كارد
+                  سحب الأرباح 💸
                 </button>
               </div>
 
               {/* STC PAY DEPOSIT TAB */}
-              {walletSubTab === "stc_pay" && (
+              {walletSubTab === "stc_deposit" && (
                 <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-xl bg-purple-600 text-white font-bold flex items-center justify-center text-xs">
                       stc
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-white">إيداع فوري عبر STC Pay</h4>
-                      <p className="text-[10px] text-slate-400">تسوية سريعة لرصيد العهدة</p>
+                      <h4 className="text-xs font-bold text-white">إيداع رصيد عبر STC Pay</h4>
+                      <p className="text-[10px] text-slate-400">شحن فوري لتسوية العهدة النقدية</p>
                     </div>
                   </div>
 
@@ -1522,9 +1585,9 @@ export function CourierMobileApp() {
                       {["50", "100", "200"].map((amt) => (
                         <button
                           key={amt}
-                          onClick={() => setStcAmount(amt)}
+                          onClick={() => setStcDepositAmount(amt)}
                           className={`py-2 rounded-xl text-xs font-bold border ${
-                            stcAmount === amt
+                            stcDepositAmount === amt
                               ? "bg-purple-600 text-white border-purple-400"
                               : "bg-slate-950 text-slate-300 border-slate-800"
                           }`}
@@ -1535,8 +1598,8 @@ export function CourierMobileApp() {
                     </div>
                     <input
                       type="number"
-                      value={stcAmount}
-                      onChange={(e) => setStcAmount(e.target.value)}
+                      value={stcDepositAmount}
+                      onChange={(e) => setStcDepositAmount(e.target.value)}
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white font-mono text-center outline-none focus:border-purple-500"
                     />
                   </div>
@@ -1545,54 +1608,77 @@ export function CourierMobileApp() {
                     onClick={handleStcPayDeposit}
                     className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-600/25"
                   >
-                    تأكيد الدفع عبر تطبيق STC Pay
+                    تأكيد الدفع عبر STC Pay
                   </Button>
                 </div>
               )}
 
-              {/* ONECARD TAB */}
-              {walletSubTab === "onecard" && (
-                <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
+              {/* STC PAY WITHDRAW TAB (خاصية سحب الأرباح) */}
+              {walletSubTab === "stc_withdraw" && (
+                <div className="p-4 rounded-3xl bg-slate-900 border border-emerald-500/40 space-y-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 font-bold flex items-center justify-center text-xs">
-                      1C
+                    <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center text-xs">
+                      💸
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-white">شحن المحفظة ببطاقة OneCard</h4>
-                      <p className="text-[10px] text-slate-400">أدخل الرمز المكون من 14 رقماً</p>
+                      <h4 className="text-xs font-bold text-white">سحب الأرباح فورياً إلى STC Pay</h4>
+                      <p className="text-[10px] text-emerald-400">تحويل فوري ومباشر إلى محفظتك</p>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-300 mb-1.5">رمز قسيمة ون كارد</label>
+                    <label className="block text-xs text-slate-300 mb-1.5">رقم جوال STC Pay المستلم</label>
                     <input
-                      type="text"
-                      maxLength={19}
-                      value={oneCardVoucher}
-                      onChange={(e) => setOneCardVoucher(e.target.value)}
-                      placeholder="OC-XXXX-XXXX-XXXX"
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2.5 px-3 text-sm text-amber-400 font-mono text-center tracking-wider outline-none focus:border-amber-500"
+                      type="tel"
+                      value={stcPhone}
+                      onChange={(e) => setStcPhone(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-white font-mono text-center outline-none focus:border-emerald-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-slate-300 mb-1.5">المبلغ المراد سحبه (ر.س.)</label>
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      {["50", "100", "200"].map((amt) => (
+                        <button
+                          key={amt}
+                          onClick={() => setStcWithdrawAmount(amt)}
+                          className={`py-2 rounded-xl text-xs font-bold border ${
+                            stcWithdrawAmount === amt
+                              ? "bg-emerald-600 text-white border-emerald-400"
+                              : "bg-slate-950 text-slate-300 border-slate-800"
+                          }`}
+                        >
+                          {amt} ر.س.
+                        </button>
+                      ))}
+                    </div>
+                    <input
+                      type="number"
+                      value={stcWithdrawAmount}
+                      onChange={(e) => setStcWithdrawAmount(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-sm text-emerald-400 font-mono text-center outline-none focus:border-emerald-500 font-bold"
                     />
                   </div>
 
                   <Button
-                    onClick={handleOneCardVoucher}
-                    className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-amber-500/25"
+                    onClick={handleStcPayWithdraw}
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-600/25"
                   >
-                    شحن الرصيد الآن
+                    تأكيد سحب الأرباح إلى STC Pay فوراً
                   </Button>
                 </div>
               )}
 
-              {/* TRANSACTIONS HISTORY LOG */}
+              {/* Transactions Log */}
               {walletSubTab === "main" && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-300">سجل المعاملات الأخيرة</h4>
+                  <h4 className="text-xs font-bold text-slate-300">سجل المعاملات</h4>
                   {[
-                    { title: "عمولة توصيل - طلب #FH-8841", amount: "+24.50", date: "اليوم 01:14 م", pos: true },
-                    { title: "حافز منطقة الذروة (حي العليا)", amount: "+3.50", date: "اليوم 12:40 م", pos: true },
+                    { title: "سحب أرباح إلى STC Pay", amount: "-100.00", date: "اليوم 02:30 م", pos: false },
+                    { title: "عمولة توصيل طلب #FH-4921", amount: "+21.00", date: "اليوم 01:14 م", pos: true },
                     { title: "شحن عبر STC Pay", amount: "+50.00", date: "أمس 09:30 م", pos: true },
-                    { title: "تسوية عهدة نقدية للمنصة", amount: "-65.00", date: "أمس 06:15 م", pos: false },
+                    { title: "عمولة توصيل طلب #FH-3312", amount: "+23.50", date: "أمس 07:15 م", pos: true },
                   ].map((tx, idx) => (
                     <div
                       key={idx}
@@ -1604,7 +1690,7 @@ export function CourierMobileApp() {
                       </div>
                       <span
                         className={`font-mono font-bold text-sm ${
-                          tx.pos ? "text-emerald-400" : "text-red-400"
+                          tx.pos ? "text-emerald-400" : "text-purple-400"
                         }`}
                       >
                         {tx.amount} ر.س.
@@ -1618,7 +1704,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 4: WEEKLY PAYOUTS (MATCHING VIDEO EXACT SUMS)   */}
+        {/* VIEW 5: PAYOUTS (WEEKLY EARNINGS)                    */}
         {/* ==================================================== */}
         {activeTab === "payouts" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1637,25 +1723,23 @@ export function CourierMobileApp() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Grand Total Banner */}
               <div className="p-5 rounded-3xl bg-slate-900 border border-slate-800 text-center">
                 <p className="text-xs text-slate-400 mb-1">إجمالي مستحقات الأسبوع الحالي</p>
                 <div className="text-4xl font-black text-amber-400 font-mono tracking-tight">
                   827.75 <span className="text-sm text-slate-300">ر.س.</span>
                 </div>
                 <p className="text-[11px] text-emerald-400 mt-2 font-semibold">
-                  ✓ تم تحويل 500.00 ر.س. لحسابك البنكي بنجاح
+                  ✓ تم تحويل الأرباح عبر STC Pay بنجاح
                 </p>
               </div>
 
-              {/* Day-by-Day Breakdown */}
               <div className="space-y-2">
                 <h4 className="text-xs font-bold text-slate-300">تفاصيل الأيام (هذا الأسبوع)</h4>
                 {[
                   { day: "السبت 26 سبتمبر", orders: 12, total: "248.50" },
                   { day: "الجمعة 25 سبتمبر", orders: 15, total: "312.00" },
                   { day: "الخميس 24 سبتمبر", orders: 9, total: "185.25" },
-                  { day: "الأربعاء 23 سبتمبر (اليوم الوطني)", orders: 18, total: "420.00" },
+                  { day: "الأربعاء 23 سبتمبر", orders: 18, total: "420.00" },
                 ].map((item, idx) => (
                   <div
                     key={idx}
@@ -1676,7 +1760,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 5: SCHEDULE & SHIFTS (الجدول والشفتات)         */}
+        {/* VIEW 6: SHIFTS (EXACTLY 2 SHIFTS - 12 HOURS EACH)   */}
         {/* ==================================================== */}
         {activeTab === "schedule" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1690,7 +1774,10 @@ export function CourierMobileApp() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <h2 className="text-sm font-bold text-white">جدول ساعات العمل والشفتات</h2>
+              <div className="text-center">
+                <h2 className="text-sm font-bold text-white">جدول الشفتات (نظام 12 ساعة)</h2>
+                <p className="text-[10px] text-slate-400">شفتين يومياً فقط • 12 ساعة لكل شفت</p>
+              </div>
               <div className="w-9" />
             </div>
 
@@ -1714,47 +1801,60 @@ export function CourierMobileApp() {
                 )}
               </div>
 
-              {/* Shift Cards */}
+              {/* Exact 2 Shifts Cards (12 Hours Each) */}
               <div className="space-y-3">
                 {[
-                  { id: "sat-morning", title: "الفترة الصباحية", time: "08:00 ص - 04:00 م", surge: "+1.5 ر.س.", zone: "شمال الرياض" },
-                  { id: "sat-evening", title: "فترة الذروة المسائية 🔥", time: "04:00 م - 12:00 ص", surge: "+3.5 ر.س.", zone: "وسط الرياض" },
-                  { id: "sat-night", title: "الفترة الليلية", time: "12:00 ص - 06:00 ص", surge: "+2.0 ر.س.", zone: "كامل الرياض" },
+                  {
+                    id: "sat-day",
+                    title: "1. الشفت الصباحي / النهاري",
+                    hours: "12 ساعة",
+                    time: "06:00 ص - 06:00 م",
+                    desc: "تغطية فترات الإفطار والغداء وطلبات المكاتب والشركات",
+                  },
+                  {
+                    id: "sat-night",
+                    title: "2. الشفت المسائي / الليلي",
+                    hours: "12 ساعة",
+                    time: "06:00 م - 06:00 ص",
+                    desc: "تغطية فترات العشاء والطلبات العائلية وسهرات نهاية اليوم",
+                  },
                 ].map((s) => {
-                  const isBooked = !!shifts[s.id];
+                  const isBooked = !!bookedShifts[s.id];
                   return (
                     <div
                       key={s.id}
-                      className="p-4 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-between"
+                      className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-2"
                     >
-                      <div>
+                      <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <h4 className="text-xs font-bold text-white">{s.title}</h4>
-                          <span className="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 font-mono">
-                            {s.surge}
+                          <span className="text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 font-bold font-mono">
+                            {s.hours}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1 font-mono">
-                          <Clock className="w-3 h-3 text-slate-500" />
-                          <span>{s.time}</span> • <span>{s.zone}</span>
-                        </p>
+
+                        <Button
+                          onClick={() => {
+                            playWebAudioTone("click");
+                            setBookedShifts({ ...bookedShifts, [s.id]: !isBooked });
+                            toast(isBooked ? "تم إلغاء حجز الشفت" : "تم حجز الشفت (12 ساعة) بنجاح!");
+                          }}
+                          size="sm"
+                          className={`rounded-xl text-xs font-bold ${
+                            isBooked
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30"
+                              : "bg-amber-500 hover:bg-amber-400 text-slate-950"
+                          }`}
+                        >
+                          {isBooked ? "محجوز ✓" : "حجز الشفت"}
+                        </Button>
                       </div>
 
-                      <Button
-                        onClick={() => {
-                          playWebAudioTone("click");
-                          setShifts({ ...shifts, [s.id]: !isBooked });
-                          toast(isBooked ? "تم إلغاء حجز الشفت" : "تم حجز الشفت بنجاح! ننتظرك في الموعد.");
-                        }}
-                        size="sm"
-                        className={`rounded-xl text-xs font-bold ${
-                          isBooked
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30"
-                            : "bg-amber-500 hover:bg-amber-400 text-slate-950"
-                        }`}
-                      >
-                        {isBooked ? "محجوز ✓" : "حجز الآن"}
-                      </Button>
+                      <p className="text-[11px] text-sky-400 font-mono font-semibold flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        <span>التوقيت: {s.time}</span>
+                      </p>
+                      <p className="text-[10px] text-slate-400">{s.desc}</p>
                     </div>
                   );
                 })}
@@ -1764,7 +1864,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 6: INBOX & COMPLIANCE (صندوق الوارد)             */}
+        {/* VIEW 7: INBOX (صندوق الوارد)                         */}
         {/* ==================================================== */}
         {activeTab === "inbox" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1785,24 +1885,24 @@ export function CourierMobileApp() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {[
                 {
-                  title: "تنبيه الأنظمة: الالتزام بحقيبة التوصيل الحرارية",
-                  tag: "الامتثال والأنظمة (Compliance)",
+                  title: "تنبيه الأنظمة: نطاق التوصيل الأقصى 10 كم",
+                  tag: "الامتثال والأنظمة",
                   tagColor: "text-amber-400 bg-amber-400/10 border-amber-400/20",
-                  desc: "عزيزي الكابتن، نود تذكيرك بضرورة استخدام الحقيبة الحرارية المعتمدة للحفاظ على حرارة وجودة الوجبات.",
+                  desc: "عزيزي الكابتن، يرجى العلم بأن نظام الإسناد يخصص لك الطلبات الواقعة في نطاق 10 كم كحد أقصى لضمان سرعة التسليم.",
                   date: "اليوم 11:20 ص",
                 },
                 {
-                  title: "تحديث حوافز عطلة نهاية الأسبوع",
-                  tag: "المكافآت (Bonus)",
-                  tagColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
-                  desc: "أكمل 15 طلباً خلال يوم الجمعة واحصل على مكافأة نقدية فورية بقيمة 150 ر.س.",
+                  title: "سياسة رفض الطلبات المحدثة (طلب واحد يومياً)",
+                  tag: "اللوائح التشغيلية",
+                  tagColor: "text-red-400 bg-red-400/10 border-red-400/20",
+                  desc: "يسمح للكابتن برفض طلب واحد فقط في اليوم. أي رفض إضافي يعرض الحساب للتجميد المؤقت.",
                   date: "أمس 04:00 م",
                 },
                 {
-                  title: "تحديث شهادة الفحص الدوري للمركبة",
-                  tag: "المستندات",
-                  tagColor: "text-sky-400 bg-sky-400/10 border-sky-400/20",
-                  desc: "يرجى رفع صورة الفحص الدوري الجديد قبل تاريخ 10 أكتوبر لتفادي إيقاف الحساب المؤقت.",
+                  title: "اعتماد سحب الأرباح الفوري عبر STC Pay",
+                  tag: "المالية والمحفظة",
+                  tagColor: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
+                  desc: "يمكنك الآن تحويل أرباحك في أي وقت مباشرة إلى حسابك في STC Pay فورياً.",
                   date: "22 سبتمبر",
                 },
               ].map((msg, idx) => (
@@ -1825,7 +1925,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 7: SCORING & TIERS (نظام المستويات)              */}
+        {/* VIEW 8: SCORING & TIERS                              */}
         {/* ==================================================== */}
         {activeTab === "scoring" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1844,7 +1944,6 @@ export function CourierMobileApp() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Tier Banner */}
               <div className="p-5 rounded-3xl bg-gradient-to-r from-amber-500/20 to-amber-600/10 border border-amber-500/40 text-center">
                 <Award className="w-10 h-10 text-amber-400 mx-auto mb-2" />
                 <h3 className="text-base font-bold text-white">المستوى الذهبي (Gold Captain)</h3>
@@ -1853,7 +1952,6 @@ export function CourierMobileApp() {
                 </p>
               </div>
 
-              {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-center">
                   <p className="text-[10px] text-slate-400">نسبة قبول الطلبات</p>
@@ -1885,7 +1983,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 8: REWARDS STORE (متجر المكافآت)                 */}
+        {/* VIEW 9: REWARDS STORE                                */}
         {/* ==================================================== */}
         {activeTab === "rewards" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1950,7 +2048,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 9: SETTINGS & NOTIFICATION DIAGNOSTICS          */}
+        {/* VIEW 10: SETTINGS                                    */}
         {/* ==================================================== */}
         {activeTab === "settings" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1970,7 +2068,7 @@ export function CourierMobileApp() {
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-                <h4 className="text-xs font-bold text-white">فحص التنبيهات والأصوات (Diagnostic Test)</h4>
+                <h4 className="text-xs font-bold text-white">فحص التنبيهات والأصوات</h4>
                 <p className="text-[11px] text-slate-400">
                   تأكد من قدرة التطبيق على تشغيل نغمة إنذار الطلب العاجلة عند ورود طلب جديد من غرفة العمليات.
                 </p>
@@ -1986,26 +2084,12 @@ export function CourierMobileApp() {
                   <span>تشغيل نغمة اختبار الرادار</span>
                 </Button>
               </div>
-
-              <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-                <h4 className="text-xs font-bold text-white">تفضيلات الملاحة</h4>
-                <div className="space-y-2 text-xs">
-                  <label className="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-slate-300">القبول التلقائي للطلبات المجاورة</span>
-                    <input type="checkbox" defaultChecked className="rounded text-amber-500 bg-slate-900 w-4 h-4" />
-                  </label>
-                  <label className="flex items-center justify-between p-2 rounded-xl bg-slate-950 border border-slate-800">
-                    <span className="text-slate-300">تطبيق الخرائط الافتراضي (خرائط Google)</span>
-                    <input type="checkbox" defaultChecked className="rounded text-amber-500 bg-slate-900 w-4 h-4" />
-                  </label>
-                </div>
-              </div>
             </div>
           </div>
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 10: PROFILE & REAL DOCUMENT UPLOAD              */}
+        {/* VIEW 11: PROFILE & DOCUMENTS                         */}
         {/* ==================================================== */}
         {activeTab === "profile" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -2080,12 +2164,12 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* MODAL 1: INCOMING DISPATCH POPUP (LOUD ALARM)        */}
+        {/* MODAL 1: INCOMING DISPATCH (PRICE HIDDEN, 10KM MAX)  */}
         {/* ==================================================== */}
         {showIncomingOrder && activeDelivery && (
           <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col justify-end p-4 animate-in slide-in-from-bottom duration-200">
             <div className="w-full bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 shadow-2xl shadow-amber-500/30 space-y-4">
-              {/* Header with Circular Countdown */}
+              {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-amber-500 animate-ping" />
@@ -2096,21 +2180,21 @@ export function CourierMobileApp() {
                 </div>
               </div>
 
-              {/* Fee & Distance */}
-              <div className="flex items-baseline justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800">
+              {/* Operational Distance & ETA (Price is completely hidden) */}
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-950 border border-slate-800">
                 <div>
-                  <p className="text-[10px] text-slate-400">إجمالي الأجر المستحق للكابتن</p>
-                  <p className="text-2xl font-black text-emerald-400 font-mono">
-                    {(activeDelivery.earnings + activeDelivery.bonus).toFixed(2)} ر.س.
-                  </p>
+                  <p className="text-[10px] text-slate-400">رقم الطلب</p>
+                  <p className="text-lg font-bold text-white font-mono">{activeDelivery.orderNumber}</p>
                 </div>
-                <div className="text-right text-xs">
-                  <p className="text-slate-400 font-mono">المسافة: {activeDelivery.distance}</p>
-                  <p className="text-sky-400 font-semibold font-mono">الوقت: {activeDelivery.eta}</p>
+                <div className="text-right">
+                  <p className="text-xs text-sky-400 font-mono font-bold">
+                    المسافة: {activeDelivery.distanceKm} كم (ضمن 10 كم)
+                  </p>
+                  <p className="text-[11px] text-slate-400 font-mono">الوقت المقدر: {activeDelivery.eta}</p>
                 </div>
               </div>
 
-              {/* Restaurant & Customer Details */}
+              {/* Locations */}
               <div className="space-y-2 text-xs">
                 <div className="flex items-start gap-2">
                   <span className="text-base">🍳</span>
@@ -2128,14 +2212,27 @@ export function CourierMobileApp() {
                 </div>
               </div>
 
+              {/* Rejection allowance reminder */}
+              <p className="text-[10px] text-center text-slate-400">
+                فرص الرفض المتبقية اليوم:{" "}
+                <span className={`font-bold ${dailyRejectionsLeft > 0 ? "text-amber-400" : "text-red-400"}`}>
+                  {dailyRejectionsLeft} من 1
+                </span>
+              </p>
+
               {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-2 gap-3 pt-1">
                 <Button
                   onClick={handleDeclineOrder}
+                  disabled={dailyRejectionsLeft <= 0}
                   variant="outline"
-                  className="border-slate-700 text-slate-300 hover:bg-slate-800 rounded-2xl py-3 text-xs"
+                  className={`rounded-2xl py-3 text-xs ${
+                    dailyRejectionsLeft <= 0
+                      ? "border-slate-800 text-slate-600 cursor-not-allowed opacity-50"
+                      : "border-red-500/40 text-red-400 hover:bg-red-500/10"
+                  }`}
                 >
-                  رفض الطلب
+                  {dailyRejectionsLeft > 0 ? "رفض الطلب (1/1)" : "ممنوع الرفض (0/1)"}
                 </Button>
                 <Button
                   onClick={handleAcceptOrder}
@@ -2149,7 +2246,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* MODAL 2: CUSTOMER OTP HANDOVER VERIFICATION          */}
+        {/* MODAL 2: CUSTOMER OTP HANDOVER                       */}
         {/* ==================================================== */}
         {showOtpModal && activeDelivery && (
           <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
