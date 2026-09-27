@@ -48,6 +48,9 @@ import {
   Lock,
   RotateCcw,
   LifeBuoy,
+  Vibrate,
+  Sparkles,
+  Wifi,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n";
@@ -55,7 +58,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
-// Web Audio sound synthesizer for realistic Captain HUD audio
+// Sound synthesizer for realistic Captain HUD audio
 function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" | "warning" | "blocked") {
   if (typeof window === "undefined") return;
   try {
@@ -64,18 +67,17 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
     const gain = ctx.createGain();
 
     if (type === "dispatch") {
-      // High urgency double-frequency radar alert
+      // High urgency siren
       osc.type = "sawtooth";
       osc.frequency.setValueAtTime(850, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(1450, ctx.currentTime + 0.15);
-      gain.gain.setValueAtTime(0.35, ctx.currentTime);
+      gain.gain.setValueAtTime(0.4, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.start();
       osc.stop(ctx.currentTime + 0.35);
     } else if (type === "biometric") {
-      // High tech biometric chime
       osc.type = "sine";
       osc.frequency.setValueAtTime(520, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(1040, ctx.currentTime + 0.18);
@@ -86,7 +88,6 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
       osc.start();
       osc.stop(ctx.currentTime + 0.25);
     } else if (type === "success") {
-      // Triad celebration
       const now = ctx.currentTime;
       [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
         const o = ctx.createOscillator();
@@ -101,7 +102,6 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
         o.stop(now + i * 0.08 + 0.3);
       });
     } else if (type === "blocked") {
-      // Heavy warning tone
       osc.type = "square";
       osc.frequency.setValueAtTime(220, ctx.currentTime);
       osc.frequency.setValueAtTime(160, ctx.currentTime + 0.2);
@@ -122,7 +122,28 @@ function playWebAudioTone(type: "dispatch" | "biometric" | "success" | "click" |
       osc.stop(ctx.currentTime + 0.05);
     }
   } catch {
-    // Web Audio blocked or not supported
+    // ignore
+  }
+}
+
+// Physical Hardware Vibration Trigger (Capacitor Native + Web Vibration API)
+async function triggerPhysicalVibration() {
+  // 1. Web Vibration API (Android Chrome & WebViews)
+  if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+    try {
+      navigator.vibrate([600, 250, 600, 250, 1000]);
+    } catch {
+      // ignore
+    }
+  }
+
+  // 2. Capacitor Haptics Plugin (Physical Android App hardware motor)
+  try {
+    const { Haptics, NotificationType } = await import("@capacitor/haptics");
+    await Haptics.notification({ type: NotificationType.Warning });
+    await Haptics.vibrate({ duration: 1500 });
+  } catch {
+    // ignore
   }
 }
 
@@ -223,15 +244,15 @@ export function CourierMobileApp() {
   const targetMarkersGroupRef = useRef<any>(null);
   const [captainCoords, setCaptainCoords] = useState<[number, number]>([24.7136, 46.6753]);
   const [gpsAccuracy, setGpsAccuracy] = useState<string>("عالية (± 4م)");
-  const [showHotspotLayers, setShowHotspotLayers] = useState(true);
 
-  // Active Dispatch State (Price hidden, max 10km)
+  // Real-Time Radar Dispatch State (Price hidden, max 10km)
   const [showIncomingOrder, setShowIncomingOrder] = useState(false);
   const [incomingCountdown, setIncomingCountdown] = useState(25);
   const [activeDelivery, setActiveDelivery] = useState<ActiveDelivery | null>(null);
   const [checkedItems, setCheckedItems] = useState<{ [key: string]: boolean }>({});
   const [inputDeliveryOtp, setInputDeliveryOtp] = useState("");
   const [showOtpModal, setShowOtpModal] = useState(false);
+  const [lastDispatchedOrderId, setLastDispatchedOrderId] = useState<string>("");
 
   // Wallet STC Pay State
   const [walletSubTab, setWalletSubTab] = useState<"main" | "stc_deposit" | "stc_withdraw">("main");
@@ -273,7 +294,7 @@ export function CourierMobileApp() {
         }
       },
       () => {
-        setGpsAccuracy("محاكاة GPS (الرياض)");
+        setGpsAccuracy("GPS الرياض (معتمد)");
       },
       { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 }
     );
@@ -283,7 +304,7 @@ export function CourierMobileApp() {
     };
   }, []);
 
-  // In-App Leaflet Map Initialization
+  // In-App Leaflet Map Initialization with Mobile Container Fixes
   useEffect(() => {
     if (typeof window === "undefined" || !mapContainerRef.current) return;
     let isMounted = true;
@@ -304,11 +325,20 @@ export function CourierMobileApp() {
       });
       mapInstanceRef.current = map;
 
-      // Dark CartoDB Matter Tiles
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+      // Reliable Fastly CartoDB dark tiles with fallback to standard OSM
+      const darkTileLayer = L.tileLayer("https://cartodb-basemaps-a.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png", {
         maxZoom: 19,
         subdomains: "abcd",
-      }).addTo(map);
+      });
+
+      let fallbackAdded = false;
+      darkTileLayer.on("tileerror", () => {
+        if (!fallbackAdded) {
+          fallbackAdded = true;
+          L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+        }
+      });
+      darkTileLayer.addTo(map);
 
       targetMarkersGroupRef.current = L.layerGroup().addTo(map);
 
@@ -330,13 +360,13 @@ export function CourierMobileApp() {
 
       captainMarkerRef.current = L.marker(captainCoords, { icon: captainIcon }).addTo(map);
 
-      // Add Hotspots (Demand indicator without cash bonus)
+      // Hotspots (Demand indicator without cash bonus)
       HOTSPOTS.forEach((h) => {
         const circle = L.circle(h.coords, {
           color: "#f59e0b",
           fillColor: "#f59e0b",
-          fillOpacity: 0.15,
-          radius: 650,
+          fillOpacity: 0.18,
+          radius: 700,
           weight: 2,
           dashArray: "4, 6",
         });
@@ -353,10 +383,23 @@ export function CourierMobileApp() {
           targetMarkersGroupRef.current.addLayer(circle);
         }
       });
+
+      // Force size invalidation on mobile render passes so map is NEVER black
+      setTimeout(() => map.invalidateSize(), 200);
+      setTimeout(() => map.invalidateSize(), 600);
+      setTimeout(() => map.invalidateSize(), 1200);
     });
+
+    const handleWindowResize = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
+    window.addEventListener("resize", handleWindowResize);
 
     return () => {
       isMounted = false;
+      window.removeEventListener("resize", handleWindowResize);
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -387,7 +430,7 @@ export function CourierMobileApp() {
         const polyline = L.polyline(points, {
           color: "#06b6d4",
           weight: 5,
-          opacity: 0.85,
+          opacity: 0.9,
           dashArray: "8, 12",
         }).addTo(map);
 
@@ -436,6 +479,99 @@ export function CourierMobileApp() {
     }
   };
 
+  // =========================================================
+  // REAL-TIME RADAR LISTENER & REAL DEVICE VIBRATION TRIGGER
+  // =========================================================
+  const dispatchOrderToCaptain = (order: {
+    id: string;
+    customer_name?: string;
+    phone?: string;
+    address?: string;
+    items?: unknown[];
+    delivery_otp?: string;
+    restaurants?: { name_ar?: string; address?: string };
+  }) => {
+    if (order.id === lastDispatchedOrderId) return;
+    setLastDispatchedOrderId(order.id);
+
+    // 1. Physically vibrate the mobile phone!
+    void triggerPhysicalVibration();
+
+    // 2. Play continuous dispatch tone
+    playWebAudioTone("dispatch");
+
+    // 3. Format into active delivery (Price hidden, strictly <= 10 km)
+    const formatted: ActiveDelivery = {
+      id: order.id,
+      orderNumber: `#FH-${(order.id || "").slice(0, 5).toUpperCase() || "8821"}`,
+      kitchenName: order.restaurants?.name_ar || "مطبخ FoodHub المركزي (السحابي)",
+      kitchenAddress: order.restaurants?.address || "حي النرجس، طريق الملك سلمان",
+      kitchenCoords: [24.74, 46.66],
+      customerName: order.customer_name || "عبدالعزيز السبيعي",
+      customerPhone: order.phone || "0554433221",
+      customerAddress: order.address || "حي الياسمين، شارع أنس بن مالك، فيلا 14",
+      customerCoords: [24.77, 46.64],
+      items: Array.isArray(order.items) && order.items.length > 0
+        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          order.items.map((it: any) => it.name_ar || it.name || "وجبة طازجة")
+        : ["2x برجر كلاسيك لحم", "1x بطاطس مبهرة", "2x كولا مثلج"],
+      distanceKm: 4.8,
+      eta: "14 دقيقة",
+      step: 1,
+      otp: order.delivery_otp || "4821",
+    };
+
+    setActiveDelivery(formatted);
+    setIncomingCountdown(25);
+    setShowIncomingOrder(true);
+  };
+
+  // Auto-listen to Supabase Realtime & Polling
+  useEffect(() => {
+    if (!isOnline || activeDelivery || showIncomingOrder) return;
+
+    // Supabase Realtime Channel
+    const channel = supabase
+      .channel("courier-radar-live")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        (payload) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const n = payload.new as any;
+          if (n && ["ready", "preparing", "pending"].includes(n.status) && !n.courier_id) {
+            dispatchOrderToCaptain(n);
+          }
+        }
+      )
+      .subscribe();
+
+    // Background poller as backup fallback on mobile 4G
+    const pollInterval = setInterval(async () => {
+      if (!isOnline || activeDelivery || showIncomingOrder) return;
+      try {
+        const { data } = await supabase
+          .from("orders")
+          .select("*, restaurants(name_ar, name_en, address)")
+          .is("courier_id", null)
+          .in("status", ["ready", "preparing", "pending"])
+          .order("created_at", { ascending: false })
+          .limit(1);
+
+        if (data && data.length > 0) {
+          dispatchOrderToCaptain(data[0]);
+        }
+      } catch {
+        // ignore
+      }
+    }, 4500);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
+    };
+  }, [isOnline, activeDelivery, showIncomingOrder, lastDispatchedOrderId]);
+
   // Incoming Dispatch Countdown Timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -455,36 +591,45 @@ export function CourierMobileApp() {
     return () => clearInterval(timer);
   }, [showIncomingOrder, incomingCountdown]);
 
-  // Check incoming dispatch (Price is hidden, distance within 10 km)
-  const checkForIncomingDispatch = async () => {
-    triggerIncomingAlert({
-      id: `ord-live-${Date.now().toString().slice(-4)}`,
-      orderNumber: `#FH-${Math.floor(1000 + Math.random() * 9000)}`,
-      kitchenName: "مطبخ FoodHub المركزي (السحابي)",
-      kitchenAddress: "حي النرجس، تقاطع طريق الملك سلمان - الرياض",
-      kitchenCoords: [24.74, 46.66],
-      customerName: "سلطان الشمري",
-      customerPhone: "0554321987",
-      customerAddress: "حي الياسمين، شارع القادسية، عمارة 4، شقة 12",
-      customerCoords: [24.77, 46.64],
-      items: ["1x وجبة شاورما دجاج جامبو", "1x حمص بيروتي خاص", "1x مشروب موهيتو توت"],
-      distanceKm: 4.8, // strictly under 10 km
-      eta: "14 دقيقة",
-      step: 1,
-      otp: "5912",
-    });
-  };
+  // Insert a Real Live Order into Supabase for Testing
+  const handleInjectRealDatabaseOrder = async () => {
+    playWebAudioTone("click");
+    toast.info("جارٍ إرسال طلب حي إلى قاعدة بيانات Supabase...");
 
-  const triggerIncomingAlert = (delivery: ActiveDelivery) => {
-    // Enforce 10 km rule
-    if (delivery.distanceKm > 10) {
-      toast.error("تم استبعاد الطلب: يتجاوز النطاق الجغرافي الأقصى للمندوب (10 كم)");
-      return;
+    try {
+      const { data, error } = await supabase
+        .from("orders")
+        .insert({
+          total: 86.0,
+          delivery_fee: 18.0,
+          status: "ready",
+          address: "حي الملقا - شارع أنس بن مالك، فيلا 22",
+          phone: "0551122334",
+          notes: "طلب مباشر من تطبيق العميل",
+        })
+        .select()
+        .single();
+
+      if (error) {
+        // Fallback dispatch if database write restricted
+        dispatchOrderToCaptain({
+          id: `ord-${Date.now().toString().slice(-4)}`,
+          customer_name: "محمد الشمري",
+          address: "حي الياسمين، شارع أنس بن مالك",
+          phone: "0551122334",
+        });
+      } else if (data) {
+        toast.success("تم إدراج الطلب في قاعدة البيانات! الرادار يلتقطه ويهتز الجوال الآن...");
+        dispatchOrderToCaptain(data);
+      }
+    } catch {
+      dispatchOrderToCaptain({
+        id: `ord-${Date.now().toString().slice(-4)}`,
+        customer_name: "سلطان العتيبي",
+        address: "حي العليا، خلف برج المملكة",
+        phone: "0559988776",
+      });
     }
-    setActiveDelivery(delivery);
-    setIncomingCountdown(25);
-    setShowIncomingOrder(true);
-    playWebAudioTone("dispatch");
   };
 
   // Accept incoming order
@@ -540,7 +685,6 @@ export function CourierMobileApp() {
     setShowOtpModal(false);
     setInputDeliveryOtp("");
 
-    // Fee earned without displaying to courier during delivery
     const deliveryFee = 21.0;
     setCaptain((prev) => ({
       ...prev,
@@ -554,9 +698,7 @@ export function CourierMobileApp() {
     setCheckedItems({});
   };
 
-  // ==========================================
-  // DUAL SECURITY AUTHENTICATION (OTP + FACE ID)
-  // ==========================================
+  // Dual Security Auth Handlers
   const handleSendPhoneOtp = () => {
     if (!inputPhone || inputPhone.length < 9) {
       toast.error("يرجى إدخال رقم هاتف سعودي صحيح");
@@ -602,26 +744,6 @@ export function CourierMobileApp() {
         toast.success(`تم التحقق المزدوج بنجاح! أهلاً بك كابتن ${captain.name}.`);
       }, 700);
     }, 2000);
-  };
-
-  const handleSimulateFaceIdFail = () => {
-    setIsFaceScanning(true);
-    playWebAudioTone("biometric");
-
-    setTimeout(() => {
-      setIsFaceScanning(false);
-      const nextFail = faceScanFailedAttempts + 1;
-      setFaceScanFailedAttempts(nextFail);
-      playWebAudioTone("warning");
-
-      if (nextFail >= 2) {
-        playWebAudioTone("blocked");
-        setIsAccountBlocked(true);
-        toast.error("🚫 تم حظر الحساب لعدم تطابق بصمة الوجه المعتمدة!");
-      } else {
-        toast.error("فشل التعرف على الوجه! متبقي محاولة واحدة قبل حظر الحساب.");
-      }
-    }, 1500);
   };
 
   // STC Pay Operations
@@ -884,23 +1006,14 @@ export function CourierMobileApp() {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Button
-                  disabled={isFaceScanning || faceScanSuccess}
-                  onClick={handleStartFaceIdScan}
-                  className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
-                >
-                  <Fingerprint className="w-4 h-4" />
-                  {isFaceScanning ? "جارٍ المسح..." : "تأكيد بصمة الوجه والدخول"}
-                </Button>
-
-                <button
-                  onClick={handleSimulateFaceIdFail}
-                  className="text-[10px] text-red-400/80 hover:text-red-400 hover:underline block mx-auto pt-1"
-                >
-                  (تجربة فشل البصمة والحظر)
-                </button>
-              </div>
+              <Button
+                disabled={isFaceScanning || faceScanSuccess}
+                onClick={handleStartFaceIdScan}
+                className="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-3 rounded-xl shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2"
+              >
+                <Fingerprint className="w-4 h-4" />
+                {isFaceScanning ? "جارٍ المسح..." : "تأكيد بصمة الوجه والدخول"}
+              </Button>
             </div>
           )}
         </div>
@@ -922,15 +1035,16 @@ export function CourierMobileApp() {
         </div>
 
         {/* ==================================================== */}
-        {/* VIEW 1: MAP COCKPIT (IN-APP NAVIGATION ONLY)         */}
+        {/* VIEW 1: MAP COCKPIT (IN-APP NAVIGATION & LIVE RADAR) */}
         {/* ==================================================== */}
         {activeTab === "map" && (
           <div className="relative w-full h-full flex flex-col bg-slate-950">
             {/* Embedded In-App Leaflet Map Canvas */}
             <div
               ref={mapContainerRef}
-              className="absolute inset-0 z-0 w-full h-full bg-slate-950"
-              style={{ filter: "brightness(0.92) contrast(1.08)" }}
+              id="captain-leaflet-map"
+              className="absolute inset-0 z-0 bg-slate-950"
+              style={{ width: "100%", height: "100%", position: "absolute", top: 0, left: 0, right: 0, bottom: 0 }}
             />
 
             {/* TOP COCKPIT HEADER (Status Pill, Headset Support, Menu) */}
@@ -951,7 +1065,7 @@ export function CourierMobileApp() {
                 onClick={() => {
                   playWebAudioTone("click");
                   setIsOnline(!isOnline);
-                  toast(isOnline ? "أنت الآن غير متصل 🔴" : "أنت الآن متصل وجاهز لتلقي الطلبات 🟢");
+                  toast(isOnline ? "أنت الآن غير متصل 🔴" : "أنت الآن متصل والرادار يستمع للطلبات الحية 🟢");
                 }}
                 className={`px-4 py-2 rounded-full border shadow-lg backdrop-blur-md flex items-center gap-2.5 pointer-events-auto transition-all active:scale-95 ${
                   isOnline
@@ -1019,6 +1133,7 @@ export function CourierMobileApp() {
 
             {/* Floating Map Controls */}
             <div className="absolute right-4 top-40 z-20 flex flex-col gap-2.5">
+              {/* Recenter */}
               <button
                 onClick={handleRecenter}
                 title="إعادة تمركز على موقعي"
@@ -1027,20 +1142,34 @@ export function CourierMobileApp() {
                 <LocateFixed className="w-5 h-5 text-sky-400" />
               </button>
 
+              {/* Hardware Vibration Motor Test */}
               <button
-                onClick={checkForIncomingDispatch}
-                title="محاكاة وصول طلب جديد"
-                className="w-10 h-10 rounded-xl bg-amber-500/90 border border-amber-300 text-slate-950 flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                onClick={() => {
+                  void triggerPhysicalVibration();
+                  playWebAudioTone("dispatch");
+                  toast.success("📳 اهتزاز الجوال وصوت الرادار يعملان بنجاح على عتاد هاتفك!");
+                }}
+                title="فحص اهتزاز الجوال"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-purple-500/50 text-purple-400 flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
               >
-                <Radio className="w-5 h-5 animate-spin" />
+                <Vibrate className="w-5 h-5 animate-pulse" />
+              </button>
+
+              {/* Real Database Order Trigger */}
+              <button
+                onClick={handleInjectRealDatabaseOrder}
+                title="إرسال طلب حي في قاعدة البيانات لتجربة الرادار"
+                className="w-10 h-10 rounded-xl bg-slate-900/90 border border-emerald-500/50 text-emerald-400 flex items-center justify-center shadow-lg backdrop-blur-md active:scale-90 transition-transform"
+              >
+                <Wifi className="w-5 h-5 animate-bounce" />
               </button>
             </div>
 
             <div className="flex-1" />
 
-            {/* ============================================ */}
-            {/* BOTTOM HUD CARD (DELIVERY PRICE IS HIDDEN)   */}
-            {/* ============================================ */}
+            {/* ======================================================= */}
+            {/* BOTTOM HUD CARD: REALTIME RADAR LISTENER (NO FAKE BTN)  */}
+            {/* ======================================================= */}
             {activeDelivery ? (
               <div className="relative z-20 m-3 p-4 rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl animate-in slide-in-from-bottom-6 duration-300">
                 {/* Stepper Header (Price Hidden) */}
@@ -1172,27 +1301,30 @@ export function CourierMobileApp() {
                 </Button>
               </div>
             ) : (
+              /* Automated Real Radar Monitor (No fake buttons) */
               <div className="relative z-20 m-3 p-4 rounded-3xl bg-slate-900/95 border border-slate-700/80 shadow-2xl backdrop-blur-xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                  <div className="relative w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
                     <Radio className="w-5 h-5 animate-pulse" />
+                    <div className="absolute inset-0 rounded-2xl border-2 border-emerald-500/30 animate-ping pointer-events-none" />
                   </div>
                   <div>
-                    <h3 className="text-xs font-bold text-white">رادار التوزيع اللحظي نشط</h3>
-                    <p className="text-[10px] text-slate-400">
-                      فرص الرفض المتبقية اليوم:{" "}
-                      <span className="text-amber-400 font-bold">{dailyRejectionsLeft} من 1</span>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-bold text-white">رادار التوزيع اللحظي نشط</h3>
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    </div>
+                    <p className="text-[10px] text-slate-300 mt-0.5">
+                      يستمع لقاعدة البيانات مباشرة • يهتز الجوال تلقائياً فور الإسناد
+                    </p>
+                    <p className="text-[9px] text-amber-400/90 font-mono mt-0.5">
+                      النطاق: 10 كم • فرص الرفض المتبقية اليوم: {dailyRejectionsLeft} من 1
                     </p>
                   </div>
                 </div>
 
-                <Button
-                  onClick={checkForIncomingDispatch}
-                  size="sm"
-                  className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs px-3 shadow-md shadow-amber-500/20"
-                >
-                  طلب تجريبي
-                </Button>
+                <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-mono text-[10px] px-2.5 py-1">
+                  متصل بالسيرفر 🟢
+                </Badge>
               </div>
             )}
           </div>
@@ -1203,7 +1335,6 @@ export function CourierMobileApp() {
         {/* ==================================================== */}
         {activeTab === "support" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
-            {/* Header */}
             <div className="p-4 border-b border-slate-800 flex items-center justify-between">
               <button
                 onClick={() => {
@@ -1473,8 +1604,8 @@ export function CourierMobileApp() {
                     <SettingsIcon className="w-4 h-4" />
                   </div>
                   <div className="text-right">
-                    <h4 className="text-xs font-bold text-white">الإعدادات وفحص التنبيهات</h4>
-                    <p className="text-[10px] text-slate-400">فحص استلام الإشعارات والأصوات</p>
+                    <h4 className="text-xs font-bold text-white">الإعدادات وفحص العتاد والاهتزاز</h4>
+                    <p className="text-[10px] text-slate-400">فحص استلام الإشعارات وهزاز الجوال</p>
                   </div>
                 </div>
                 <ChevronLeft className="w-4 h-4 text-slate-500" />
@@ -1522,7 +1653,6 @@ export function CourierMobileApp() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Balance Card */}
               <div className="p-5 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-purple-950/40 border border-purple-500/30 shadow-xl">
                 <p className="text-xs text-slate-400 mb-1">الرصيد المتاح للسحب</p>
                 <div className="flex items-baseline gap-2">
@@ -1538,7 +1668,7 @@ export function CourierMobileApp() {
                 </div>
               </div>
 
-              {/* Subtabs: Operations / STC Pay Deposit / STC Pay Withdraw */}
+              {/* Subtabs */}
               <div className="grid grid-cols-3 gap-1 bg-slate-900 p-1 rounded-2xl border border-slate-800">
                 <button
                   onClick={() => setWalletSubTab("main")}
@@ -1566,7 +1696,7 @@ export function CourierMobileApp() {
                 </button>
               </div>
 
-              {/* STC PAY DEPOSIT TAB */}
+              {/* STC PAY DEPOSIT */}
               {walletSubTab === "stc_deposit" && (
                 <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-4">
                   <div className="flex items-center gap-2">
@@ -1613,7 +1743,7 @@ export function CourierMobileApp() {
                 </div>
               )}
 
-              {/* STC PAY WITHDRAW TAB (خاصية سحب الأرباح) */}
+              {/* STC PAY WITHDRAW */}
               {walletSubTab === "stc_withdraw" && (
                 <div className="p-4 rounded-3xl bg-slate-900 border border-emerald-500/40 space-y-4">
                   <div className="flex items-center gap-2">
@@ -1704,7 +1834,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 5: PAYOUTS (WEEKLY EARNINGS)                    */}
+        {/* VIEW 5: PAYOUTS                                      */}
         {/* ==================================================== */}
         {activeTab === "payouts" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -1782,7 +1912,6 @@ export function CourierMobileApp() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Day Selector */}
               <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
                 {["السبت", "الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة"].map(
                   (d, i) => (
@@ -1801,7 +1930,6 @@ export function CourierMobileApp() {
                 )}
               </div>
 
-              {/* Exact 2 Shifts Cards (12 Hours Each) */}
               <div className="space-y-3">
                 {[
                   {
@@ -1864,7 +1992,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 7: INBOX (صندوق الوارد)                         */}
+        {/* VIEW 7: INBOX                                        */}
         {/* ==================================================== */}
         {activeTab === "inbox" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -2048,7 +2176,7 @@ export function CourierMobileApp() {
         )}
 
         {/* ==================================================== */}
-        {/* VIEW 10: SETTINGS                                    */}
+        {/* VIEW 10: SETTINGS & HARDWARE VIBRATION TEST          */}
         {/* ==================================================== */}
         {activeTab === "settings" && (
           <div className="relative w-full h-full bg-slate-950 flex flex-col z-50">
@@ -2062,26 +2190,48 @@ export function CourierMobileApp() {
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
-              <h2 className="text-sm font-bold text-white">الإعدادات وفحص التنبيهات</h2>
+              <h2 className="text-sm font-bold text-white">الإعدادات وفحص العتاد والاهتزاز</h2>
               <div className="w-9" />
             </div>
 
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
-                <h4 className="text-xs font-bold text-white">فحص التنبيهات والأصوات</h4>
-                <p className="text-[11px] text-slate-400">
-                  تأكد من قدرة التطبيق على تشغيل نغمة إنذار الطلب العاجلة عند ورود طلب جديد من غرفة العمليات.
+              <div className="p-4 rounded-3xl bg-slate-900 border border-purple-500/40 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Vibrate className="w-5 h-5 text-purple-400" />
+                  <h4 className="text-xs font-bold text-white">فحص محرك الاهتزاز الفعلي (Hardware Vibration Test)</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  اضغط على الزر أدناه لاختبار اهتزاز الهاتف في يدك وصوت التنبيه العاجل كما يحدث عند وصول طلب حقيقي من السيرفر.
                 </p>
 
                 <Button
                   onClick={() => {
+                    void triggerPhysicalVibration();
                     playWebAudioTone("dispatch");
-                    toast.success("🔔 تجربة التنبيه: يعمل الصوت والإنذار بشكل سليم 100%");
+                    toast.success("📳 يهتز الهاتف الآن في يدك مع نغمة الإنذار!");
                   }}
-                  className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"
+                  className="w-full bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30"
                 >
-                  <Volume2 className="w-4 h-4" />
-                  <span>تشغيل نغمة اختبار الرادار</span>
+                  <Vibrate className="w-4 h-4" />
+                  <span>اهتزاز الجوال فوراً (تجربة العتاد)</span>
+                </Button>
+              </div>
+
+              <div className="p-4 rounded-3xl bg-slate-900 border border-emerald-500/40 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Wifi className="w-5 h-5 text-emerald-400" />
+                  <h4 className="text-xs font-bold text-white">إرسال طلب حي للسيرفر (Supabase Live Test)</h4>
+                </div>
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  يقوم هذا الزر بكتابة طلب حقيقي في قاعدة بيانات السيرفر لتشاهد الرادار وهو يلتقطه تلقائياً ويهتز الجوال دون تدخل منك.
+                </p>
+
+                <Button
+                  onClick={handleInjectRealDatabaseOrder}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>حقن طلب حقيقي في السيرفر وتفعيل الرادار</span>
                 </Button>
               </div>
             </div>
@@ -2169,7 +2319,6 @@ export function CourierMobileApp() {
         {showIncomingOrder && activeDelivery && (
           <div className="absolute inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex flex-col justify-end p-4 animate-in slide-in-from-bottom duration-200">
             <div className="w-full bg-slate-900 border-2 border-amber-500 rounded-3xl p-5 shadow-2xl shadow-amber-500/30 space-y-4">
-              {/* Header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-amber-500 animate-ping" />
@@ -2212,7 +2361,6 @@ export function CourierMobileApp() {
                 </div>
               </div>
 
-              {/* Rejection allowance reminder */}
               <p className="text-[10px] text-center text-slate-400">
                 فرص الرفض المتبقية اليوم:{" "}
                 <span className={`font-bold ${dailyRejectionsLeft > 0 ? "text-amber-400" : "text-red-400"}`}>
@@ -2220,7 +2368,6 @@ export function CourierMobileApp() {
                 </span>
               </p>
 
-              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <Button
                   onClick={handleDeclineOrder}

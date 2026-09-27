@@ -465,3 +465,23 @@ html:not(.dark) .shadow-2xl {
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
+
+/* Leaflet In-App Mobile Fullscreen Map Fix */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  background: #020617 !important;
+}
+
+.leaflet-pane {
+  z-index: 2 !important;
+}
+
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 3 !important;
+}
