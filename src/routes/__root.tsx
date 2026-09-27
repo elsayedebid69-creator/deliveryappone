@@ -200,6 +200,7 @@ function RootComponent() {
 
       return () => observer.disconnect();
     }
+    return undefined;
   }, []);
 
   return (
