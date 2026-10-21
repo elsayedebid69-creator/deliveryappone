@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useState, useMemo } from "react";
 import {
   MapPin,
   Search,
@@ -10,6 +9,7 @@ import {
   Minus,
   ShoppingBag,
   ChevronDown,
+  ChevronRight,
   Filter,
   Check,
   Zap,
@@ -18,50 +18,121 @@ import {
   Radar,
   User,
   ArrowRight,
+  ArrowLeft,
   Sparkles,
   Share2,
+  Phone,
+  MessageSquare,
+  ShieldCheck,
+  CreditCard,
+  DollarSign,
+  Gift,
+  Bike,
+  Store,
+  Navigation,
+  CheckCircle2,
+  RotateCcw,
+  Tag,
+  Heart,
+  ChevronLeft,
+  Wallet,
+  Award,
+  Bell,
+  Sliders,
+  Receipt,
+  Car,
+  CheckCheck,
+  Compass,
+  Layers,
+  Info,
+  Calendar,
 } from "lucide-react";
 import { useCart } from "@/lib/cart";
 import { useI18n } from "@/lib/i18n";
 import { sounds } from "@/lib/sound-effects";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-// Riyadh Localities
+// ============================================================================
+// RIYADH LOCALITIES & DISTRICTS
+// ============================================================================
 const DISTRICTS = [
-  "حي النرجس، شمال الرياض",
-  "حي الملقا، طريق أنس بن مالك",
+  "حي النرجس، شمال الرياض (شارع أنس بن مالك)",
+  "حي الملقا، طريق الإمام سعود",
   "حي حطين، البوليفارد",
   "حي الياسمين، مخرج 5",
   "حي الصحافة، شارع العليا",
   "حي العليا، وسط الرياض",
   "حي الروضة، شرق الرياض",
+  "حي النخيل، طريق التخصصي",
 ];
 
-// Instagram / Snapchat Style Daily Stories
+// ============================================================================
+// DAILY PROMO STORIES (Instagram/Snapchat Style)
+// ============================================================================
 const STORIES = [
-  { id: "s1", titleAr: "خصم 50%", titleEn: "50% OFF", emoji: "🔥", tag: "كود: FOOD50", code: "FOOD50" },
-  { id: "s2", titleAr: "توصيل 0 ر.س", titleEn: "Free Delivery", emoji: "🛵", tag: "أول 3 طلبات", code: "FREE3" },
-  { id: "s3", titleAr: "كيتو وهيلثي", titleEn: "Keto & Health", emoji: "🥑", tag: "ماكروز دقيقة", code: "KETO10" },
-  { id: "s4", titleAr: "أقوى برجر", titleEn: "Top Burgers", emoji: "🍔", tag: "لحم أنجوس", code: "BURGER" },
-  { id: "s5", titleAr: "شاورما صاج", titleEn: "Shawarma", emoji: "🌯", tag: "ثومية مضاعفة", code: "SHAWARMA" },
-  { id: "s6", titleAr: "سويت وكافيه", titleEn: "Sweets & Cafe", emoji: "🍰", tag: "قهوة مختصة", code: "SWEET" },
+  { id: "s1", titleAr: "خصم 50%", titleEn: "50% OFF", emoji: "🔥", tag: "كود: FOOD50", code: "FOOD50", discount: 50 },
+  { id: "s2", titleAr: "توصيل 0 ر.س", titleEn: "Free Delivery", emoji: "🛵", tag: "أول 3 طلبات", code: "FREE3", discount: "delivery" },
+  { id: "s3", titleAr: "كيتو وهيلثي", titleEn: "Keto & Health", emoji: "🥑", tag: "ماكروز دقيقة", code: "KETO10", discount: 10 },
+  { id: "s4", titleAr: "أقوى برجر", titleEn: "Top Burgers", emoji: "🍔", tag: "لحم أنجوس 100%", code: "BURGER", discount: 15 },
+  { id: "s5", titleAr: "شاورما حطب", titleEn: "Shawarma", emoji: "🌯", tag: "ثومية إضافية", code: "SHAWARMA", discount: 10 },
+  { id: "s6", titleAr: "قهوة وسويت", titleEn: "Sweets & Cafe", emoji: "🍰", tag: "قهوة مختصة", code: "SWEET", discount: 15 },
 ];
 
-// Categories
+// ============================================================================
+// FOOD CATEGORIES
+// ============================================================================
 const CATEGORIES = [
   { id: "all", nameAr: "الكل", nameEn: "All", emoji: "🍽️" },
   { id: "burger", nameAr: "برجر وسلايدرز", nameEn: "Burgers", emoji: "🍔" },
   { id: "shawarma", nameAr: "شاورما ومشاوي", nameEn: "Shawarma", emoji: "🌯" },
   { id: "healthy", nameAr: "صحي وكيتو", nameEn: "Healthy & Keto", emoji: "🥗" },
   { id: "pizza", nameAr: "بيتزا وباستا", nameEn: "Pizza", emoji: "🍕" },
-  { id: "sweets", nameAr: "حلى وكيك", nameEn: "Desserts", emoji: "🍰" },
+  { id: "sweets", nameAr: "حلى وتشيزكيك", nameEn: "Desserts", emoji: "🍰" },
   { id: "drinks", nameAr: "قهوة وعصائر", nameEn: "Beverages", emoji: "☕" },
   { id: "cloud", nameAr: "مطابخ سحابية", nameEn: "Cloud Kitchens", emoji: "☁️" },
 ];
 
-// Cloud Kitchens
-const RESTAURANTS = [
+// ============================================================================
+// CLOUD KITCHENS & RESTAURANTS DATA
+// ============================================================================
+export interface Restaurant {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  tagAr: string;
+  rating: number;
+  reviews: number;
+  eta: string;
+  deliveryFee: number;
+  minOrder: number;
+  category: string;
+  image: string;
+  coverImage: string;
+  badge: string;
+  districtAr: string;
+  distanceKm: number;
+  menu: Meal[];
+}
+
+export interface Meal {
+  id: string;
+  restaurantId: string;
+  nameAr: string;
+  nameEn: string;
+  descAr: string;
+  price: number;
+  calories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  category: string;
+  image: string;
+  isPopular?: boolean;
+}
+
+const RESTAURANTS_DATA: Restaurant[] = [
   {
     id: "fh-prime",
     nameAr: "مطبخ فود هب المركزي (FoodHub Prime)",
@@ -70,607 +141,1902 @@ const RESTAURANTS = [
     rating: 4.95,
     reviews: 1420,
     eta: "15-20 دقيقة",
-    deliveryFee: "مجاني",
+    deliveryFee: 0,
+    minOrder: 25,
     category: "healthy",
     image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&auto=format&fit=crop&q=80",
     badge: "الأكثر طلباً بالرياض",
+    districtAr: "حي العليا (وسط الرياض)",
+    distanceKm: 3.2,
+    menu: [
+      {
+        id: "meal-prime-1",
+        restaurantId: "fh-prime",
+        nameAr: "وعاء السلمون المشوي مع الكينوا (كيتو)",
+        nameEn: "Grilled Salmon Quinoa Keto Bowl",
+        descAr: "فيليه سلمون نرويجي طازج مع كينوا عضوية، أفوكادو، وخضار سوتيه بصلصة الليمون",
+        price: 49,
+        calories: 410,
+        proteinG: 38,
+        carbsG: 18,
+        fatG: 14,
+        category: "healthy",
+        image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-prime-2",
+        restaurantId: "fh-prime",
+        nameAr: "صدر دجاج تندرلوين مشوي مع أرز الزعفران",
+        nameEn: "Tenderloin Chicken Breast with Saffron Rice",
+        descAr: "صدر دجاج متبل بالأعشاب الطبيعية مع أرز بسمتي معطر بالزعفران وخضار مشكلة",
+        price: 36,
+        calories: 460,
+        proteinG: 44,
+        carbsG: 45,
+        fatG: 8,
+        category: "healthy",
+        image: "https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-prime-3",
+        restaurantId: "fh-prime",
+        nameAr: "سلطة الكيل بالأفوكادو وجوز البيكان",
+        nameEn: "Kale Avocado Pecan Super Salad",
+        descAr: "أوراق الكيل الطازجة مع جوز البيكان المحمص، جبن فيتا لايت، وخل البلسميك المركز",
+        price: 29,
+        calories: 280,
+        proteinG: 12,
+        carbsG: 14,
+        fatG: 16,
+        category: "healthy",
+        image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=500&auto=format&fit=crop&q=80",
+      },
+    ],
   },
   {
     id: "fh-burger",
     nameAr: "سماش أنجوس كلود برجر",
     nameEn: "Smash Angus Cloud Burger",
-    tagAr: "برجر فاخر 🍔",
-    rating: 4.91,
+    tagAr: "برجر أنجوس فاخر 🍔",
+    rating: 4.92,
     reviews: 980,
     eta: "15-22 دقيقة",
-    deliveryFee: "مجاني فوق 40 ر.س",
+    deliveryFee: 9,
+    minOrder: 30,
     category: "burger",
     image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80",
-    badge: "أنجوس 100%",
+    coverImage: "https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=900&auto=format&fit=crop&q=80",
+    badge: "أنجوس أسود 100%",
+    districtAr: "حي الملقا (شارع أنس)",
+    distanceKm: 2.4,
+    menu: [
+      {
+        id: "meal-burger-1",
+        restaurantId: "fh-burger",
+        nameAr: "سماش برجر كلاسيك دبل تشيز",
+        nameEn: "Classic Double Cheese Smash Burger",
+        descAr: "شريحتين لحم أنجوس فاخر مشوية على الصاج مع جبنة شيدر ذائبة وصوص فود هب السري",
+        price: 34,
+        calories: 520,
+        proteinG: 34,
+        carbsG: 38,
+        fatG: 24,
+        category: "burger",
+        image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-burger-2",
+        restaurantId: "fh-burger",
+        nameAr: "ترافل بيكون سماش برجر",
+        nameEn: "Truffle Bacon Smash Burger",
+        descAr: "لحم أنجوس مدخن مع صوص الكمأة السوداء وبيكون بقري مقرمش وبصل مكرمل",
+        price: 42,
+        calories: 610,
+        proteinG: 38,
+        carbsG: 40,
+        fatG: 29,
+        category: "burger",
+        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-burger-3",
+        restaurantId: "fh-burger",
+        nameAr: "بطاطس كرينكل المقرمشة ببهارات الكاجن",
+        nameEn: "Crispy Cajun Crinkle Fries",
+        descAr: "بطاطس ذهبية مقرمشة متبلة ببهارات الكاجن اللذيذة مع صوص الشيدر الذائب",
+        price: 14,
+        calories: 320,
+        proteinG: 4,
+        carbsG: 42,
+        fatG: 14,
+        category: "burger",
+        image: "https://images.unsplash.com/photo-1576107232684-1279f3908594?w=500&auto=format&fit=crop&q=80",
+      },
+    ],
   },
   {
     id: "fh-shawarma",
     nameAr: "شاورما الحطب الأصلية",
     nameEn: "Original Woodfire Shawarma",
     tagAr: "مشاوي وشاورما 🌯",
-    rating: 4.88,
+    rating: 4.89,
     reviews: 1250,
     eta: "12-18 دقيقة",
-    deliveryFee: "9 ر.س",
+    deliveryFee: 9,
+    minOrder: 20,
     category: "shawarma",
     image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=600&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=900&auto=format&fit=crop&q=80",
     badge: "خبز صاج طازج",
+    districtAr: "حي الياسمين (مخرج 5)",
+    distanceKm: 4.1,
+    menu: [
+      {
+        id: "meal-shawarma-1",
+        restaurantId: "fh-shawarma",
+        nameAr: "صحن شاورما عربي دجاج مع ثومية وبطاطس",
+        nameEn: "Arabic Chicken Shawarma Plate",
+        descAr: "شاورما دجاج متبلة 24 ساعة ومقطعة قطع صغيرة بخبز الصاج مع بطاطس مقرمشة وثومية طازجة",
+        price: 28,
+        calories: 480,
+        proteinG: 32,
+        carbsG: 44,
+        fatG: 18,
+        category: "shawarma",
+        image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-shawarma-2",
+        restaurantId: "fh-shawarma",
+        nameAr: "صاروخ شاورما لحم بلدي بالمخلل والطحينة",
+        nameEn: "Beef Shawarma Jumbo Wrap",
+        descAr: "لحم بقري محلي مشوي على لهب الحطب مع بقدونس، طماطم، طحينة فاخرة وخيار مخلل",
+        price: 24,
+        calories: 430,
+        proteinG: 28,
+        carbsG: 36,
+        fatG: 16,
+        category: "shawarma",
+        image: "https://images.unsplash.com/photo-1529006557810-274b9b2fc783?w=500&auto=format&fit=crop&q=80",
+      },
+    ],
   },
   {
-    id: "fh-keto",
-    nameAr: "كيتو باور هاوس (Keto Power)",
-    nameEn: "Keto Power House",
-    tagAr: "دايت ومحسوب الماكروز 🥑",
+    id: "fh-pizza",
+    nameAr: "أرتيزان نابولي بيتزا",
+    nameEn: "Artisan Napoli Pizza Kitchen",
+    tagAr: "بيتزا إيطالية مخمرة 🍕",
     rating: 4.93,
-    reviews: 820,
-    eta: "15-20 دقيقة",
-    deliveryFee: "مجاني",
-    category: "healthy",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80",
-    badge: "صفر سكر",
-  },
-];
-
-// Popular Meals
-const POPULAR_MEALS = [
-  {
-    id: "meal-1",
-    nameAr: "سماش برجر كلاسيك دبل تشيز",
-    nameEn: "Classic Double Cheese Smash Burger",
-    descAr: "شريحتين لحم أنجوس مشوية مع صوص فود هب السري في خبز بطاطس",
-    price: 34,
-    calories: "520 كالوري",
-    category: "burger",
-    image: "https://images.unsplash.com/photo-1586190848861-99aa4a171e90?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "meal-2",
-    nameAr: "صحن شاورما عربي دجاج مع ثومية وبطاطس",
-    nameEn: "Arabic Chicken Shawarma Plate",
-    descAr: "شاورما دجاج متبلة 24 ساعة مع بطاطس مقرمشة وثومية طازجة",
-    price: 28,
-    calories: "480 كالوري",
-    category: "shawarma",
-    image: "https://images.unsplash.com/photo-1561651823-34feb02250e4?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "meal-3",
-    nameAr: "وعاء السلمون المشوي مع الكينوا والأفوكادو (كيتو)",
-    nameEn: "Grilled Salmon Quinoa Keto Bowl",
-    descAr: "فيليه سلمون طازج مع أفوكادو وخضار مشكلة وصلصة الليمون",
-    price: 49,
-    calories: "410 كالوري",
-    category: "healthy",
-    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "meal-4",
-    nameAr: "بيتزا تروفل بالمشروم والجبن الإيطالي",
-    nameEn: "Truffle Mushroom Artisan Pizza",
-    descAr: "عجينة مخمرة 48 ساعة مع زيت التروفل الأسود وموزاريلا طازجة",
-    price: 42,
-    calories: "620 كالوري",
+    reviews: 640,
+    eta: "18-25 دقيقة",
+    deliveryFee: 0,
+    minOrder: 35,
     category: "pizza",
-    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1590947132387-155cc02f3212?w=900&auto=format&fit=crop&q=80",
+    badge: "مخمرة 48 ساعة",
+    districtAr: "حي حطين (البوليفارد)",
+    distanceKm: 3.8,
+    menu: [
+      {
+        id: "meal-pizza-1",
+        restaurantId: "fh-pizza",
+        nameAr: "بيتزا تروفل بالمشروم والموزاريلا الإيطالية",
+        nameEn: "Truffle Mushroom Artisan Pizza",
+        descAr: "عجينة نابولية رقيقة مع زيت التروفل الأسود المركز وموزاريلا بافلو طازجة وفطر بري",
+        price: 42,
+        calories: 620,
+        proteinG: 24,
+        carbsG: 68,
+        fatG: 22,
+        category: "pizza",
+        image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-pizza-2",
+        restaurantId: "fh-pizza",
+        nameAr: "بيتزا مارغريتا كلاسيكية بصلصة سان مارزانو",
+        nameEn: "Classic Margherita Pizza",
+        descAr: "صلصة طماطم إيطالية أصيلة مع ريحان طازج وجبنة موزاريلا مقرمشة الحواف",
+        price: 36,
+        calories: 540,
+        proteinG: 20,
+        carbsG: 65,
+        fatG: 18,
+        category: "pizza",
+        image: "https://images.unsplash.com/photo-1604382355076-af4b0eb60143?w=500&auto=format&fit=crop&q=80",
+      },
+    ],
   },
   {
-    id: "meal-5",
-    nameAr: "تشيز كيك سان سيباستيان مع صوص شوكولاتة بلجيكية",
-    nameEn: "San Sebastian Cheesecake with Belgian Chocolate",
-    descAr: "كيكة الجبن المحروقة الإسبانية بقوام كريمي غني",
-    price: 26,
-    calories: "340 كالوري",
+    id: "fh-sweets",
+    nameAr: "سان سيباستيان & كافيه",
+    nameEn: "San Sebastian Cheesecake & Cafe",
+    tagAr: "حلى فاخر وقهوة مختصة 🍰",
+    rating: 4.96,
+    reviews: 1100,
+    eta: "10-16 دقيقة",
+    deliveryFee: 0,
+    minOrder: 20,
     category: "sweets",
-    image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&auto=format&fit=crop&q=80",
-  },
-  {
-    id: "meal-6",
-    nameAr: "سبانش لاتيه بارد بحليب الشوفان",
-    nameEn: "Iced Spanish Latte (Oat Milk)",
-    descAr: "إسبريسو برازيلي مركز مع حليب الشوفان ونكهة الكراميل",
-    price: 19,
-    calories: "160 كالوري",
-    category: "drinks",
-    image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=80",
+    image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&auto=format&fit=crop&q=80",
+    coverImage: "https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=900&auto=format&fit=crop&q=80",
+    badge: "شوكولاتة بلجيكية",
+    districtAr: "حي النرجس (طريق الملك فهد)",
+    distanceKm: 1.8,
+    menu: [
+      {
+        id: "meal-sweet-1",
+        restaurantId: "fh-sweets",
+        nameAr: "تشيز كيك سان سيباستيان مع صوص شوكولاتة بلجيكية",
+        nameEn: "San Sebastian Cheesecake with Belgian Chocolate",
+        descAr: "كيكة الجبن الإسبانية المحروقة بقوام كريمي ناعم مغطاة بغزارة بصوص الشوكولاتة البلجيكية الدافئة",
+        price: 26,
+        calories: 340,
+        proteinG: 8,
+        carbsG: 32,
+        fatG: 20,
+        category: "sweets",
+        image: "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+      {
+        id: "meal-sweet-2",
+        restaurantId: "fh-sweets",
+        nameAr: "سبانش لاتيه بارد بحليب الشوفان والكراميل",
+        nameEn: "Iced Spanish Latte (Oat Milk)",
+        descAr: "شوت إسبريسو كولومبي مركز مع حليب الشوفان الخفيف وطبقة صوص كراميل ذهبي",
+        price: 19,
+        calories: 160,
+        proteinG: 4,
+        carbsG: 22,
+        fatG: 5,
+        category: "drinks",
+        image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=80",
+        isPopular: true,
+      },
+    ],
   },
 ];
 
+// Flat list of all popular meals across restaurants
+const ALL_POPULAR_MEALS: Meal[] = RESTAURANTS_DATA.flatMap((r) => r.menu);
+
+// ============================================================================
+// CUSTOMER MOBILE SUPER-APP COMPONENT
+// ============================================================================
 export function CustomerMobileApp() {
-  const { lang, tn } = useI18n();
+  const { lang } = useI18n();
   const ar = lang === "ar";
   const cart = useCart();
 
+  // Navigation Stack & Tabs
+  type TabId = "home" | "kitchens" | "cart" | "radar" | "profile";
+  const [activeTab, setActiveTab] = useState<TabId>("home");
+  const [historyStack, setHistoryStack] = useState<TabId[]>(["home"]);
+
+  // District Location Picker
   const [selectedDistrict, setSelectedDistrict] = useState(DISTRICTS[0]!);
   const [districtModalOpen, setDistrictModalOpen] = useState(false);
+
+  // Filters & Search
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeStory, setActiveStory] = useState<typeof STORIES[0] | null>(null);
 
-  // Quick Add To Cart
-  const handleQuickAdd = (meal: typeof POPULAR_MEALS[0]) => {
+  // Modals & Sub-Views
+  const [activeStory, setActiveStory] = useState<(typeof STORIES)[0] | null>(null);
+  const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
+  const [customizingMeal, setCustomizingMeal] = useState<Meal | null>(null);
+
+  // Meal Customizer State
+  const [customSize, setCustomSize] = useState<"regular" | "double" | "combo">("regular");
+  const [customBread, setCustomBread] = useState<string>("خبز بطاطس بريوش طازج");
+  const [customExtras, setCustomExtras] = useState<string[]>([]);
+  const [customInstructions, setCustomInstructions] = useState<string>("");
+  const [customQty, setCustomQty] = useState<number>(1);
+
+  // Checkout Flow State
+  const [promoCode, setPromoCode] = useState<string>("");
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discountSar: number } | null>({
+    code: "FOOD50",
+    discountSar: 15,
+  });
+  const [selectedPayment, setSelectedPayment] = useState<"apple_pay" | "mada" | "stc_pay" | "wallet" | "cash">("apple_pay");
+  const [selectedTip, setSelectedTip] = useState<number>(3); // 3 SAR default captain tip
+
+  // Customer Wallet & Loyalty Points
+  const [walletBalance, setWalletBalance] = useState<number>(85.0);
+  const [loyaltyPoints, setLoyaltyPoints] = useState<number>(350);
+
+  // Live Radar & Order Tracking State
+  interface LiveOrder {
+    id: string;
+    orderNumber: string;
+    otp: string; // Secret 4-digit code to give to captain
+    step: 1 | 2 | 3 | 4; // 1: Confirmed, 2: Preparing, 3: On The Way, 4: At Door
+    restaurantName: string;
+    items: string[];
+    totalSar: number;
+    estimatedMinutes: number;
+    captain: {
+      name: string;
+      phone: string;
+      vehicle: string;
+      plate: string;
+      rating: number;
+      deliveriesCount: number;
+    };
+  }
+
+  const [activeLiveOrder, setActiveLiveOrder] = useState<LiveOrder | null>({
+    id: "ord-8831",
+    orderNumber: "#4892",
+    otp: "4492",
+    step: 3,
+    restaurantName: "سماش أنجوس كلود برجر",
+    items: ["سماش برجر كلاسيك دبل تشيز (x1)", "بطاطس كرينكل بهارات كاجن (x1)"],
+    totalSar: 48.0,
+    estimatedMinutes: 9,
+    captain: {
+      name: "كابتن أحمد الشمري",
+      phone: "0559876543",
+      vehicle: "دراجة نارية (Yamaha 150)",
+      plate: "أ ب ج 4492",
+      rating: 4.96,
+      deliveriesCount: 142,
+    },
+  });
+
+  // Post-Delivery 360° Rating & 1 SAR Captain Bonus Modal
+  const [ratingModalOpen, setRatingModalOpen] = useState<boolean>(false);
+  const [restaurantStars, setRestaurantStars] = useState<number>(5);
+  const [captainStars, setCaptainStars] = useState<number>(5);
+  const [ratingSubmitted, setRatingSubmitted] = useState<boolean>(false);
+
+  // Past Orders History for Profile
+  const [pastOrders, setPastOrders] = useState([
+    {
+      id: "ord-8820",
+      orderNum: "#4885",
+      restaurant: "مطبخ فود هب المركزي (FoodHub Prime)",
+      items: "وعاء السلمون المشوي مع الكينوا (كيتو)",
+      date: "أمس، 08:30 م",
+      price: 49.0,
+      status: "تم التسليم بنجاح",
+    },
+    {
+      id: "ord-8812",
+      orderNum: "#4871",
+      restaurant: "سان سيباستيان & كافيه",
+      items: "تشيز كيك سان سيباستيان + سبانش لاتيه بارد",
+      date: "25 سبتمبر، 04:15 م",
+      price: 45.0,
+      status: "تم التسليم بنجاح",
+    },
+  ]);
+
+  // Handle Tab Navigation with History Stack
+  const navigateToTab = (tab: TabId) => {
+    sounds.playClick();
+    setSelectedRestaurant(null);
+    setCustomizingMeal(null);
+    setHistoryStack((prev) => [...prev, tab]);
+    setActiveTab(tab);
+  };
+
+  const handleGoBack = () => {
+    sounds.playClick();
+    if (customizingMeal) {
+      setCustomizingMeal(null);
+      return;
+    }
+    if (selectedRestaurant) {
+      setSelectedRestaurant(null);
+      return;
+    }
+    if (historyStack.length > 1) {
+      const nextStack = [...historyStack];
+      nextStack.pop();
+      const previous = nextStack[nextStack.length - 1]!;
+      setHistoryStack(nextStack);
+      setActiveTab(previous);
+    } else {
+      setActiveTab("home");
+    }
+  };
+
+  // Quick Add To Cart from Feed
+  const handleQuickAdd = (meal: Meal) => {
     sounds.playAdd();
     cart.add({
       id: meal.id,
-      restaurant_id: "fh-prime",
+      restaurant_id: meal.restaurantId,
       name_ar: meal.nameAr,
       name_en: meal.nameEn,
       price: meal.price,
     });
-    toast.success(
-      ar ? `✓ أُضيف للسلة: ${meal.nameAr}` : `✓ Added to Cart: ${meal.nameEn}`,
-      {
-        description: `${meal.price} ${ar ? "ر.س" : "SAR"}`,
-        duration: 1500,
-      }
-    );
+    toast.success(ar ? `✓ أُضيف للسلة: ${meal.nameAr}` : `✓ Added to Cart: ${meal.nameEn}`, {
+      description: `${meal.price} ${ar ? "ر.س" : "SAR"}`,
+      duration: 1500,
+    });
   };
 
-  const handleUpdateQuantity = (mealId: string, delta: number) => {
+  // Open Meal Customizer
+  const handleOpenCustomizer = (meal: Meal) => {
     sounds.playClick();
-    const existing = cart.lines.find((item) => item.id === mealId);
-    if (!existing) return;
-    const newQty = existing.quantity + delta;
-    if (newQty <= 0) {
-      cart.remove(mealId);
+    setCustomizingMeal(meal);
+    setCustomSize("regular");
+    setCustomBread("خبز بطاطس بريوش طازج");
+    setCustomExtras([]);
+    setCustomInstructions("");
+    setCustomQty(1);
+  };
+
+  // Calculate Custom Meal Total Price
+  const customMealPrice = useMemo(() => {
+    if (!customizingMeal) return 0;
+    let base = customizingMeal.price;
+    if (customSize === "double") base += 8;
+    if (customSize === "combo") base += 14;
+    base += customExtras.length * 3;
+    return base * customQty;
+  }, [customizingMeal, customSize, customExtras, customQty]);
+
+  // Confirm Customizer Add to Cart
+  const handleConfirmCustomAdd = () => {
+    if (!customizingMeal) return;
+    sounds.playAdd();
+    cart.add({
+      id: `${customizingMeal.id}-${customSize}-${customExtras.join("-")}`,
+      restaurant_id: customizingMeal.restaurantId,
+      name_ar: `${customizingMeal.nameAr} (${customSize === "combo" ? "وجبة كومبو" : customSize === "double" ? "دبل" : "عادي"})`,
+      name_en: `${customizingMeal.nameEn} (${customSize})`,
+      price: customMealPrice / customQty,
+    });
+    toast.success(ar ? `✓ تم تخصيص وإضافة: ${customizingMeal.nameAr}` : `✓ Customized and Added!`, {
+      description: `${customMealPrice} ${ar ? "ر.س" : "SAR"}`,
+    });
+    setCustomizingMeal(null);
+  };
+
+  // Cart Calculations
+  const cartSubtotal = cart.subtotal;
+  const deliveryFee = cartSubtotal > 50 || appliedPromo?.code === "FREE3" ? 0 : 9;
+  const promoDiscount = appliedPromo ? Math.min(appliedPromo.discountSar, cartSubtotal) : 0;
+  const vatTax = Math.round((cartSubtotal - promoDiscount) * 0.15 * 100) / 100;
+  const cartTotal = Math.max(0, cartSubtotal - promoDiscount + deliveryFee + vatTax + selectedTip);
+  const totalItemCount = cart.lines.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Apply Promo Code
+  const handleApplyPromo = () => {
+    const code = promoCode.trim().toUpperCase();
+    sounds.playClick();
+    if (code === "FOOD50") {
+      setAppliedPromo({ code: "FOOD50", discountSar: 15 });
+      toast.success(ar ? "🎉 تم تفعيل خصم 50% (وفرت 15 ر.س)" : "FOOD50 applied!");
+    } else if (code === "FREE3") {
+      setAppliedPromo({ code: "FREE3", discountSar: 9 });
+      toast.success(ar ? "🎉 تم تفعيل التوصيل المجاني!" : "Free Delivery applied!");
+    } else if (code === "KETO10") {
+      setAppliedPromo({ code: "KETO10", discountSar: 10 });
+      toast.success(ar ? "🎉 تم تفعيل خصم الكيتو 10 ر.س" : "KETO10 applied!");
     } else {
-      cart.setQty(mealId, newQty);
+      toast.error(ar ? "كود الخصم غير صحيح أو منتهي الصلاحية" : "Invalid promo code");
     }
   };
 
-  const getItemQuantity = (mealId: string) => {
-    const item = cart.lines.find((line) => line.id === mealId);
-    return item ? item.quantity : 0;
+  // Confirm Order & Place to Radar
+  const handlePlaceOrder = () => {
+    if (cart.lines.length === 0) {
+      toast.error(ar ? "السلة فارغة حالياً!" : "Cart is empty!");
+      return;
+    }
+    sounds.playSuccess();
+    const newOrderNum = `#${Math.floor(4900 + Math.random() * 90)}`;
+    const newOtp = `${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const newOrder: LiveOrder = {
+      id: `ord-${Date.now()}`,
+      orderNumber: newOrderNum,
+      otp: newOtp,
+      step: 1,
+      restaurantName: selectedRestaurant?.nameAr || "سماش أنجوس كلود برجر",
+      items: cart.lines.map((l) => `${l.name_ar} (x${l.quantity})`),
+      totalSar: cartTotal,
+      estimatedMinutes: 18,
+      captain: {
+        name: "كابتن أحمد الشمري",
+        phone: "0559876543",
+        vehicle: "دراجة نارية (Yamaha 150)",
+        plate: "أ ب ج 4492",
+        rating: 4.96,
+        deliveriesCount: 142,
+      },
+    };
+
+    setActiveLiveOrder(newOrder);
+    cart.clear();
+    setHistoryStack((prev) => [...prev, "radar"]);
+    setActiveTab("radar");
+    toast.success(ar ? "🎉 تم تأكيد طلبك بنجاح! جاري تحضيره ومتابعته على الرادار المباشر." : "Order placed successfully!");
   };
 
-  const totalItemCount = cart.lines.reduce((sum, item) => sum + item.quantity, 0);
+  // Submit Post-Delivery Rating with 1 SAR Bonus Highlight
+  const handleSubmitRating = () => {
+    sounds.playSuccess();
+    setRatingSubmitted(true);
+    setLoyaltyPoints((prev) => prev + 50);
 
-  // Filter meals
-  const filteredMeals = POPULAR_MEALS.filter((meal) => {
-    const matchesCategory = selectedCategory === "all" || meal.category === selectedCategory;
-    const matchesSearch =
-      searchQuery.trim() === "" ||
-      meal.nameAr.includes(searchQuery) ||
-      meal.nameEn.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+    setTimeout(() => {
+      setRatingModalOpen(false);
+      setRatingSubmitted(false);
+      toast.success(ar ? "شكراً لتقييمك! أُضيفت 50 نقطة ولاء لمحفظتك 🌟" : "Thank you for your rating! +50 Points added");
+    }, 2200);
+  };
+
+  // Re-Order 1-Click Action
+  const handleReorder = (order: (typeof pastOrders)[0]) => {
+    sounds.playAdd();
+    cart.add({
+      id: `reorder-${order.id}`,
+      restaurant_id: "fh-prime",
+      name_ar: order.items,
+      name_en: order.items,
+      price: order.price,
+    });
+    setHistoryStack((prev) => [...prev, "cart"]);
+    setActiveTab("cart");
+    toast.success(ar ? "✓ تم تجهيز طلبك في السلة بنقرة واحدة!" : "Order loaded into cart!");
+  };
+
+  // Filter meals for home search
+  const filteredMeals = useMemo(() => {
+    return ALL_POPULAR_MEALS.filter((meal) => {
+      const matchesCategory = selectedCategory === "all" || meal.category === selectedCategory;
+      const matchesSearch =
+        searchQuery.trim() === "" ||
+        meal.nameAr.includes(searchQuery) ||
+        meal.nameEn.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="w-full min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center selection:bg-amber-500 selection:text-slate-950 md:py-6 md:px-4">
+    <div className="w-full min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center selection:bg-amber-500 selection:text-slate-950 md:py-4 md:px-4">
       {/* 
-        SMARTPHONE DEVICE WRAPPER:
-        - Mobile View: 100% full screen native app experience (no borders, edge to edge)
-        - Desktop / Lovable Preview: Clean smartphone viewport frame with notch and status bar
+        SMARTPHONE VIEWPORT CONTAINER:
+        - Mobile View: 100% full screen native app experience
+        - Desktop / Tablet: Smartphone frame with bezel & status bar
       */}
-      <div className="w-full md:max-w-[420px] min-h-screen md:min-h-[860px] md:h-[92vh] md:max-h-[920px] bg-slate-950 flex flex-col md:rounded-[48px] md:border-[7px] md:border-slate-800 md:shadow-[0_25px_80px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.08)] relative overflow-hidden">
-        {/* TOP STATUS BAR (Visible on desktop smartphone frame) */}
-        <div className="hidden md:flex items-center justify-between px-6 pt-3 pb-1 select-none text-[11px] font-semibold text-slate-400 bg-slate-950 z-30 shrink-0">
-          <span>9:41</span>
-          {/* Dynamic Island Notch */}
-          <div className="h-5 w-24 bg-black rounded-full flex items-center justify-center border border-slate-800/80 shadow-inner">
-            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px]">
-            <span className="font-bold text-slate-300">5G</span>
-            <div className="w-4 h-2.5 rounded-sm border border-slate-400 p-0.5 flex items-center">
-              <div className="h-full w-full bg-slate-300 rounded-[1px]" />
-            </div>
-          </div>
-        </div>
+      <div className="w-full md:max-w-[425px] min-h-screen md:min-h-[880px] md:h-[93vh] md:max-h-[940px] bg-slate-950 flex flex-col md:rounded-[48px] md:border-[7px] md:border-slate-800 md:shadow-[0_25px_80px_rgba(0,0,0,0.95),0_0_0_1px_rgba(255,255,255,0.08)] relative overflow-hidden">
+        {/* ==================================================== */}
+        {/* NATIVE PHONE STATUS BAR & TOP HEADER                */}
+        {/* ==================================================== */}
+        <header className="shrink-0 bg-slate-950/95 border-b border-slate-900 z-30 pt-3 pb-2.5 px-3">
+          {/* Top Row: Brand & District Picker */}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => {
+                sounds.playClick();
+                setDistrictModalOpen(true);
+              }}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-all text-xs font-semibold max-w-[240px] truncate"
+            >
+              <MapPin className="size-3.5 text-amber-400 shrink-0" />
+              <span className="truncate">{selectedDistrict}</span>
+              <ChevronDown className="size-3 text-slate-400 shrink-0" />
+            </button>
 
-        {/* 1. APP HEADER */}
-        <header className="sticky top-0 z-20 bg-slate-950/95 backdrop-blur-xl border-b border-slate-800/80 px-4 py-3 shrink-0">
-          <div className="space-y-2.5">
-            {/* Location Selector & Quick Action Buttons */}
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => {
-                  sounds.playClick();
-                  setDistrictModalOpen(true);
-                }}
-                className="flex items-center gap-2 text-start p-1 rounded-xl hover:bg-slate-900 transition-colors group max-w-[70%]"
+                onClick={() => navigateToTab("radar")}
+                className="relative p-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white"
+                title="رادار الطلبات"
               >
-                <div className="flex size-8.5 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30 group-hover:scale-105 transition-transform shrink-0">
-                  <MapPin className="size-4" />
-                </div>
-                <div className="truncate">
-                  <div className="text-[10px] text-slate-400 font-bold flex items-center gap-1">
-                    <span>{ar ? "التوصيل إلى" : "Deliver to"}</span>
-                    <ChevronDown className="size-3 text-amber-400 group-hover:translate-y-0.5 transition-transform" />
-                  </div>
-                  <div className="text-xs font-black text-white group-hover:text-amber-400 transition-colors truncate">
-                    {selectedDistrict}
-                  </div>
-                </div>
+                <Radar className="size-4 text-emerald-400" />
+                {activeLiveOrder && (
+                  <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-emerald-400 animate-ping" />
+                )}
               </button>
 
-              <div className="flex items-center gap-1.5 shrink-0">
-                <Link
-                  to="/orders"
-                  onClick={() => sounds.playClick()}
-                  className="relative size-8.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
-                  title={ar ? "تتبع الطلبات الحية" : "Live Radar"}
-                >
-                  <Zap className="size-4 text-amber-400" />
-                  <span className="absolute -top-1 -end-1 flex size-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full size-2.5 bg-amber-500" />
-                  </span>
-                </Link>
-
-                <Link
-                  to="/cart"
-                  onClick={() => sounds.playClick()}
-                  className="relative size-8.5 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-amber-400 hover:border-slate-700 transition-colors"
-                  title={ar ? "السلة" : "Cart"}
-                >
-                  <ShoppingBag className="size-4" />
-                  {totalItemCount > 0 && (
-                    <span className="absolute -top-1 -end-1 size-4 rounded-full bg-red-500 text-white font-black text-[9px] flex items-center justify-center shadow-md animate-pulse">
-                      {totalItemCount}
-                    </span>
-                  )}
-                </Link>
-              </div>
-            </div>
-
-            {/* Search Input Bar */}
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 pointer-events-none" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder={ar ? "ابحث عن برجر، شاورما، كيتو، أو مطبخ..." : "Search burger, shawarma, keto, kitchen..."}
-                  className="w-full h-10 ps-9 pe-8 rounded-xl bg-slate-900/90 border border-slate-800 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery("")}
-                    className="absolute end-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-1 rounded bg-slate-800"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
               <button
-                onClick={() => {
-                  sounds.playClick();
-                  toast.info(ar ? "فلترة متقدمة حسب السرعة والسعر والتقييم" : "Filter by speed, price & rating");
-                }}
-                className="size-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-amber-400 hover:border-slate-700 transition-colors shrink-0"
+                onClick={() => navigateToTab("cart")}
+                className="relative p-1.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20"
+                title="السلة"
               >
-                <Filter className="size-4" />
+                <ShoppingBag className="size-4" />
+                {totalItemCount > 0 && (
+                  <span className="absolute -top-1 -right-1 size-4 rounded-full bg-amber-500 text-slate-950 font-black text-[9px] flex items-center justify-center">
+                    {totalItemCount}
+                  </span>
+                )}
               </button>
             </div>
           </div>
         </header>
 
-        {/* 2. SCROLLABLE APP CONTENT */}
-        <div className="flex-1 overflow-y-auto no-scrollbar scrollbar-none pb-28 space-y-4">
-          {/* STORIES SECTION */}
-          <div className="pt-3 px-4">
-            <div className="overflow-x-auto no-scrollbar scrollbar-none">
-              <div className="flex items-center gap-3 pb-1">
-                {STORIES.map((story) => (
+        {/* ==================================================== */}
+        {/* MAIN SCROLLABLE APP BODY                             */}
+        {/* ==================================================== */}
+        <main className="flex-1 overflow-y-auto no-scrollbar pb-20">
+          {/* -------------------------------------------------- */}
+          {/* TAB 1: HOME FEED VIEW                              */}
+          {/* -------------------------------------------------- */}
+          {activeTab === "home" && !selectedRestaurant && (
+            <div className="p-3.5 space-y-4">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={ar ? "ابحث عن وجبة، برجر، شاورما، أو مطبخ سحابي..." : "Search meals, burgers, shawarma..."}
+                  className="w-full bg-slate-900/90 border border-slate-800 rounded-2xl py-2.5 ps-9 pe-4 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-amber-400 transition-colors"
+                />
+                {searchQuery && (
                   <button
-                    key={story.id}
-                    onClick={() => {
-                      sounds.playClick();
-                      setActiveStory(story);
-                    }}
-                    className="flex flex-col items-center gap-1 shrink-0 group focus:outline-none"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs"
                   >
-                    <div className="relative p-0.5 rounded-full bg-gradient-to-tr from-amber-500 via-orange-500 to-yellow-400 group-hover:scale-105 transition-transform duration-200">
-                      <div className="size-13 rounded-full bg-slate-950 p-1 border-2 border-slate-950 flex items-center justify-center text-2xl shadow-md">
-                        <span>{story.emoji}</span>
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Instagram/Snapchat Stories Bar */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs px-1">
+                  <span className="font-bold text-white flex items-center gap-1.5">
+                    <Sparkles className="size-3.5 text-amber-400" />
+                    عروض اليوم الحصرية
+                  </span>
+                  <span className="text-[10px] text-amber-400 font-medium">كوبونات فورية ⚡</span>
+                </div>
+                <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-1">
+                  {STORIES.map((story) => (
+                    <button
+                      key={story.id}
+                      onClick={() => {
+                        sounds.playClick();
+                        setActiveStory(story);
+                      }}
+                      className="flex flex-col items-center gap-1 shrink-0 group focus:outline-none"
+                    >
+                      <div className="size-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 shadow-md shadow-amber-500/10 group-hover:scale-105 transition-transform">
+                        <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-2xl">
+                          {story.emoji}
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-200 group-hover:text-amber-400 transition-colors">
+                        {ar ? story.titleAr : story.titleEn}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Hero Banner */}
+              <div className="p-4 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-400 text-slate-950 relative overflow-hidden shadow-lg shadow-amber-500/10">
+                <div className="relative z-10 max-w-[70%] space-y-1">
+                  <span className="text-[10px] font-black uppercase tracking-wider bg-slate-950 text-amber-400 px-2 py-0.5 rounded-full inline-block">
+                    أسرع توصيل في الرياض ⚡
+                  </span>
+                  <h3 className="text-base font-black leading-tight">
+                    خصم 50% على أول طلب مع كود <strong className="underline">FOOD50</strong>
+                  </h3>
+                  <p className="text-[11px] font-medium text-slate-900">
+                    استلم وجبتك ساخنة خلال أقل من 20 دقيقة
+                  </p>
+                </div>
+                <div className="absolute -bottom-2 -end-3 text-6xl opacity-90 select-none">
+                  🛵
+                </div>
+              </div>
+
+              {/* Food Categories Horizontal Scroll */}
+              <div className="space-y-1.5">
+                <h4 className="text-xs font-bold text-white px-1">التصنيفات</h4>
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  {CATEGORIES.map((cat) => {
+                    const active = selectedCategory === cat.id;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => {
+                          sounds.playClick();
+                          setSelectedCategory(cat.id);
+                        }}
+                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all ${
+                          active
+                            ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                            : "bg-slate-900 text-slate-400 border border-slate-800 hover:text-white"
+                        }`}
+                      >
+                        <span>{cat.emoji}</span>
+                        <span>{ar ? cat.nameAr : cat.nameEn}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Cloud Kitchens & Restaurants Cards */}
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs px-1">
+                  <h4 className="font-bold text-white flex items-center gap-1.5">
+                    <Store className="size-3.5 text-amber-400" />
+                    المطابخ السحابية والمطاعم المعتمدة
+                  </h4>
+                  <button
+                    onClick={() => navigateToTab("kitchens")}
+                    className="text-[11px] text-amber-400 font-bold hover:underline flex items-center gap-0.5"
+                  >
+                    عرض الكل
+                    <ChevronLeft className="size-3" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 gap-3">
+                  {RESTAURANTS_DATA.map((resto) => (
+                    <div
+                      key={resto.id}
+                      onClick={() => {
+                        sounds.playClick();
+                        setSelectedRestaurant(resto);
+                      }}
+                      className="group cursor-pointer rounded-3xl bg-slate-900/90 border border-slate-800/90 overflow-hidden hover:border-amber-500/40 transition-all shadow-md"
+                    >
+                      <div className="relative h-32 w-full overflow-hidden">
+                        <img
+                          src={resto.image}
+                          alt={resto.nameAr}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/30" />
+                        <span className="absolute top-2.5 start-2.5 px-2 py-0.5 rounded-full bg-slate-950/80 backdrop-blur-md text-amber-400 text-[10px] font-bold border border-amber-500/30">
+                          {resto.badge}
+                        </span>
+                        <div className="absolute bottom-2 start-3 flex items-center gap-1.5 text-white">
+                          <span className="text-xs font-black">{resto.nameAr}</span>
+                        </div>
+                      </div>
+
+                      <div className="p-3 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-3 text-slate-400 text-[11px]">
+                          <span className="flex items-center gap-1 text-amber-400 font-bold">
+                            <Star className="size-3 fill-amber-400" />
+                            {resto.rating} ({resto.reviews})
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Clock className="size-3 text-sky-400" />
+                            {resto.eta}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Bike className="size-3 text-emerald-400" />
+                            {resto.deliveryFee === 0 ? "توصيل مجاني" : `${resto.deliveryFee} ر.س`}
+                          </span>
+                        </div>
+                        <span className="text-amber-400 font-bold text-[11px] flex items-center gap-0.5 group-hover:translate-x-[-2px] transition-transform">
+                          القائمة
+                          <ChevronLeft className="size-3" />
+                        </span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-300 group-hover:text-amber-400 transition-colors whitespace-nowrap">
-                      {ar ? story.titleAr : story.titleEn}
-                    </span>
-                  </button>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Popular Meals Feed with Quick Add */}
+              <div className="space-y-2.5 pt-2">
+                <div className="flex items-center justify-between text-xs px-1">
+                  <h4 className="font-bold text-white flex items-center gap-1.5">
+                    <Flame className="size-3.5 text-amber-400" />
+                    الوجبات الأكثر طلباً في الرياض
+                  </h4>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {filteredMeals.length} وجبة
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {filteredMeals.map((meal) => (
+                    <div
+                      key={meal.id}
+                      className="p-3 rounded-2xl bg-slate-900/80 border border-slate-800/80 flex items-center justify-between gap-3 hover:border-slate-700 transition-colors"
+                    >
+                      <div
+                        onClick={() => handleOpenCustomizer(meal)}
+                        className="flex items-center gap-3 cursor-pointer flex-1"
+                      >
+                        <img
+                          src={meal.image}
+                          alt={meal.nameAr}
+                          className="size-16 rounded-xl object-cover shrink-0 border border-slate-800"
+                        />
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <h5 className="text-xs font-bold text-white truncate">{meal.nameAr}</h5>
+                          <p className="text-[10.5px] text-slate-400 line-clamp-1">{meal.descAr}</p>
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-xs font-black text-amber-400 font-mono">
+                              {meal.price} ر.س
+                            </span>
+                            <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-mono">
+                              {meal.calories} كالوري
+                            </span>
+                            <span className="text-[9.5px] text-emerald-400 font-mono">
+                              {meal.proteinG}g بروتين
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => handleQuickAdd(meal)}
+                          className="size-8 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 flex items-center justify-center font-black shadow-md shadow-amber-500/20 transition-all"
+                          title="إضافة سريعة"
+                        >
+                          <Plus className="size-4 stroke-[3]" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenCustomizer(meal)}
+                          className="text-[9.5px] text-slate-400 hover:text-white"
+                        >
+                          تخصيص
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* HERO PROMO CARD */}
-          <div className="px-4">
-            <div className="relative rounded-2xl bg-gradient-to-br from-amber-500 via-amber-600 to-yellow-600 p-4 text-slate-950 overflow-hidden shadow-lg shadow-amber-500/10">
-              <div className="absolute -end-4 -bottom-4 size-28 rounded-full bg-white/15 blur-xl pointer-events-none" />
-              <div className="relative z-10 space-y-1.5">
-                <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-950 text-amber-400 text-[9px] font-black shadow-md">
-                  <Sparkles className="size-3" />
-                  <span>{ar ? "عرض ترويجي حصري" : "Exclusive Offer"}</span>
-                </div>
-                <h2 className="text-base font-black leading-tight text-slate-950">
-                  {ar ? "خصم 50% على طلبك الأول!" : "50% OFF Your First Order!"}
-                </h2>
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <p className="text-[11px] font-bold text-slate-900 leading-none">
-                    {ar ? "استخدم كود" : "Use code"}{" "}
-                    <span className="bg-slate-950 text-amber-300 px-1.5 py-0.5 rounded font-mono font-black text-xs">
-                      FOODHUB
+          {/* -------------------------------------------------- */}
+          {/* RESTAURANT FULL MENU VIEW                          */}
+          {/* -------------------------------------------------- */}
+          {selectedRestaurant && (
+            <div className="space-y-4">
+              {/* Cover & Back Header */}
+              <div className="relative h-44 w-full">
+                <img
+                  src={selectedRestaurant.coverImage}
+                  alt={selectedRestaurant.nameAr}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-black/60" />
+
+                <button
+                  onClick={handleGoBack}
+                  className="absolute top-3 start-3 size-9 rounded-xl bg-slate-950/80 backdrop-blur-md text-white border border-slate-800 flex items-center justify-center hover:bg-slate-900 active:scale-95 transition-transform"
+                  title="رجوع"
+                >
+                  <ChevronRight className="size-5" />
+                </button>
+
+                <div className="absolute bottom-3 start-3 end-3 flex items-end justify-between">
+                  <div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black">
+                      {selectedRestaurant.tagAr}
                     </span>
-                  </p>
-                  <span className="text-[10px] font-black bg-white/30 text-slate-950 px-2 py-0.5 rounded-full">
-                    {ar ? "توصيل بـ 0 ر.س" : "0 SAR Delivery"}
+                    <h2 className="text-base font-black text-white mt-1">
+                      {selectedRestaurant.nameAr}
+                    </h2>
+                    <p className="text-[10px] text-slate-300 flex items-center gap-1">
+                      <MapPin className="size-3 text-amber-400" />
+                      {selectedRestaurant.districtAr} • {selectedRestaurant.distanceKm} كم
+                    </p>
+                  </div>
+                  <div className="text-left bg-slate-950/80 backdrop-blur-md px-2.5 py-1.5 rounded-2xl border border-slate-800">
+                    <span className="text-xs font-black text-amber-400 flex items-center gap-1 font-mono">
+                      <Star className="size-3 fill-amber-400" />
+                      {selectedRestaurant.rating}
+                    </span>
+                    <span className="text-[9px] text-slate-400 block font-mono">
+                      {selectedRestaurant.reviews} تقييم
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Restaurant Stats Bar */}
+              <div className="grid grid-cols-3 gap-2 px-3 text-center text-xs">
+                <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">وقت التوصيل</span>
+                  <span className="font-bold text-white font-mono mt-0.5 block">
+                    {selectedRestaurant.eta}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">رسوم التوصيل</span>
+                  <span className="font-bold text-emerald-400 font-mono mt-0.5 block">
+                    {selectedRestaurant.deliveryFee === 0 ? "مجاني" : `${selectedRestaurant.deliveryFee} ر.س`}
+                  </span>
+                </div>
+                <div className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800">
+                  <span className="text-[10px] text-slate-400 block">الحد الأدنى</span>
+                  <span className="font-bold text-white font-mono mt-0.5 block">
+                    {selectedRestaurant.minOrder} ر.س
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* CATEGORIES CHIPS */}
-          <div className="px-4">
-            <div className="overflow-x-auto no-scrollbar scrollbar-none">
-              <div className="flex items-center gap-2 pb-1">
-                {CATEGORIES.map((cat) => {
-                  const isSelected = selectedCategory === cat.id;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        sounds.playClick();
-                        setSelectedCategory(cat.id);
-                      }}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-150 ${
-                        isSelected
-                          ? "bg-amber-500 text-slate-950 font-black shadow-md shadow-amber-500/20 scale-[1.02]"
-                          : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
-                      }`}
+              {/* Restaurant Menu Items */}
+              <div className="p-3 space-y-2.5">
+                <h4 className="text-xs font-bold text-white px-1 flex items-center gap-1.5">
+                  <UtensilsCrossed className="size-3.5 text-amber-400" />
+                  قائمة وجبات المطعم
+                </h4>
+
+                <div className="space-y-2.5">
+                  {selectedRestaurant.menu.map((meal) => (
+                    <div
+                      key={meal.id}
+                      className="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 hover:border-slate-700 transition-colors"
                     >
-                      <span>{cat.emoji}</span>
-                      <span>{ar ? cat.nameAr : cat.nameEn}</span>
-                    </button>
-                  );
-                })}
+                      <div
+                        onClick={() => handleOpenCustomizer(meal)}
+                        className="flex items-center gap-3 cursor-pointer flex-1"
+                      >
+                        <img
+                          src={meal.image}
+                          alt={meal.nameAr}
+                          className="size-16 rounded-xl object-cover shrink-0 border border-slate-800"
+                        />
+                        <div className="space-y-0.5 flex-1 min-w-0">
+                          <h5 className="text-xs font-bold text-white truncate">{meal.nameAr}</h5>
+                          <p className="text-[10.5px] text-slate-400 line-clamp-1">{meal.descAr}</p>
+                          <div className="flex items-center gap-2 pt-0.5">
+                            <span className="text-xs font-black text-amber-400 font-mono">
+                              {meal.price} ر.س
+                            </span>
+                            <span className="text-[9.5px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-300 font-mono">
+                              {meal.calories} كالوري
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center gap-1 shrink-0">
+                        <button
+                          onClick={() => handleQuickAdd(meal)}
+                          className="size-8 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 flex items-center justify-center font-black shadow-md shadow-amber-500/20 transition-all"
+                          title="إضافة للسلة"
+                        >
+                          <Plus className="size-4 stroke-[3]" />
+                        </button>
+                        <button
+                          onClick={() => handleOpenCustomizer(meal)}
+                          className="text-[9.5px] text-slate-400 hover:text-white"
+                        >
+                          تخصيص
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* HOT CLOUD KITCHENS */}
-          <div className="px-4 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Flame className="size-4 text-amber-400" />
-                <h3 className="text-xs font-black text-white">
-                  {ar ? "المطابخ السحابية الأكثر طلباً" : "Top Cloud Kitchens"}
-                </h3>
+          {/* -------------------------------------------------- */}
+          {/* TAB 2: KITCHENS DIRECTORY                          */}
+          {/* -------------------------------------------------- */}
+          {activeTab === "kitchens" && (
+            <div className="p-3.5 space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                    <Store className="size-4 text-amber-400" />
+                    دليل المطابخ والمطاعم المعتمدة
+                  </h3>
+                  <p className="text-[11px] text-slate-400">
+                    أفضل مطابخ الرياض السحابية الموثقة بأعلى معايير الجودة
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-amber-400 font-bold">
+                  {RESTAURANTS_DATA.length} مطابخ
+                </span>
               </div>
-              <span className="text-[10px] text-amber-400 font-bold">
-                {ar ? "الرياض 📍" : "Riyadh 📍"}
-              </span>
-            </div>
 
-            <div className="overflow-x-auto no-scrollbar scrollbar-none">
-              <div className="flex gap-3 pb-1">
-                {RESTAURANTS.map((resto) => (
+              <div className="space-y-3">
+                {RESTAURANTS_DATA.map((resto) => (
                   <div
                     key={resto.id}
-                    className="w-56 shrink-0 rounded-2xl bg-slate-900 border border-slate-800 overflow-hidden shadow-md hover:border-amber-500/40 transition-all flex flex-col justify-between"
+                    onClick={() => {
+                      sounds.playClick();
+                      setSelectedRestaurant(resto);
+                    }}
+                    className="p-3.5 rounded-3xl bg-slate-900 border border-slate-800 cursor-pointer hover:border-amber-500/50 transition-all group"
                   >
-                    <div className="relative h-24 overflow-hidden">
+                    <div className="flex items-start gap-3">
                       <img
                         src={resto.image}
                         alt={resto.nameAr}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        className="size-20 rounded-2xl object-cover shrink-0 border border-slate-800 group-hover:scale-105 transition-transform"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
-                      <span className="absolute top-2 start-2 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[9px] font-black px-1.5 py-0.5 rounded border border-amber-500/30">
-                        {resto.badge}
-                      </span>
-                      <div className="absolute bottom-1.5 start-2 flex items-center gap-1 bg-slate-950/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                        <Star className="size-2.5 fill-amber-400 text-amber-400" />
-                        <span>{resto.rating}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-2.5 space-y-1">
-                      <h4 className="font-bold text-xs text-white truncate">
-                        {ar ? resto.nameAr : resto.nameEn}
-                      </h4>
-                      <div className="flex items-center justify-between text-[10px] text-slate-400">
-                        <span className="flex items-center gap-1 text-slate-300">
-                          <Clock className="size-3 text-amber-400" />
-                          {resto.eta}
-                        </span>
-                        <span className="text-emerald-400 font-bold">{resto.deliveryFee}</span>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold">
+                            {resto.tagAr}
+                          </span>
+                          <span className="text-xs font-bold text-amber-400 font-mono flex items-center gap-1">
+                            <Star className="size-3 fill-amber-400" />
+                            {resto.rating}
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-bold text-white group-hover:text-amber-400 transition-colors">
+                          {resto.nameAr}
+                        </h4>
+                        <p className="text-[10.5px] text-slate-400">
+                          {resto.districtAr} • {resto.distanceKm} كم
+                        </p>
+                        <div className="flex items-center gap-3 pt-1 text-[10.5px] text-slate-400">
+                          <span>⏱️ {resto.eta}</span>
+                          <span>🛵 {resto.deliveryFee === 0 ? "مجاني" : `${resto.deliveryFee} ر.س`}</span>
+                          <span>📦 حد أدنى {resto.minOrder} ر.س</span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
-          {/* POPULAR MEALS FOR 1-TAP QUICK ORDER */}
-          <div className="px-4 space-y-2.5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="size-4 text-amber-400" />
-                <h3 className="text-xs font-black text-white">
-                  {ar ? "أشهى الوجبات للطلب السريع" : "Popular Dishes"}
+          {/* -------------------------------------------------- */}
+          {/* TAB 3: SMART CART & CHECKOUT                       */}
+          {/* -------------------------------------------------- */}
+          {activeTab === "cart" && (
+            <div className="p-3.5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+                  <ShoppingBag className="size-4 text-amber-400" />
+                  سلة الشراء وتأكيد الطلب
                 </h3>
-              </div>
-              <span className="text-[10px] text-slate-400">
-                {filteredMeals.length} {ar ? "وجبة" : "meals"}
-              </span>
-            </div>
-
-            <div className="space-y-2.5">
-              {filteredMeals.map((meal) => {
-                const qty = getItemQuantity(meal.id);
-                return (
-                  <div
-                    key={meal.id}
-                    className="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800/80 flex items-center gap-3 hover:border-slate-700 transition-all"
+                {cart.lines.length > 0 && (
+                  <button
+                    onClick={() => {
+                      sounds.playClick();
+                      cart.clear();
+                      toast.info(ar ? "تم تفريغ السلة" : "Cart cleared");
+                    }}
+                    className="text-[11px] text-red-400 hover:underline"
                   >
-                    <div className="relative size-18 rounded-xl overflow-hidden shrink-0 bg-slate-950">
-                      <img
-                        src={meal.image}
-                        alt={meal.nameAr}
-                        className="w-full h-full object-cover"
+                    تفريغ السلة
+                  </button>
+                )}
+              </div>
+
+              {cart.lines.length === 0 ? (
+                <div className="py-16 text-center space-y-3">
+                  <div className="size-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-3xl">
+                    🛒
+                  </div>
+                  <h4 className="text-sm font-bold text-white">سلتك فارغة حالياً</h4>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                    استكشف وجبات ومطابخ الرياض السحابية وأضف أطباقك المفضلة لتجربة توصيل خارقة.
+                  </p>
+                  <Button
+                    onClick={() => navigateToTab("home")}
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-xs"
+                  >
+                    تصفح الوجبات الآن
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Cart Items List */}
+                  <div className="space-y-2">
+                    {cart.lines.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-3 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h5 className="text-xs font-bold text-white truncate">{item.name_ar}</h5>
+                          <span className="text-xs font-mono text-amber-400 font-black">
+                            {item.price * item.quantity} ر.س
+                          </span>
+                        </div>
+
+                        {/* Quantity Counter */}
+                        <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 px-2 py-1 rounded-xl">
+                          <button
+                            onClick={() => {
+                              sounds.playClick();
+                              if (item.quantity > 1) {
+                                cart.setQty(item.id, item.quantity - 1);
+                              } else {
+                                cart.remove(item.id);
+                              }
+                            }}
+                            className="size-5 rounded bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white"
+                          >
+                            <Minus className="size-3" />
+                          </button>
+                          <span className="text-xs font-bold font-mono text-white min-w-[16px] text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => {
+                              sounds.playClick();
+                              cart.setQty(item.id, item.quantity + 1);
+                            }}
+                            className="size-5 rounded bg-amber-500 text-slate-950 flex items-center justify-center hover:bg-amber-400 font-bold"
+                          >
+                            <Plus className="size-3 stroke-[3]" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Promo Code Input */}
+                  <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <Tag className="size-3.5 text-amber-400" />
+                      كود الخصم الترويجي
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={promoCode}
+                        onChange={(e) => setPromoCode(e.target.value)}
+                        placeholder="أدخل الكود مثل FOOD50"
+                        className="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white uppercase tracking-wider font-mono focus:outline-none focus:border-amber-400"
+                      />
+                      <button
+                        onClick={handleApplyPromo}
+                        className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-400 transition-colors"
+                      >
+                        تطبيق
+                      </button>
+                    </div>
+                    {appliedPromo && (
+                      <div className="flex items-center justify-between text-[11px] text-emerald-400 pt-1">
+                        <span>تم تطبيق الكود ({appliedPromo.code})</span>
+                        <span className="font-mono font-bold">-{appliedPromo.discountSar} ر.س</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Delivery Location Confirmation */}
+                  <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <MapPin className="size-3.5 text-amber-400" />
+                        عنوان التوصيل
+                      </span>
+                      <button
+                        onClick={() => setDistrictModalOpen(true)}
+                        className="text-[10px] text-amber-400 hover:underline"
+                      >
+                        تغيير
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium">{selectedDistrict}</p>
+                    <p className="text-[10px] text-slate-500">
+                      وقت الوصول المقدر: 15-20 دقيقة عبر أقرب كابتن
+                    </p>
+                  </div>
+
+                  {/* Captain Tip Pill Selector */}
+                  <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <Award className="size-3.5 text-amber-400" />
+                        إكرامية الكابتن (اختياري)
+                      </span>
+                      <span className="text-[10px] text-slate-400">تذهب بالكامل للمندوب</span>
+                    </div>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[0, 3, 5, 10].map((tip) => (
+                        <button
+                          key={tip}
+                          onClick={() => {
+                            sounds.playClick();
+                            setSelectedTip(tip);
+                          }}
+                          className={`py-1.5 rounded-xl text-xs font-bold font-mono transition-all ${
+                            selectedTip === tip
+                              ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                              : "bg-slate-950 text-slate-400 border border-slate-800 hover:text-white"
+                          }`}
+                        >
+                          {tip === 0 ? "بدون" : `+${tip} ر.س`}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Payment Method Selector */}
+                  <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <CreditCard className="size-3.5 text-amber-400" />
+                      طريقة الدفع
+                    </span>
+                    <div className="grid grid-cols-1 gap-2">
+                      {[
+                        { id: "apple_pay", name: "Apple Pay", icon: "🍏", badge: "موصى به" },
+                        { id: "mada", name: "بطاقة مدى / ائتمانية", icon: "💳" },
+                        { id: "stc_pay", name: "STC Pay", icon: "🟣" },
+                        { id: "wallet", name: `محفظة ميلفاي (رصيدك: ${walletBalance} ر.س)`, icon: "💰" },
+                        { id: "cash", name: "الدفع نقداً عند الاستلام", icon: "💵" },
+                      ].map((pay) => (
+                        <label
+                          key={pay.id}
+                          onClick={() => {
+                            sounds.playClick();
+                            setSelectedPayment(pay.id as typeof selectedPayment);
+                          }}
+                          className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                            selectedPayment === pay.id
+                              ? "bg-amber-500/10 border-amber-500/50 text-white font-bold"
+                              : "bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span>{pay.icon}</span>
+                            <span>{pay.name}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            {pay.badge && (
+                              <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">
+                                {pay.badge}
+                              </span>
+                            )}
+                            <input
+                              type="radio"
+                              name="payment"
+                              checked={selectedPayment === pay.id}
+                              onChange={() => {}}
+                              className="accent-amber-500 size-3.5"
+                            />
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bill Summary Breakdown */}
+                  <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-1.5 text-xs text-slate-300">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">مجموع الوجبات:</span>
+                      <span className="font-mono text-white">{cartSubtotal} ر.س</span>
+                    </div>
+                    {promoDiscount > 0 && (
+                      <div className="flex justify-between text-emerald-400">
+                        <span>خصم الكوبون ({appliedPromo?.code}):</span>
+                        <span className="font-mono font-bold">-{promoDiscount} ر.س</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">رسوم التوصيل:</span>
+                      <span className="font-mono text-white">
+                        {deliveryFee === 0 ? "مجاني" : `${deliveryFee} ر.س`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">ضريبة القيمة المضافة (15%):</span>
+                      <span className="font-mono text-white">{vatTax} ر.س</span>
+                    </div>
+                    {selectedTip > 0 && (
+                      <div className="flex justify-between text-amber-400">
+                        <span>إكرامية الكابتن:</span>
+                        <span className="font-mono font-bold">+{selectedTip} ر.س</span>
+                      </div>
+                    )}
+                    <div className="border-t border-slate-800 pt-2 flex justify-between text-sm font-black text-white">
+                      <span>المجموع الإجمالي:</span>
+                      <span className="font-mono text-amber-400 text-base">{cartTotal} ر.س</span>
+                    </div>
+                  </div>
+
+                  {/* Submit Order Button */}
+                  <Button
+                    onClick={handlePlaceOrder}
+                    className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 active:scale-95 text-slate-950 font-black rounded-2xl py-3 text-sm shadow-xl shadow-amber-500/20"
+                  >
+                    تأكيد الطلب والدفع الفوري ({cartTotal} ر.س) ⚡
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* -------------------------------------------------- */}
+          {/* TAB 4: LIVE RADAR & ORDER TRACKING                 */}
+          {/* -------------------------------------------------- */}
+          {activeTab === "radar" && (
+            <div className="p-3.5 space-y-4">
+              <div className="flex items-center justify-between border-b border-slate-900 pb-2">
+                <div className="flex items-center gap-2">
+                  <div className="size-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                    <Radar className="size-4 text-emerald-400 animate-spin" style={{ animationDuration: "6s" }} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">رادار التتبع المباشر للطلب</h3>
+                    <p className="text-[10px] text-emerald-400 font-mono">
+                      {activeLiveOrder ? activeLiveOrder.orderNumber : "لا يوجد طلب نشط"}
+                    </p>
+                  </div>
+                </div>
+
+                {activeLiveOrder && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40">
+                    مباشر • وصول خلال {activeLiveOrder.estimatedMinutes} دقيقة
+                  </span>
+                )}
+              </div>
+
+              {activeLiveOrder ? (
+                <div className="space-y-4">
+                  {/* Google Maps Visual Route Preview */}
+                  <div className="relative w-full h-48 rounded-3xl overflow-hidden border border-slate-800 shadow-lg bg-slate-900">
+                    {/* Simulated Map Background */}
+                    <div className="absolute inset-0 bg-slate-950 flex items-center justify-center">
+                      <iframe
+                        title="Customer Order Live Map"
+                        src="https://maps.google.com/maps?q=24.7136,46.6753&hl=ar&z=14&output=embed"
+                        className="w-full h-full border-0 filter invert contrast-125 brightness-90 opacity-80"
                         loading="lazy"
                       />
                     </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40 pointer-events-none" />
 
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <h4 className="font-bold text-xs text-white truncate">
-                        {ar ? meal.nameAr : meal.nameEn}
-                      </h4>
-                      <p className="text-[10px] text-slate-400 line-clamp-1">
-                        {ar ? meal.descAr : meal.nameEn}
-                      </p>
-                      <div className="flex items-center justify-between pt-0.5">
-                        <span className="text-xs font-black text-amber-400">
-                          {meal.price} {ar ? "ر.س" : "SAR"}
-                        </span>
+                    {/* Floating HUD Badges on Map */}
+                    <div className="absolute top-3 start-3 end-3 flex items-center justify-between pointer-events-none">
+                      <span className="px-2.5 py-1 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 text-[10px] font-bold text-white flex items-center gap-1.5">
+                        <Store className="size-3 text-amber-400" />
+                        {activeLiveOrder.restaurantName}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-xl bg-emerald-500/90 backdrop-blur-md text-slate-950 text-[10px] font-black flex items-center gap-1 shadow-md">
+                        <Bike className="size-3" />
+                        الكابتن يتحرك نحوك ⚡
+                      </span>
+                    </div>
 
-                        {qty === 0 ? (
-                          <button
-                            onClick={() => handleQuickAdd(meal)}
-                            className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-black text-[11px] hover:bg-amber-400 active:scale-95 transition-all shadow-sm"
-                          >
-                            <Plus className="size-3 stroke-[3]" />
-                            <span>{ar ? "أضف" : "Add"}</span>
-                          </button>
-                        ) : (
-                          <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-lg p-0.5">
-                            <button
-                              onClick={() => handleUpdateQuantity(meal.id, -1)}
-                              className="size-6 rounded bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 active:scale-95"
-                            >
-                              <Minus className="size-3" />
-                            </button>
-                            <span className="text-xs font-black text-amber-400 px-1">{qty}</span>
-                            <button
-                              onClick={() => handleUpdateQuantity(meal.id, 1)}
-                              className="size-6 rounded bg-amber-500 text-slate-950 flex items-center justify-center hover:bg-amber-400 active:scale-95"
-                            >
-                              <Plus className="size-3 stroke-[3]" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
+                    <div className="absolute bottom-3 start-3 end-3 flex items-center justify-between pointer-events-none">
+                      <span className="px-2.5 py-1 rounded-xl bg-slate-950/90 backdrop-blur-md border border-slate-800 text-[10px] font-mono text-slate-300">
+                        📍 {selectedDistrict}
+                      </span>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
-        {/* 3. FLOATING QUICK CHECKOUT BAR (When cart has items) */}
-        {totalItemCount > 0 && (
-          <div className="absolute bottom-16 inset-x-3 z-30 pointer-events-auto animate-in slide-in-from-bottom-2 duration-200">
-            <Link
-              to="/cart"
-              onClick={() => sounds.playClick()}
-              className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black shadow-xl shadow-amber-500/30 border border-yellow-300 hover:brightness-105 active:scale-[0.99] transition-all"
-            >
-              <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-lg bg-slate-950 text-amber-400 font-black text-xs">
-                  {totalItemCount}
-                </div>
-                <div className="text-start leading-none">
-                  <div className="text-[10px] opacity-80 font-bold">
-                    {ar ? "سلتك النشطة" : "Active Cart"}
+                  {/* Secret OTP Handover Code Card */}
+                  <div className="p-4 rounded-3xl bg-gradient-to-br from-amber-500/20 via-slate-900 to-emerald-500/10 border-2 border-amber-500/40 text-center space-y-1.5 shadow-lg shadow-amber-500/5">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40">
+                      رمز الاستلام السري للتسليم الآمن (OTP)
+                    </span>
+                    <h4 className="text-3xl font-black text-amber-400 font-mono tracking-widest mt-1">
+                      {activeLiveOrder.otp}
+                    </h4>
+                    <p className="text-[11px] text-slate-300 leading-relaxed max-w-xs mx-auto">
+                      أعطِ هذا الرمز للكابتن عند استلام الوجبة لتوثيق التسليم وإنهاء الطلب بأمان.
+                    </p>
                   </div>
-                  <div className="text-xs font-black pt-0.5">
-                    {cart.subtotal.toFixed(2)} {ar ? "ر.س" : "SAR"}
+
+                  {/* Order 4-Step Progression Tracker */}
+                  <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 space-y-3">
+                    <h5 className="text-xs font-bold text-white">مراحل إنجاز وتوصيل الطلب:</h5>
+                    <div className="space-y-3">
+                      {[
+                        { step: 1, title: "تم تأكيد الطلب", desc: "استلم المطبخ طلبك وبدأ بالتأكيد" },
+                        { step: 2, title: "قيد الطهي والتغليف الحراري", desc: "يتم إعداد وجبتك وحفظها ساخنة" },
+                        { step: 3, title: "الكابتن استلم الطلب وهو في الطريق إليك", desc: "يتحرك المندوب نحوك عبر أسرع مسار" },
+                        { step: 4, title: "الكابتن عند الباب", desc: "أبرز رمز الـ OTP للكابتن للاستلام" },
+                      ].map((s) => {
+                        const isDone = activeLiveOrder.step >= s.step;
+                        const isCurrent = activeLiveOrder.step === s.step;
+                        return (
+                          <div key={s.step} className="flex items-start gap-3">
+                            <div
+                              className={`size-6 rounded-full flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold ${
+                                isDone
+                                  ? "bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/30"
+                                  : "bg-slate-800 text-slate-500"
+                              }`}
+                            >
+                              {isDone ? <Check className="size-3.5 stroke-[3]" /> : s.step}
+                            </div>
+                            <div className="flex-1">
+                              <h6
+                                className={`text-xs font-bold ${
+                                  isCurrent
+                                    ? "text-amber-400 font-black"
+                                    : isDone
+                                    ? "text-white"
+                                    : "text-slate-500"
+                                }`}
+                              >
+                                {s.title}
+                              </h6>
+                              <p className="text-[10px] text-slate-400">{s.desc}</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
+
+                  {/* Captain Contact Card */}
+                  <div className="p-3.5 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="size-11 rounded-2xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-black text-sm">
+                        🛵
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <h6 className="text-xs font-bold text-white">
+                            {activeLiveOrder.captain.name}
+                          </h6>
+                          <span className="text-[10px] text-amber-400 font-bold font-mono">
+                            ★ {activeLiveOrder.captain.rating}
+                          </span>
+                        </div>
+                        <p className="text-[10.5px] text-slate-400">
+                          {activeLiveOrder.captain.vehicle} • {activeLiveOrder.captain.plate}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`tel:${activeLiveOrder.captain.phone}`}
+                        onClick={() => sounds.playClick()}
+                        className="size-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center"
+                        title="اتصال"
+                      >
+                        <Phone className="size-3.5 text-emerald-400" />
+                      </a>
+                      <button
+                        onClick={() => {
+                          sounds.playClick();
+                          toast.info(ar ? "فتح محادثة فورية مع الكابتن..." : "Opening chat...");
+                        }}
+                        className="size-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center"
+                        title="رسالة"
+                      >
+                        <MessageSquare className="size-3.5 text-sky-400" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Handover Simulation / Finish Order Action */}
+                  <Button
+                    onClick={() => {
+                      sounds.playSuccess();
+                      setRatingModalOpen(true);
+                    }}
+                    className="w-full bg-emerald-500 hover:bg-emerald-400 active:scale-95 text-slate-950 font-black rounded-2xl py-3 text-xs shadow-lg shadow-emerald-500/20"
+                  >
+                    استلمت الوجبة ومصادقة التسليم برمز الـ OTP 🤝
+                  </Button>
                 </div>
-              </div>
-
-              <div className="flex items-center gap-1 text-[11px] font-black bg-slate-950 text-amber-400 px-2.5 py-1.5 rounded-lg shadow-inner">
-                <span>{ar ? "إتمام الطلب ⚡" : "Checkout ⚡"}</span>
-                <ArrowRight className="size-3 rtl:rotate-180" />
-              </div>
-            </Link>
-          </div>
-        )}
-
-        {/* 4. DOCKED INTEGRATED BOTTOM NAVIGATION */}
-        <nav className="absolute inset-x-0 bottom-0 z-30 border-t border-slate-800/90 bg-slate-950/95 backdrop-blur-xl px-2 pt-2 pb-2">
-          <div className="flex items-center justify-around">
-            <Link
-              to="/"
-              onClick={() => sounds.playClick()}
-              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-amber-400 font-black select-none"
-            >
-              <Home className="size-5 stroke-[2.5]" />
-              <span className="text-[9px]">{ar ? "الرئيسية" : "Home"}</span>
-            </Link>
-
-            <Link
-              to="/restaurant/$id"
-              params={{ id: "food-hub-prime" }}
-              onClick={() => sounds.playClick()}
-              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
-            >
-              <UtensilsCrossed className="size-5 stroke-2" />
-              <span className="text-[9px]">{ar ? "المطابخ" : "Kitchens"}</span>
-            </Link>
-
-            <Link
-              to="/cart"
-              onClick={() => sounds.playClick()}
-              className="relative flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
-            >
-              <ShoppingBag className="size-5 stroke-2" />
-              {totalItemCount > 0 && (
-                <span className="absolute -top-1 end-1 flex size-3.5 items-center justify-center rounded-full bg-red-500 text-white font-black text-[8px]">
-                  {totalItemCount}
-                </span>
+              ) : (
+                <div className="py-16 text-center space-y-3">
+                  <div className="size-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-3xl">
+                    📡
+                  </div>
+                  <h4 className="text-sm font-bold text-white">لا توجد طلبات جارية على الرادار</h4>
+                  <p className="text-xs text-slate-400 max-w-xs mx-auto">
+                    عندما تؤكد طلباً جديداً، سيظهر مسار الكابتن ورمز الاستلام هنا لحظة بلحظة.
+                  </p>
+                  <Button
+                    onClick={() => navigateToTab("home")}
+                    className="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-2xl text-xs"
+                  >
+                    طلب وجبة جديدة
+                  </Button>
+                </div>
               )}
-              <span className="text-[9px]">{ar ? "السلة" : "Cart"}</span>
-            </Link>
+            </div>
+          )}
 
-            <Link
-              to="/orders"
-              onClick={() => sounds.playClick()}
-              className="relative flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
-            >
-              <Radar className="size-5 stroke-2" />
-              <span className="absolute 0 end-1.5 flex size-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
-              </span>
-              <span className="text-[9px]">{ar ? "الرادار" : "Radar"}</span>
-            </Link>
+          {/* -------------------------------------------------- */}
+          {/* TAB 5: PROFILE, WALLET & ORDERS                    */}
+          {/* -------------------------------------------------- */}
+          {activeTab === "profile" && (
+            <div className="p-3.5 space-y-4">
+              {/* User Header Card */}
+              <div className="p-4 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="size-12 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 flex items-center justify-center text-slate-950 font-black text-lg">
+                    ع
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">عبد الله الشمري</h3>
+                    <p className="text-[11px] text-slate-400 font-mono">0501234567 • الرياض</p>
+                    <span className="text-[9.5px] px-2 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 font-bold">
+                      عميل ذهبي مميز 🌟
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => toast.info(ar ? "فتح إعدادات الحساب" : "Settings")}
+                  className="p-2 rounded-xl bg-slate-950 border border-slate-800 text-slate-400 hover:text-white"
+                >
+                  <Sliders className="size-4" />
+                </button>
+              </div>
 
-            <Link
-              to="/profile"
-              onClick={() => sounds.playClick()}
-              className="flex flex-col items-center gap-0.5 py-0.5 px-3 text-slate-400 hover:text-slate-200 select-none"
-            >
-              <User className="size-5 stroke-2" />
-              <span className="text-[9px]">{ar ? "حسابي" : "Profile"}</span>
-            </Link>
+              {/* Wallet & Loyalty Points Dual Cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-3.5 rounded-3xl bg-gradient-to-br from-amber-500/20 to-slate-900 border border-amber-500/30 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-bold">رصيد المحفظة</span>
+                    <Wallet className="size-3.5 text-amber-400" />
+                  </div>
+                  <h4 className="text-xl font-black text-amber-400 font-mono">
+                    {walletBalance.toFixed(2)} <span className="text-xs">ر.س</span>
+                  </h4>
+                  <button
+                    onClick={() => {
+                      sounds.playSuccess();
+                      setWalletBalance((prev) => prev + 50);
+                      toast.success(ar ? "تم شحن 50 ر.س بنجاح!" : "+50 SAR Added!");
+                    }}
+                    className="text-[10px] text-amber-300 font-bold hover:underline flex items-center gap-0.5 pt-1"
+                  >
+                    + شحن سريع
+                  </button>
+                </div>
+
+                <div className="p-3.5 rounded-3xl bg-gradient-to-br from-purple-500/20 to-slate-900 border border-purple-500/30 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-bold">نقاط المكافآت</span>
+                    <Gift className="size-3.5 text-purple-400" />
+                  </div>
+                  <h4 className="text-xl font-black text-purple-400 font-mono">
+                    {loyaltyPoints} <span className="text-xs">نقطة</span>
+                  </h4>
+                  <span className="text-[10px] text-slate-400 block pt-1">
+                    تساوي {(loyaltyPoints * 0.1).toFixed(1)} ر.س كاش
+                  </span>
+                </div>
+              </div>
+
+              {/* Saved Addresses List */}
+              <div className="p-3.5 rounded-3xl bg-slate-900 border border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <MapPin className="size-3.5 text-amber-400" />
+                    العناوين المحفوظة
+                  </h4>
+                  <button
+                    onClick={() => setDistrictModalOpen(true)}
+                    className="text-[10px] text-amber-400 hover:underline"
+                  >
+                    + إضافة عنوان
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  {[
+                    { label: "المنزل", address: "حي النرجس، شارع أنس بن مالك، فيلا 24" },
+                    { label: "العمل", address: "أبراج العليا، طريق الملك فهد، الطابق 14" },
+                  ].map((addr, i) => (
+                    <div
+                      key={i}
+                      className="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-xs"
+                    >
+                      <div>
+                        <span className="font-bold text-white">{addr.label}</span>
+                        <p className="text-[10.5px] text-slate-400">{addr.address}</p>
+                      </div>
+                      <span className="text-[10px] text-emerald-400">افتراضي</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Past Orders with Re-Order in 1-Click */}
+              <div className="p-3.5 rounded-3xl bg-slate-900 border border-slate-800 space-y-2.5">
+                <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Receipt className="size-3.5 text-amber-400" />
+                  الطلبات السابقة
+                </h4>
+
+                <div className="space-y-2.5">
+                  {pastOrders.map((ord) => (
+                    <div
+                      key={ord.id}
+                      className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-2"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div>
+                          <span className="font-bold text-white">{ord.restaurant}</span>
+                          <span className="text-[10px] text-slate-400 block">{ord.date}</span>
+                        </div>
+                        <span className="text-xs font-mono font-bold text-amber-400">
+                          {ord.price} ر.س
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-300">{ord.items}</p>
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-900">
+                        <span className="text-[9.5px] text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="size-3" />
+                          {ord.status}
+                        </span>
+                        <button
+                          onClick={() => handleReorder(ord)}
+                          className="px-2.5 py-1 rounded-xl bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 text-[10.5px] font-bold flex items-center gap-1 transition-transform"
+                        >
+                          <RotateCcw className="size-3" />
+                          إعادة الطلب بنقرة واحدة
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+
+        {/* ==================================================== */}
+        {/* DOCKED NATIVE BOTTOM NAVIGATION BAR                  */}
+        {/* ==================================================== */}
+        <nav className="absolute inset-x-0 bottom-0 z-40 border-t border-slate-800/90 bg-slate-950/95 backdrop-blur-xl px-2 pt-2 pb-2.5 shadow-2xl">
+          <div className="flex items-center justify-around">
+            {[
+              { id: "home" as TabId, label: "الرئيسية", icon: Home },
+              { id: "kitchens" as TabId, label: "المطابخ", icon: UtensilsCrossed },
+              { id: "cart" as TabId, label: "السلة", icon: ShoppingBag, badge: totalItemCount },
+              { id: "radar" as TabId, label: "الرادار", icon: Radar, ping: !!activeLiveOrder },
+              { id: "profile" as TabId, label: "حسابي", icon: User },
+            ].map((nav) => {
+              const IconComp = nav.icon;
+              const isActive = activeTab === nav.id && !selectedRestaurant;
+              return (
+                <button
+                  key={nav.id}
+                  onClick={() => navigateToTab(nav.id)}
+                  className={`relative flex flex-col items-center gap-0.5 py-1 px-3 select-none transition-all ${
+                    isActive ? "text-amber-400 font-black scale-105" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                >
+                  <IconComp className="size-5 stroke-[2.2]" />
+                  {nav.badge !== undefined && nav.badge > 0 && (
+                    <span className="absolute 0 end-2 size-3.5 rounded-full bg-red-500 text-white font-black text-[8px] flex items-center justify-center">
+                      {nav.badge}
+                    </span>
+                  )}
+                  {nav.ping && (
+                    <span className="absolute 0 end-2 flex size-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                      <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+                    </span>
+                  )}
+                  <span className="text-[9px]">{nav.label}</span>
+                </button>
+              );
+            })}
           </div>
 
-          {/* iOS Home Indicator */}
+          {/* iOS / Android Home Handle Bar */}
           <div className="w-28 h-1 bg-slate-700/60 rounded-full mx-auto mt-2" />
         </nav>
 
-        {/* 5. DISTRICT PICKER MODAL */}
+        {/* ==================================================== */}
+        {/* MODAL 1: MEAL CUSTOMIZER POPUP                       */}
+        {/* ==================================================== */}
+        {customizingMeal && (
+          <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end justify-center p-3 animate-in fade-in duration-150">
+            <div className="w-full rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto no-scrollbar animate-in slide-in-from-bottom-6 duration-200">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={customizingMeal.image}
+                    alt={customizingMeal.nameAr}
+                    className="size-16 rounded-2xl object-cover border border-slate-800"
+                  />
+                  <div>
+                    <h3 className="text-xs font-bold text-white">{customizingMeal.nameAr}</h3>
+                    <p className="text-[10px] text-slate-400 line-clamp-1">{customizingMeal.descAr}</p>
+                    <span className="text-xs font-black text-amber-400 font-mono mt-0.5 block">
+                      {customizingMeal.price} ر.س
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setCustomizingMeal(null)}
+                  className="size-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Nutrition & Macros Breakdown */}
+              <div className="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 grid grid-cols-4 gap-2 text-center text-[10px]">
+                <div>
+                  <span className="text-slate-500 block">السعرات</span>
+                  <span className="font-bold text-white font-mono">{customizingMeal.calories}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">بروتين</span>
+                  <span className="font-bold text-emerald-400 font-mono">{customizingMeal.proteinG}g</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">كارب</span>
+                  <span className="font-bold text-amber-400 font-mono">{customizingMeal.carbsG}g</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">دهون</span>
+                  <span className="font-bold text-sky-400 font-mono">{customizingMeal.fatG}g</span>
+                </div>
+              </div>
+
+              {/* Size Selector */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-white">اختر الحجم:</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "regular", label: "عادي", extra: 0 },
+                    { id: "double", label: "دبل لحم", extra: 8 },
+                    { id: "combo", label: "كومبو كامل", extra: 14 },
+                  ].map((s) => (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        sounds.playClick();
+                        setCustomSize(s.id as typeof customSize);
+                      }}
+                      className={`p-2 rounded-xl text-xs font-bold transition-all ${
+                        customSize === s.id
+                          ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                          : "bg-slate-950 text-slate-300 border border-slate-800 hover:text-white"
+                      }`}
+                    >
+                      {s.label}
+                      <span className="block text-[9.5px] font-mono opacity-80">
+                        {s.extra === 0 ? "سعر أصلي" : `+${s.extra} ر.س`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bread Selection */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-white">نوع الخبز:</span>
+                <div className="space-y-1">
+                  {[
+                    "خبز بطاطس بريوش طازج",
+                    "خبز حب كامل صحي (بر)",
+                    "لفافة خس طبيعية (دايت كيتو)",
+                  ].map((b) => (
+                    <label
+                      key={b}
+                      onClick={() => {
+                        sounds.playClick();
+                        setCustomBread(b);
+                      }}
+                      className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer ${
+                        customBread === b
+                          ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-bold"
+                          : "bg-slate-950 border-slate-800 text-slate-300"
+                      }`}
+                    >
+                      <span>{b}</span>
+                      <input
+                        type="radio"
+                        name="bread"
+                        checked={customBread === b}
+                        onChange={() => {}}
+                        className="accent-amber-500"
+                      />
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Extra Addons Checkboxes */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-white">إضافات مقترحة (+3 ر.س):</span>
+                <div className="space-y-1">
+                  {[
+                    { id: "extra_cheese", label: "شريحة جبنة شيدر إضافية ذائبة" },
+                    { id: "extra_sauce", label: "صوص فود هب السري مضاعف" },
+                    { id: "jalapeno", label: "قطع هلابينو مخلل حار" },
+                  ].map((ex) => {
+                    const checked = customExtras.includes(ex.id);
+                    return (
+                      <label
+                        key={ex.id}
+                        onClick={() => {
+                          sounds.playClick();
+                          setCustomExtras((prev) =>
+                            checked ? prev.filter((x) => x !== ex.id) : [...prev, ex.id]
+                          );
+                        }}
+                        className={`flex items-center justify-between p-2 rounded-xl border text-xs cursor-pointer ${
+                          checked
+                            ? "bg-amber-500/10 border-amber-500/40 text-amber-300 font-bold"
+                            : "bg-slate-950 border-slate-800 text-slate-300"
+                        }`}
+                      >
+                        <span>{ex.label}</span>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => {}}
+                          className="accent-amber-500"
+                        />
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Special Instructions Note */}
+              <div className="space-y-1">
+                <span className="text-xs font-bold text-white">ملاحظات خاصة للشيف:</span>
+                <input
+                  type="text"
+                  value={customInstructions}
+                  onChange={(e) => setCustomInstructions(e.target.value)}
+                  placeholder="مثال: بدون بصل، ثومية زيادة..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              {/* Quantity Counter & Add Button */}
+              <div className="flex items-center gap-3 pt-2">
+                <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 p-1.5 rounded-xl">
+                  <button
+                    onClick={() => {
+                      sounds.playClick();
+                      if (customQty > 1) setCustomQty(customQty - 1);
+                    }}
+                    className="size-7 rounded bg-slate-800 text-slate-300 flex items-center justify-center hover:text-white"
+                  >
+                    <Minus className="size-3.5" />
+                  </button>
+                  <span className="text-xs font-bold font-mono text-white min-w-[20px] text-center">
+                    {customQty}
+                  </span>
+                  <button
+                    onClick={() => {
+                      sounds.playClick();
+                      setCustomQty(customQty + 1);
+                    }}
+                    className="size-7 rounded bg-amber-500 text-slate-950 flex items-center justify-center hover:bg-amber-400 font-bold"
+                  >
+                    <Plus className="size-3.5 stroke-[3]" />
+                  </button>
+                </div>
+
+                <Button
+                  onClick={handleConfirmCustomAdd}
+                  className="flex-1 bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-black rounded-xl py-2.5 text-xs shadow-md shadow-amber-500/20"
+                >
+                  إضافة للسلة ({customMealPrice} ر.س)
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* MODAL 2: DISTRICT LOCATION PICKER                    */}
+        {/* ==================================================== */}
         {districtModalOpen && (
-          <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center p-4">
+          <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end justify-center p-3 animate-in fade-in duration-150">
             <div className="w-full rounded-3xl bg-slate-900 border border-slate-800 p-4 space-y-3 animate-in slide-in-from-bottom-4 duration-150">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin className="size-4 text-amber-400" />
-                  <h3 className="font-black text-xs text-white">
-                    {ar ? "اختر حي التوصيل في الرياض" : "Select Riyadh District"}
-                  </h3>
+                  <h3 className="font-bold text-xs text-white">اختر موقع التوصيل في الرياض</h3>
                 </div>
                 <button
                   onClick={() => setDistrictModalOpen(false)}
@@ -680,7 +2046,7 @@ export function CustomerMobileApp() {
                 </button>
               </div>
 
-              <div className="space-y-1.5 max-h-56 overflow-y-auto no-scrollbar scrollbar-none">
+              <div className="space-y-1.5 max-h-60 overflow-y-auto no-scrollbar">
                 {DISTRICTS.map((dist) => (
                   <button
                     key={dist}
@@ -688,7 +2054,7 @@ export function CustomerMobileApp() {
                       sounds.playClick();
                       setSelectedDistrict(dist);
                       setDistrictModalOpen(false);
-                      toast.success(ar ? `تم ضبط موقع التوصيل: ${dist}` : `Location set to: ${dist}`);
+                      toast.success(`تم تحديث موقع التوصيل: ${dist}`);
                     }}
                     className={`w-full flex items-center justify-between p-2.5 rounded-xl text-xs font-bold transition-all text-start ${
                       selectedDistrict === dist
@@ -705,7 +2071,9 @@ export function CustomerMobileApp() {
           </div>
         )}
 
-        {/* 6. STORY PREVIEW POPUP */}
+        {/* ==================================================== */}
+        {/* MODAL 3: DAILY STORY PREVIEW POPUP                   */}
+        {/* ==================================================== */}
         {activeStory && (
           <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
             <div className="w-full max-w-xs rounded-3xl bg-gradient-to-b from-slate-900 to-slate-950 border border-amber-500/40 p-5 text-center space-y-3 shadow-2xl animate-in zoom-in-95 duration-150">
@@ -713,34 +2081,150 @@ export function CustomerMobileApp() {
                 {activeStory.emoji}
               </div>
               <div>
-                <span className="text-[9px] text-amber-400 font-black px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">
+                <span className="text-[10px] text-amber-400 font-bold px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/30">
                   {activeStory.tag}
                 </span>
                 <h3 className="text-base font-black text-white mt-1.5">
                   {ar ? activeStory.titleAr : activeStory.titleEn}
                 </h3>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  {ar
-                    ? "عرض متاح لجميع الطلبات اليوم عبر مطابخ FoodHub المركزية في الرياض."
-                    : "Offer available across FoodHub cloud kitchens today in Riyadh."}
+                  عرض حصري متاح اليوم لجميع مطابخ الرياض السحابية مع كود التخفيض الفوري.
                 </p>
               </div>
               <Button
                 onClick={() => {
                   sounds.playSuccess();
+                  setPromoCode(activeStory.code);
+                  setAppliedPromo({ code: activeStory.code, discountSar: 15 });
                   setActiveStory(null);
-                  toast.success(ar ? "تم تفعيل العرض بنجاح!" : "Offer activated successfully!");
+                  toast.success(`🎉 تم تفعيل الكود (${activeStory.code}) في سلتك بنجاح!`);
                 }}
                 className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-xl text-xs"
               >
-                {ar ? "تطبيق العرض الآن ⚡" : "Apply Offer Now ⚡"}
+                تطبيق الكود بالسلة فوراً ⚡
               </Button>
               <button
                 onClick={() => setActiveStory(null)}
                 className="text-xs text-slate-400 hover:text-white"
               >
-                {ar ? "إغلاق" : "Close"}
+                إغلاق
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* ==================================================== */}
+        {/* MODAL 4: 360° RATING & 1 SAR CAPTAIN BONUS POPUP     */}
+        {/* ==================================================== */}
+        {ratingModalOpen && (
+          <div className="absolute inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-150">
+            <div className="w-full max-w-xs rounded-3xl bg-slate-900 border border-amber-500/40 p-5 text-center space-y-3.5 shadow-2xl animate-in zoom-in-95 duration-200">
+              {ratingSubmitted ? (
+                <div className="py-6 space-y-3">
+                  <div className="size-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 text-emerald-400 flex items-center justify-center text-3xl mx-auto animate-bounce">
+                    ✓
+                  </div>
+                  <h3 className="text-sm font-black text-white">شكراً لتقييمك الراقي!</h3>
+                  <p className="text-xs text-slate-300">
+                    أُضيفت 50 نقطة ولاء لمحفظتك وتم إيداع البونص للكابتن فوراً.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="size-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center mx-auto text-amber-400 text-2xl">
+                    ⭐
+                  </div>
+
+                  <div>
+                    <h3 className="text-sm font-black text-white">تقييم الوجبة والكابتن</h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      تقييمك يدعم الكابتن ويضمن أعلى معايير الجودة
+                    </p>
+                  </div>
+
+                  {/* Rating 1: Food & Restaurant */}
+                  <div className="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <span className="text-[11px] font-bold text-slate-300 block">
+                      تقييم جودة الوجبة والمطعم:
+                    </span>
+                    <div className="flex items-center justify-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => {
+                            sounds.playClick();
+                            setRestaurantStars(star);
+                          }}
+                          className="p-1 hover:scale-125 transition-transform"
+                        >
+                          <Star
+                            className={`size-5 ${
+                              star <= restaurantStars
+                                ? "text-amber-400 fill-amber-400"
+                                : "text-slate-700"
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Rating 2: Captain Delivery Speed & Politeness */}
+                  <div className="p-2.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5">
+                    <span className="text-[11px] font-bold text-slate-300 block">
+                      تقييم سرعة ولباقة المندوب (كابتن أحمد):
+                    </span>
+                    <div className="flex items-center justify-center gap-1.5">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                          key={star}
+                          onClick={() => {
+                            sounds.playClick();
+                            setCaptainStars(star);
+                          }}
+                          className="p-1 hover:scale-125 transition-transform"
+                        >
+                          <Star
+                            className={`size-5 ${
+                              star <= captainStars
+                                ? "text-amber-400 fill-amber-400"
+                                : "text-slate-700"
+                            }`}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Explicit 1 SAR Captain Bonus Celebration Banner */}
+                  {captainStars === 5 && (
+                    <div className="p-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[11px] space-y-1 leading-snug animate-in fade-in duration-200">
+                      <div className="flex items-center justify-center gap-1 font-bold text-emerald-400">
+                        <Sparkles className="size-3.5 text-emerald-400" />
+                        بونص التقييم الكامل 100% (+1.00 ر.س)
+                      </div>
+                      <p>
+                        تقييمك الكامل (5 نجوم) مَنح الكابتن فورياً <strong>+1.00 ريال بونص</strong> أُضيف لمحفظته تقديراً لسرعة استلام وتسليم الوجبة!
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Submit Rating Button */}
+                  <Button
+                    onClick={handleSubmitRating}
+                    className="w-full bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 font-black rounded-xl py-2.5 text-xs shadow-lg shadow-amber-500/20"
+                  >
+                    إرسال التقييم واعتماد التسليم 🌟
+                  </Button>
+
+                  <button
+                    onClick={() => setRatingModalOpen(false)}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    تخطي لاحقاً
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}
