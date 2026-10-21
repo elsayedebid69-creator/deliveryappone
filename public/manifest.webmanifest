@@ -1,6 +1,6 @@
 {
-  "name": "FOODHUB — أسرع توصيل بأقل سعر",
-  "short_name": "FOODHUB",
+  "name": "FoodHub — أسرع توصيل بأقل سعر",
+  "short_name": "FoodHub",
   "description": "منظومة توصيل الطعام الذكية: تطبيقات متكاملة للعميل، المطبخ، والمندوب بتوصيل فائق السرعة",
   "start_url": "/",
   "scope": "/",

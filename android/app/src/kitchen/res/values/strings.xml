@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">FOODHUB Kitchen</string>
-    <string name="title_activity_main">FOODHUB Kitchen</string>
+    <string name="app_name">FoodHub Kitchen</string>
+    <string name="title_activity_main">FoodHub Kitchen</string>
 </resources>
