@@ -51,7 +51,8 @@ jobs:
           chmod +x gradlew
           variant="${FOODHUB_APP^}"
           ./gradlew "assemble${variant}Release" --no-daemon
-          "$ANDROID_HOME"/build-tools/*/apksigner verify app/build/outputs/apk/${FOODHUB_APP}/release/app-${FOODHUB_APP}-release.apk 2>/dev/null || ls $ANDROID_HOME/build-tools | tail -1 | xargs -I{} "$ANDROID_HOME/build-tools/{}/apksigner" verify app/build/outputs/apk/${FOODHUB_APP}/release/app-${FOODHUB_APP}-release.apk
+          bt="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$bt/apksigner" verify --print-certs "app/build/outputs/apk/${FOODHUB_APP}/release/app-${FOODHUB_APP}-release.apk"
       - uses: actions/upload-artifact@v4
         with:
           name: FoodHub-${{ matrix.app }}-Android-Release-APK
