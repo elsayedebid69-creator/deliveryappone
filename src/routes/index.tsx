@@ -41,6 +41,7 @@ function HomePage() {
       const appParam = params.get("app")?.toLowerCase();
 
       if (appParam === "admin") {
+        localStorage.setItem("foodhub_native_app", "admin");
         window.location.replace("/admin");
         return;
       }
