@@ -1,39 +1,8 @@
 package foodhub.app;
 
-import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        try {
-            String packageName = getPackageName();
-            if (packageName != null && packageName.contains("captain")) {
-                if (getBridge() != null && getBridge().getWebView() != null) {
-                    getBridge().getWebView().post(() -> {
-                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=captain");
-                    });
-                }
-            } else if (packageName != null && packageName.contains("kitchen")) {
-                if (getBridge() != null && getBridge().getWebView() != null) {
-                    getBridge().getWebView().post(() -> {
-                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=kitchen");
-                    });
-                }
-            } else if (packageName != null && packageName.contains("customer")) {
-                if (getBridge() != null && getBridge().getWebView() != null) {
-                    getBridge().getWebView().post(() -> {
-                        getBridge().getWebView().loadUrl("https://foodhub.delivery/?app=customer");
-                    });
-                }
-            }
-        } catch (Exception ignored) {
-        }
-    }
+    // Capacitor receives the role URL before sync. Normal lifecycle handling
+    // preserves navigation when returning from the background.
 }
