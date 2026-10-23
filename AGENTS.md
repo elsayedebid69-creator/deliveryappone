@@ -12,3 +12,5 @@
 - Build native apps through a customer/captain/kitchen/admin CI matrix using scripts/mobile-apps.ts and FOODHUB_APP before Capacitor sync; each binary must have a matching identity and initial hosted URL.
 - Native shells use a generated dist/mobile fallback and load the published TanStack site; SSR build output is not an offline native app.
 - Label unsigned iOS outputs as compilation bundles, never installable IPAs; device distribution requires archive/export with valid Apple signing.
+- Courier shifts and order actions are persisted through authenticated database RPCs using server time; couriers cannot directly edit attendance or claim arbitrary orders, preventing salary-day and coverage tampering.
+- Coverage uses an exact delivery-neighborhood label and an admin-confirmed adjacency set; only orders with a real pickup address are dispatched to avoid invented locations.

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CourierMobileApp } from "@/components/apps/courier-mobile-app";
+import { SimpleCourierApp } from "@/components/apps/simple-courier-app";
 
 export const Route = createFileRoute("/captain")({
   ssr: false,
@@ -11,7 +11,9 @@ export const Route = createFileRoute("/captain")({
         content: "تطبيق كابتن ومندوب فود هب الرسمي. استلام وتوصيل الطلبات، الرادار الحي، والملاحة وإثبات التسليم.",
       },
       { property: "og:title", content: "FOODHUB Captain | تطبيق المندوب الذكي" },
-      { property: "og:image", content: "https://foodhub.delivery/icons/icon-512.png" },
+      { property: "og:description", content: "شيفت المندوب ومواقع استلام وتسليم الطلبات في FoodHub." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: CaptainStandaloneApp,
@@ -19,9 +21,9 @@ export const Route = createFileRoute("/captain")({
 
 function CaptainStandaloneApp() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
       <main className="flex-1">
-        <CourierMobileApp />
+        <SimpleCourierApp />
       </main>
     </div>
   );
