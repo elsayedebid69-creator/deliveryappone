@@ -4,9 +4,9 @@ The workflow builds customer, captain, and kitchen independently. Each uses a di
 
 ## GitHub prerequisite
 
-The supplied repository `elsayedebid69-creator/future` was empty and had zero Actions runs when reviewed. Use Lovable Project settings → Git to connect this project. Git sync creates a new repository; it cannot attach the existing `future` repository. If already connected, inspect the actual synced repository rather than reconnecting. The agent cannot see or change Git sync status.
+The project is synced to `elsayedebid69-creator/deliveryappone` on branch `main`, and the GitHub API connector is linked to this project (`GITHUB_API_KEY`, gateway-backed) for server-side calls. The older `future` repository is empty and unused.
 
-Once files reach the synced repository, open Actions → Build FoodHub mobile apps → Run workflow. The current automatic trigger is `main`; if the synced branch differs, update that trigger. Download artifacts from the successful run.
+The workflow runs automatically on every push to `main`. It can also be started manually from Actions → Build FoodHub mobile apps → Run workflow. Download artifacts from the successful run.
 
 ## Outputs and limits
 
