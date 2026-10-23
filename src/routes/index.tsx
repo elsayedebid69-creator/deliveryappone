@@ -40,6 +40,10 @@ function HomePage() {
       const params = new URLSearchParams(window.location.search);
       const appParam = params.get("app")?.toLowerCase();
 
+      if (appParam === "admin") {
+        window.location.replace("/admin");
+        return;
+      }
       if (appParam === "captain" || appParam === "courier") {
         setAppMode("captain");
       } else if (appParam === "kitchen" || appParam === "vendor") {

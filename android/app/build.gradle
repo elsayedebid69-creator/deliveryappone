@@ -33,6 +33,10 @@ android {
             dimension "app"
             applicationId "delivery.foodhub.kitchen"
         }
+        admin {
+            dimension "app"
+            applicationId "delivery.foodhub.admin"
+        }
     }
     buildTypes {
         release {

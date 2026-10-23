@@ -1,6 +1,6 @@
 # FoodHub mobile build status
 
-The workflow builds customer, captain, and kitchen independently. Each uses a distinct `delivery.foodhub.<role>` identity and opens the matching `https://foodhub.delivery/?app=<role>` interface. These are native shells around the published website and require connectivity. Unpublished website changes are not included automatically.
+The workflow builds customer, captain, kitchen, and admin independently. Each uses a distinct `delivery.foodhub.<role>` identity and opens the matching `https://foodhub.delivery/?app=<role>` interface. These are native shells around the published website and require connectivity. Unpublished website changes are not included automatically.
 
 ## GitHub prerequisite
 
@@ -10,9 +10,9 @@ The workflow runs automatically on every push to `main`. It can also be started 
 
 ## Outputs and limits
 
-- Three Android debug-signed test APKs; installable for testing, not store release builds.
-- Three iOS unsigned device compilation bundles; not installable device IPAs.
-- Three iOS simulator bundles, for testing with a compatible Mac/Xcode simulator.
+- Four Android debug-signed test APKs; installable for testing, not store release builds.
+- Four iOS unsigned device compilation bundles; not installable device IPAs.
+- Four iOS simulator bundles, for testing with a compatible Mac/Xcode simulator.
 
 Native Gradle/Xcode compilation has not been executed by this review. Local validation covered four app identity tests, Capacitor Android sync, and iOS display-name/location declarations.
 
