@@ -1,163 +1,114 @@
-name: 📱 Build FoodHub Mobile Apps (Android & iOS)
+name: Build FoodHub mobile apps
 
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build-android:
-    name: 🤖 Build Android APK & Bundle
+    name: Android / ${{ matrix.app }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [customer, captain, kitchen]
+    env:
+      FOODHUB_APP: ${{ matrix.app }}
     steps:
-      - name: 📥 Check out repository
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-
-      - name: ☕ Setup Java 21
-        uses: actions/setup-java@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          distribution: 'temurin'
+          bun-version: 1.3.13
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
           java-version: '21'
-
-      - name: 📦 Install NPM Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: 🔐 Configure Environment Secrets
-        env:
-          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY }}
+      - run: bun install --frozen-lockfile
+      - run: bun test scripts/mobile-apps.test.ts
+      - name: Prepare hosted app shell
+        run: bun scripts/prepare-mobile.ts
+      - name: Sync the selected Android app
+        run: bunx cap sync android
+      - name: Build test APK
+        working-directory: android
+        shell: bash
         run: |
-          if [ -n "$SUPABASE_URL" ]; then
-            echo "::add-mask::$SUPABASE_URL"
-            echo "VITE_SUPABASE_URL=$SUPABASE_URL" >> .env
-            echo "SUPABASE_URL=$SUPABASE_URL" >> .env
-          fi
-          if [ -n "$SUPABASE_KEY" ]; then
-            echo "::add-mask::$SUPABASE_KEY"
-            echo "VITE_SUPABASE_PUBLISHABLE_KEY=$SUPABASE_KEY" >> .env
-            echo "SUPABASE_PUBLISHABLE_KEY=$SUPABASE_KEY" >> .env
-          fi
-
-      - name: 🏗️ Build Web Application
-        run: npm run build
-
-      - name: 🔄 Sync Capacitor Android
-        run: npx cap sync android
-
-      - name: 🔑 Grant execute permission for gradlew
-        run: chmod +x android/gradlew
-
-      - name: 🔨 Assemble 3 Separate Android APKs
-        run: |
-          cd android
-          ./gradlew assembleDebug --no-daemon
-
-      - name: 📤 Upload Customer App APK (تطبيق العميل)
-        uses: actions/upload-artifact@v4
+          chmod +x gradlew
+          variant="${FOODHUB_APP^}"
+          ./gradlew "assemble${variant}Debug" --no-daemon
+      - uses: actions/upload-artifact@v4
         with:
-          name: FoodHub-Customer-App-APK
-          path: android/app/build/outputs/apk/customer/debug/app-customer-debug.apk
-          retention-days: 14
-
-      - name: 📤 Upload Captain App APK (تطبيق المندوب)
-        uses: actions/upload-artifact@v4
-        with:
-          name: FoodHub-Captain-App-APK
-          path: android/app/build/outputs/apk/captain/debug/app-captain-debug.apk
-          retention-days: 14
-
-      - name: 📤 Upload Kitchen Partner App APK (تطبيق المتجر والمطبخ)
-        uses: actions/upload-artifact@v4
-        with:
-          name: FoodHub-Kitchen-App-APK
-          path: android/app/build/outputs/apk/kitchen/debug/app-kitchen-debug.apk
+          name: FoodHub-${{ matrix.app }}-Android-Test-APK
+          path: android/app/build/outputs/apk/${{ matrix.app }}/debug/app-${{ matrix.app }}-debug.apk
+          if-no-files-found: error
           retention-days: 14
 
   build-ios:
-    name: 🍏 Build iOS Workspace & Archive
+    name: iOS / ${{ matrix.app }}
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - app: customer
+            display_name: FoodHub Customer
+          - app: captain
+            display_name: FoodHub Captain
+          - app: kitchen
+            display_name: FoodHub Kitchen
+    env:
+      FOODHUB_APP: ${{ matrix.app }}
+      FOODHUB_DISPLAY_NAME: ${{ matrix.display_name }}
     steps:
-      - name: 📥 Check out repository
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
-
-      - name: 📦 Install NPM Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: 🔐 Configure Environment Secrets
-        env:
-          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY }}
-        run: |
-          if [ -n "$SUPABASE_URL" ]; then
-            echo "::add-mask::$SUPABASE_URL"
-            echo "VITE_SUPABASE_URL=$SUPABASE_URL" >> .env
-            echo "SUPABASE_URL=$SUPABASE_URL" >> .env
-          fi
-          if [ -n "$SUPABASE_KEY" ]; then
-            echo "::add-mask::$SUPABASE_KEY"
-            echo "VITE_SUPABASE_PUBLISHABLE_KEY=$SUPABASE_KEY" >> .env
-            echo "SUPABASE_PUBLISHABLE_KEY=$SUPABASE_KEY" >> .env
-          fi
-
-      - name: 🏗️ Build Web Application
-        run: npm run build
-
-      - name: 🍎 Add & Sync Capacitor iOS Platform
-        run: |
-          npx cap add ios || true
-          npx cap sync ios
-
-      - name: 🔨 Compile iOS App & Package IPA
-        run: |
-          cd ios/App
-          xcodebuild -project App.xcodeproj \
-            -scheme App \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -derivedDataPath ../../build/DerivedData \
-            CODE_SIGNING_ALLOWED=NO \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY="" \
-            build
-
-          cd ../..
-          mkdir -p build/Payload
-          APP_PATH=$(find build/DerivedData -name "App.app" -path "*/Release-iphoneos/*" | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            APP_PATH=$(find build/DerivedData -name "App.app" | head -n 1)
-          fi
-
-          echo "Found compiled app at: $APP_PATH"
-          cp -R "$APP_PATH" build/Payload/App.app
-
-          cd build
-          zip -r FoodHub-iOS-Package.ipa Payload
-          zip -r FoodHub-iOS-App.zip Payload/App.app
-          ls -lh
-
-      - name: 📤 Upload iOS IPA Package
-        uses: actions/upload-artifact@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          name: FoodHub-iOS-Package
-          path: build/FoodHub-iOS-Package.ipa
+          bun-version: 1.3.13
+      - run: bun install --frozen-lockfile
+      - run: bun test scripts/mobile-apps.test.ts
+      - name: Prepare hosted app shell
+        run: bun scripts/prepare-mobile.ts
+      - name: Sync the selected iOS app
+        run: bunx cap sync ios
+      - name: Compile unsigned device app
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build/device \
+            PRODUCT_BUNDLE_IDENTIFIER="delivery.foodhub.${FOODHUB_APP}" \
+            FOODHUB_DISPLAY_NAME="$FOODHUB_DISPLAY_NAME" \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY='' build
+          test -d build/device/Build/Products/Release-iphoneos/App.app
+          ditto -c -k --keepParent build/device/Build/Products/Release-iphoneos/App.app "build/FoodHub-${FOODHUB_APP}-iOS-Unsigned.zip"
+      - name: Compile simulator app
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/simulator \
+            PRODUCT_BUNDLE_IDENTIFIER="delivery.foodhub.${FOODHUB_APP}" \
+            FOODHUB_DISPLAY_NAME="$FOODHUB_DISPLAY_NAME" \
+            CODE_SIGNING_ALLOWED=NO build
+          test -d build/simulator/Build/Products/Debug-iphonesimulator/App.app
+          ditto -c -k --keepParent build/simulator/Build/Products/Debug-iphonesimulator/App.app "build/FoodHub-${FOODHUB_APP}-iOS-Simulator.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FoodHub-${{ matrix.app }}-iOS-Unsigned-Device
+          path: build/FoodHub-${{ matrix.app }}-iOS-Unsigned.zip
+          if-no-files-found: error
           retention-days: 14
-
-      - name: 📤 Upload iOS App Bundle
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
-          name: FoodHub-iOS-App-Bundle
-          path: build/FoodHub-iOS-App.zip
+          name: FoodHub-${{ matrix.app }}-iOS-Simulator
+          path: build/FoodHub-${{ matrix.app }}-iOS-Simulator.zip
+          if-no-files-found: error
           retention-days: 14
