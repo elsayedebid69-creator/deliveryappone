@@ -1,3 +1,4 @@
+/// <reference types="google.maps" />
 let pending: Promise<typeof google.maps> | undefined;
 declare global { interface Window { foodhubMapsReady?: () => void; } }
 export function loadGoogleMap() {

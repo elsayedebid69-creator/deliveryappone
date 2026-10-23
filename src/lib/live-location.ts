@@ -12,7 +12,7 @@ export function useCourierLocation(orderId: string | undefined, enabled: boolean
       sending = true; sentAt = Date.now();
       const {latitude,longitude,accuracy,heading,speed} = position.coords;
       try {
-        const {error: e} = await supabase.rpc("publish_courier_location", {p_order_id:orderId,p_latitude:latitude,p_longitude:longitude,p_accuracy:accuracy,p_heading:heading ?? undefined,p_speed:speed === null ? undefined : Math.max(0,speed)});
+        const {error: e} = await supabase.rpc("publish_courier_location", {p_order_id:orderId,p_latitude:latitude,p_longitude:longitude,p_accuracy:accuracy,...(heading!==null?{p_heading:heading}:{}),...(speed!==null?{p_speed:Math.max(0,speed)}:{})});
         if (!stopped) setError(e ? "تعذر إرسال موقعك؛ تحقق من الاتصال" : null);
       } finally { sending = false; }
     }, () => setError("اسمح باستخدام الموقع لتتبع الطلب"), {enableHighAccuracy:true,maximumAge:3000,timeout:20000});

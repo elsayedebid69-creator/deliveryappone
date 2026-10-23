@@ -1,5 +1,5 @@
 import { LiveOrderMap } from "@/components/apps/live-order-map";
-interface LiveOrderRadarProps {orderId?:string;restaurantName?:string;deliveryAddress?:string;status?:string;createdTime?:string;}
+interface LiveOrderRadarProps {orderId?:string|undefined;restaurantName?:string|undefined;deliveryAddress?:string|undefined;status?:string|undefined;createdTime?:string;}
 export function LiveOrderRadar({orderId,restaurantName,deliveryAddress,status}:LiveOrderRadarProps) {
  const labels:Record<string,string>={pending:"جديد",accepted:"مقبول",preparing:"قيد التحضير",ready:"جاهز للاستلام",on_the_way:"في الطريق",delivered:"تم التسليم",cancelled:"ملغي"};
  if(!orderId) return <p className="text-muted-foreground">لا يوجد طلب نشط</p>;
