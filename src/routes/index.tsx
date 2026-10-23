@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { CustomerMobileApp } from "@/components/apps/customer-mobile-app";
-import { CourierMobileApp } from "@/components/apps/courier-mobile-app";
+import { SimpleCourierApp } from "@/components/apps/simple-courier-app";
 import { KitchenMobileApp } from "@/components/apps/kitchen-mobile-app";
 import { CustomerApp } from "@/components/storefront/customer-app";
 import { AppHeader, AppFooter } from "@/components/app-header";
@@ -95,9 +95,9 @@ function HomePage() {
   // 1. Captain Standalone Mobile App (Loaded by Captain APK: delivery.foodhub.captain)
   if (appMode === "captain") {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-cyan-500 selection:text-slate-950">
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
         <main className="flex-1">
-          <CourierMobileApp />
+          <SimpleCourierApp />
         </main>
       </div>
     );

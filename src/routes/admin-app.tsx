@@ -8,6 +8,9 @@ import { createAccount, listAccounts } from "@/lib/admin.functions";
 import { useSession } from "@/lib/session";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useServerFn } from "@tanstack/react-start";
+import { AdminCourierShifts, AdminOrderRouting, ShiftFields, emptyShift, shiftPayload } from "@/components/courier/admin-shifts";
+import { assignCourierShift } from "@/lib/courier-shifts.functions";
 
 export const Route = createFileRoute("/admin-app")({
   ssr: false,
@@ -96,7 +99,7 @@ function Panel() {
   const orders = useQuery({
     queryKey: ["admin-app-orders"],
     queryFn: async () => {
-      const { data } = await supabase.from("orders").select("id,status,total,address,created_at").order("created_at", { ascending: false }).limit(50);
+      const { data } = await supabase.from("orders").select("id,status,total,address,created_at,pickup_address,delivery_neighborhood").order("created_at", { ascending: false }).limit(50);
       return data ?? [];
     },
   });
@@ -136,7 +139,7 @@ function Panel() {
       <main className="mx-auto max-w-xl space-y-3 p-4">
         {tab === "orders" ? (
           (orders.data ?? []).length === 0 ? <Empty /> :
-          orders.data!.map((o) => (
+          (orders.data ?? []).map((o) => (
             <div key={o.id} className="rounded-xl border bg-card p-3">
               <div className="flex justify-between text-sm font-semibold">
                 <span>#{o.id.slice(0, 6)}</span>
@@ -144,6 +147,7 @@ function Panel() {
               </div>
               <p className="mt-1 truncate text-xs text-muted-foreground">{o.address}</p>
               <p className="mt-1 text-sm">{Number(o.total).toFixed(2)} ر.س</p>
+              {["pending","accepted","preparing","ready"].includes(o.status) && <AdminOrderRouting orderId={o.id} pickup={o.pickup_address} neighborhood={o.delivery_neighborhood} onDone={refresh} />}
             </div>
           ))
         ) : (
@@ -153,12 +157,13 @@ function Panel() {
               <div key={a.id} className="rounded-xl border bg-card p-3">
                 <p className="font-semibold">{a.full_name || a.email}</p>
                 <p className="text-xs text-muted-foreground">{a.email}{a.phone ? ` · ${a.phone}` : ""}</p>
+                {tab === "courier" && <AdminCourierShifts courierId={a.id} />}
               </div>
             ))}
             {tab === "restaurant" && (restaurants.data ?? []).length > 0 ? (
               <>
                 <h2 className="pt-2 text-sm font-bold">المتاجر</h2>
-                {restaurants.data!.map((r) => (
+                {(restaurants.data ?? []).map((r) => (
                   <div key={r.id} className="flex items-center justify-between rounded-xl border bg-card p-3">
                     <span>{r.name_ar}</span>
                     <Button size="sm" variant={r.is_active ? "outline" : "default"} onClick={() => void toggleRestaurant(r.id, r.is_active)}>
@@ -174,11 +179,11 @@ function Panel() {
 
       <nav className="fixed inset-x-0 bottom-0 flex border-t bg-card pb-[env(safe-area-inset-bottom)]">
         {tabs.map((t) => (
-          <button key={t.id} onClick={() => setTab(t.id)}
+          <Button variant="ghost" key={t.id} onClick={() => setTab(t.id)}
             className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs ${tab === t.id ? "text-primary font-bold" : "text-muted-foreground"}`}>
             <t.icon className="size-5" />
             <span>{t.label} ({t.n})</span>
-          </button>
+          </Button>
         ))}
       </nav>
     </div>
@@ -194,14 +199,25 @@ function NewAccount({ role, onDone }: { role: "customer" | "courier" | "restaura
   const [f, setF] = useState({ full_name: "", email: "", phone: "", password: "" });
   const [busy, setBusy] = useState(false);
   const label = role === "customer" ? "عميل" : role === "courier" ? "مندوب" : "مطعم";
+  const [shift, setShift] = useState(emptyShift);
+  const [createdId, setCreatedId] = useState<string | null>(null);
+  const create = useServerFn(createAccount);
+  const assign = useServerFn(assignCourierShift);
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     try {
-      await createAccount({ data: { ...f, role } });
+      if (role === "courier") shiftPayload("11111111-1111-4111-8111-111111111111", shift);
+      const id = createdId ?? (await create({ data: { ...f, role } })).id;
+      if (role === "courier") {
+        setCreatedId(id);
+        await assign({ data: shiftPayload(id, shift) });
+      }
       toast.success(`تمت إضافة ${label}`);
       setF({ full_name: "", email: "", phone: "", password: "" });
       setOpen(false);
+      setCreatedId(null);
+      setShift(emptyShift);
       onDone();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "تعذّر الإنشاء");
@@ -215,6 +231,8 @@ function NewAccount({ role, onDone }: { role: "customer" | "courier" | "restaura
       <Input type="email" placeholder="البريد الإلكتروني" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} required />
       <Input placeholder="الجوال" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} />
       <Input type="password" placeholder="كلمة المرور (8 أحرف على الأقل)" minLength={8} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} required />
+      {role === "courier" && <ShiftFields value={shift} onChange={setShift} />}
+      {createdId && <p className="text-sm text-muted-foreground">تم إنشاء الحساب؛ أكمل حفظ الشيفت</p>}
       <div className="flex gap-2">
         <Button type="submit" className="flex-1" disabled={busy}>حفظ</Button>
         <Button type="button" variant="outline" onClick={() => setOpen(false)}>إلغاء</Button>
