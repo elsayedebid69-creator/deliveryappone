@@ -15,6 +15,13 @@
       "when": 1792785398420,
       "tag": "0001_courier_employment_shifts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792785831507,
+      "tag": "0002_courier_availability_rejection_limits",
+      "breakpoints": true
     }
   ]
 }

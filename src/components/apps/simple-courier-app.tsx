@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/session";
 import { courierShiftAction } from "@/lib/courier-shifts.functions";
-import { WORK_SECONDS, workedSeconds } from "@/lib/courier-shift-rules";
+import { WORK_SECONDS, workedSeconds, canRequestBreak, canRejectOrder, courierAvailable } from "@/lib/courier-shift-rules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -59,15 +59,16 @@ function CourierWork({userId}:{userId:string}) {
     void sync(); const timer=setInterval(()=>void sync(),15000);
     return ()=>{cancelled=true;clearInterval(timer);};
   },[shift?.id,shift?.status,actionFn]);
-  const act=async(action:"start"|"request_break"|"finish"|"pickup"|"deliver",orderId?:string)=>{
+  const act=async(action:"start"|"request_break"|"reject"|"pickup"|"deliver",orderId?:string)=>{
     if(!shift) return;
-    if(action==="finish" && work<WORK_SECONDS && !window.confirm("لم تكتمل عشر ساعات عمل. إنهاء الشيفت الآن يعني عدم احتساب هذا اليوم من الراتب. هل تريد الإنهاء؟")) return;
+    if(action==="reject" && !window.confirm("رفض هذا الطلب سيستخدم الرفض الوحيد المتاح خلال الشيفت. هل تؤكد؟")) return;
     setBusy(true);
     try {await actionFn({data:{shift_id:shift.id,action,order_id:orderId}}); refresh();toast.success(action==="request_break"?"أُرسل طلب البريك للإدارة":"تم الحفظ");}
     catch(e){toast.error(e instanceof Error?e.message:"تعذر الحفظ");} finally{setBusy(false);}
   };
   const work=shift?.started_at?workedSeconds(Date.parse(shift.started_at),now,shift.break_started_at?Date.parse(shift.break_started_at):undefined,shift.break_ends_at?Date.parse(shift.break_ends_at):undefined):0;
   const onBreak=!!shift?.break_ends_at && now<Date.parse(shift.break_ends_at);
+  const available=!!shift && courierAvailable(shift.status,work,onBreak);
   return <div dir="rtl" className="min-h-screen bg-background pb-8 text-foreground">
     <header className="flex items-center justify-between border-b bg-card px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="flex items-center gap-2"><img src="/app-logo.png" alt="" className="size-9 object-contain"/><h1 className="text-lg font-bold tracking-normal">FoodHub المندوب</h1></div>
@@ -75,26 +76,25 @@ function CourierWork({userId}:{userId:string}) {
     </header>
     <main className="mx-auto max-w-lg space-y-6 p-4">
       {(shifts.isError||orders.isError)&&<p role="alert" className="text-destructive">تعذر تحميل البيانات. حاول التحديث.</p>}
-      {!shift?<section className="py-12 text-center"><Clock className="mx-auto mb-3 size-10 text-muted-foreground"/><h2 className="font-bold tracking-normal">لا يوجد شيفت محدد</h2></section>:<>
+      {!shift?<section className="py-12 text-center"><Clock className="mx-auto mb-3 size-10 text-muted-foreground"/><h2 className="font-bold tracking-normal">غير متاح</h2><p className="mt-3 text-muted-foreground">{shifts.data?.[0]?.status==="completed"?"اكتمل الشيفت؛ يمكنك العودة إلى المنزل":"لا يوجد شيفت محدد"}</p></section>:<>
         <section className="space-y-3 border-b pb-5">
-          <div className="flex items-center justify-between"><h2 className="font-bold tracking-normal">الشيفت</h2><span className="text-sm text-muted-foreground">{shift.status==="scheduled"?"لم يبدأ":onBreak?"بريك":"قيد العمل"}</span></div>
+          <div className="flex items-center justify-between"><h2 className="font-bold tracking-normal">الشيفت</h2><span className="text-sm text-muted-foreground">{available?"متاح":onBreak?"غير متاح — بريك":"غير متاح"}</span></div>
           <p className="text-sm">{new Date(shift.scheduled_start).toLocaleString("ar-SA",{timeZone:"Asia/Riyadh",dateStyle:"medium",timeStyle:"short"})}</p>
           <p className="flex gap-2 text-sm text-muted-foreground"><MapPin className="size-4 shrink-0"/>{shift.neighborhoods.join(" · ")}</p>
           <div className="py-3 text-center"><p className="text-sm text-muted-foreground">ساعات العمل الفعلية</p><p dir="ltr" className="mt-2 text-4xl font-bold tabular-nums">{duration(work)}</p><p className="mt-2 text-sm">المتبقي: {duration(WORK_SECONDS-work)}</p></div>
           {onBreak&&<p className="text-center text-sm text-muted-foreground">ينتهي البريك خلال {duration(Math.max(0,(Date.parse(shift.break_ends_at??"")-now)/1000))}</p>}
           {shift.break_status==="requested"&&<p className="text-sm text-muted-foreground">طلب البريك بانتظار موافقة الإدارة</p>}
           {shift.break_status==="rejected"&&<p className="text-sm text-destructive">لم توافق الإدارة على طلب البريك</p>}
-          {shift.status==="scheduled"?<Button className="w-full" disabled={busy||now<Date.parse(shift.scheduled_start)} onClick={()=>void act("start")}><Bike className="size-4"/>بدء الشيفت</Button>:<div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" disabled={busy||onBreak||!['none','rejected'].includes(shift.break_status)||!!orders.data?.length||work>=WORK_SECONDS} onClick={()=>void act("request_break")}><Coffee className="size-4"/>طلب بريك ساعة</Button>
-            <Button disabled={busy||!!orders.data?.length} onClick={()=>void act("finish")}>إنهاء الشيفت</Button>
-          </div>}
+          {work>=WORK_SECONDS&&<p className="text-sm text-muted-foreground">{orders.data?.some(o=>o.status==="on_the_way")?"انتهت ساعات الشيفت؛ سلّم الطلب الحالي ثم يمكنك العودة إلى المنزل":"اكتمل الشيفت؛ يمكنك العودة إلى المنزل"}</p>}
+          {shift.status==="scheduled"?<Button className="w-full" disabled={busy||now<Date.parse(shift.scheduled_start)} onClick={()=>void act("start")}><Bike className="size-4"/>بدء الشيفت</Button>:<Button className="w-full" variant="outline" disabled={busy||onBreak||!canRequestBreak(shift.status,shift.break_status,shift.break_request_used,work)||!!orders.data?.length} onClick={()=>void act("request_break")}><Coffee className="size-4"/>طلب بريك ساعة</Button>}
         </section>
         <section className="space-y-3"><h2 className="font-bold tracking-normal">الطلب الحالي</h2>
           {!orders.data?.length?<div className="py-8 text-center text-muted-foreground"><PackageCheck className="mx-auto mb-3 size-10"/><p>{onBreak?"أنت في البريك":"لا يوجد طلب حالياً"}</p></div>:orders.data.map(o=><article key={o.id} className="space-y-4 rounded-lg border bg-card p-4">
             <p className="font-bold">طلب #{o.id.slice(0,8)}</p>
             <Location title={`الاستلام · ${o.restaurants?.name_ar??"المطعم"}`} address={o.pickup_address??"لم تحدد الإدارة موقع الاستلام"}/>
             <Location title="التسليم" address={o.address}/>
-            <Button className="w-full" disabled={busy||onBreak} onClick={()=>void act(o.status==="ready"?"pickup":"deliver",o.id)}>{o.status==="ready"?"تم استلام الطلب":"تم تسليم الطلب"}</Button>
+            <Button className="w-full" disabled={busy||onBreak||(o.status==="ready"&&work>=WORK_SECONDS)} onClick={()=>void act(o.status==="ready"?"pickup":"deliver",o.id)}>{o.status==="ready"?"تم استلام الطلب":"تم تسليم الطلب"}</Button>
+            {o.status==="ready"&&<Button className="w-full" variant="outline" disabled={busy||onBreak||!canRejectOrder(shift.rejected_order_id,o.status,work)} onClick={()=>void act("reject",o.id)}>رفض الطلب</Button>}
           </article>)}
         </section>
       </>}

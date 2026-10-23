@@ -1,7 +1,23 @@
 import { describe, expect, test } from "bun:test";
-import { BREAK_SECONDS, WORK_SECONDS, workedSeconds, salaryDayEligible, shiftAssignmentSchema } from "../src/lib/courier-shift-rules";
+import { BREAK_SECONDS, WORK_SECONDS, workedSeconds, salaryDayEligible, shiftAssignmentSchema, canRequestBreak, canRejectOrder, courierAvailable } from "../src/lib/courier-shift-rules";
 
 describe("courier employment", () => {
+  test("one break request per shift including a denied request", () => {
+    expect(canRequestBreak("active","none",false,100)).toBe(true);
+    expect(canRequestBreak("active","rejected",true,100)).toBe(false);
+    expect(canRequestBreak("active","approved",true,100)).toBe(false);
+  });
+  test("one rejection per shift and only before pickup", () => {
+    expect(canRejectOrder(null,"ready",100)).toBe(true);
+    expect(canRejectOrder("first-rejected-order","ready",100)).toBe(false);
+    expect(canRejectOrder(null,"on_the_way",100)).toBe(false);
+  });
+  test("availability stops at ten working hours and during the single break", () => {
+    expect(courierAvailable("active",35999,false)).toBe(true);
+    expect(courierAvailable("active",36000,false)).toBe(false);
+    expect(courierAvailable("active",100,true)).toBe(false);
+    expect(courierAvailable("completed",36000,false)).toBe(false);
+  });
   test("a salary day requires all ten hours", () => {
     expect(WORK_SECONDS).toBe(36000);
     expect(salaryDayEligible(35999)).toBe(false);
