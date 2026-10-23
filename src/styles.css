@@ -485,3 +485,95 @@ html:not(.dark) .shadow-2xl {
 .leaflet-bottom {
   z-index: 3 !important;
 }
+
+/* Public website only: FoodHub branding, spacious editorial app presentation. */
+.foodhub-web {
+  --web-surface: oklch(0.15 0.018 50);
+  --web-raised: oklch(0.20 0.018 50);
+  --web-text: oklch(0.97 0.01 80);
+  --web-muted: oklch(0.73 0.015 80);
+  --web-gold: oklch(0.85 0.16 85);
+  --web-dark: oklch(0.15 0.018 50);
+  --web-shadow: 0 24px 65px oklch(0.08 0.01 50 / 0.35);
+  background: var(--web-surface); color: var(--web-text); overflow: clip;
+}
+.foodhub-web :is(h1,h2,h3) { font-family: var(--font-sans); letter-spacing: 0; }
+.web-container { width: min(1120px, calc(100% - 48px)); margin-inline: auto; }
+.foodhub-web .web-header { position: sticky; top: 0; z-index: 40; background: var(--web-surface) !important; color: var(--web-text) !important; border-bottom: 1px solid color-mix(in oklch,var(--web-text) 10%,transparent); box-shadow:none !important; padding-block: 19px; }
+.foodhub-web a { transition: opacity .2s; }
+.foodhub-web nav a:hover { color:var(--web-gold); }
+.foodhub-web [dir="ltr"] > span:first-child { color:var(--web-text); }
+.foodhub-web .web-cta { background:var(--web-gold); color:var(--web-dark); border-radius:8px; height:44px; padding-inline:24px; font-weight:800; gap:12px; }
+.web-video { position:relative; height: min(60vh, 600px); min-height:320px; }
+.web-video video { width:100%;height:100%;object-fit:cover;object-position:center; }
+.web-video-caption { position:absolute; inset-inline:24px; bottom:20px; display:flex; align-items:center; justify-content:space-between; color:var(--web-text); }
+.web-video-caption > span { display:flex;gap:8px;align-items:center;background:color-mix(in oklch,var(--web-dark) 75%,transparent);padding:8px 14px;border-radius:8px;font-size:12px; }
+.web-video-caption button { background:var(--web-dark);color:var(--web-text);border-radius:50%; }
+.web-intro { padding-top:64px; position:relative; overflow:hidden; }
+.web-eyebrow { font-size:13px;font-weight:700;color:var(--web-gold);margin-bottom:16px; }
+.web-intro h1 { font-family:var(--font-display);font-size:44px;font-weight:900;line-height:1.2;direction:ltr;margin-bottom:18px; }
+.web-intro h1 span { color:var(--web-gold); }
+.foodhub-web h2 { font-size:44px;line-height:1.5;font-weight:900; }
+.web-lead { color:var(--web-muted);max-width:480px;margin:18px auto 24px;font-size:15px;line-height:1.9; }
+.web-showcase { display:flex;justify-content:center;align-items:center;gap:70px;height:480px;margin-top:64px;position:relative; }
+.web-showcase::before { content:"";position:absolute;top:210px;width:170%;height:480px;border-radius:50% 50% 0 0;background:var(--web-raised);z-index:0; }
+.web-showcase > * { position:relative; }
+.web-phone { width:246px;aspect-ratio:390 / 844;flex-shrink:0;border:7px solid var(--web-dark);border-radius:36px;overflow:hidden;background:var(--web-raised);position:relative;box-shadow:var(--web-shadow);outline:1px solid color-mix(in oklch,var(--web-text) 35%,transparent); }
+.web-phone img { width:100%;height:100%;object-fit:cover;display:block; }
+.web-phone-notch { position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:18px;background:var(--web-dark);border-radius:0 0 12px 12px;z-index:1; }
+.web-callouts { display:flex;flex-direction:column;gap:80px;width:180px;text-align:start; }
+.web-callouts span { display:flex;align-items:center;gap:14px;font-size:14px;font-weight:700; }
+.web-callouts svg { width:30px;height:30px;color:var(--web-gold);flex-shrink:0; }
+.web-benefits { display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:center;padding-block:120px; }
+.web-benefit-visual { display:flex;justify-content:center;position:relative;padding-block:36px;background:var(--web-raised);border-radius:50% 50% 0 0; }
+.web-benefit-visual .web-phone { transform:rotate(7deg); }
+.web-word { position:absolute;bottom:30px;inset-inline-start:0;font-size:50px;font-weight:900;color:var(--web-gold);transform:rotate(-12deg); }
+.web-benefit-copy h2 span,.web-faq h2 span { color:var(--web-gold); }
+.web-feature { display:flex;gap:18px;margin-block:28px; }
+.web-feature > svg { color:var(--web-gold);flex-shrink:0;margin-top:6px; }
+.web-feature h3 { font-size:20px;font-weight:800;margin-bottom:8px; }
+.web-feature p { font-size:14px;line-height:1.9;color:var(--web-muted); }
+.web-together { background:var(--web-raised);text-align:center;padding-top:80px;overflow:hidden; }
+.web-together > div > svg { color:var(--web-gold); }
+.web-screen-gallery { display:flex;justify-content:center;align-items:flex-start;gap:36px;height:400px;margin-top:64px; }
+.web-screen-gallery .web-phone:first-child { transform:rotate(-9deg) translateY(55px); }
+.web-screen-gallery .web-phone:last-child { transform:rotate(9deg) translateY(55px); }
+.web-faq { display:grid;grid-template-columns:1fr 1.3fr;gap:90px;padding-block:110px; }
+.web-faq > div > span { margin-top:30px; }
+.web-faq-item { border-bottom:1px solid color-mix(in oklch,var(--web-text) 15%,transparent); }
+.foodhub-web .web-faq-trigger { width:100%;min-height:72px;height:auto;justify-content:space-between;text-align:start;white-space:normal;border-radius:0;padding:18px 0;color:var(--web-text);font-size:17px;font-weight:700;gap:16px;background:transparent; }
+.web-faq-item p { color:var(--web-muted);line-height:1.9;font-size:14px;padding-bottom:24px; }
+.web-final { background:var(--web-gold);color:var(--web-dark);text-align:center;padding-block:65px; }
+.web-final .web-eyebrow { color:var(--web-dark); }
+.web-final .web-cta { background:var(--web-dark);color:var(--web-gold);margin-top:24px; }
+.foodhub-web .web-footer { display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;padding-block:35px;background:var(--web-surface) !important;color:var(--web-muted) !important; }
+.web-footer p { font-size:12px; }
+@media(max-width:767px) {
+  .web-container { width:calc(100% - 36px); }
+  .web-header .web-container { gap:6px; }
+  .web-header .web-cta { padding-inline:12px;height:38px;font-size:12px; }
+  .web-header [dir="ltr"] { display:none; }
+  .web-video { height:350px;min-height:0; }
+  .web-video-caption { inset-inline:14px;bottom:14px; }
+  .web-intro { padding-top:44px; }
+  .web-intro h1 { font-size:34px; }
+  .foodhub-web h2 { font-size:30px; }
+  .web-lead { font-size:14px; }
+  .web-showcase { margin-top:42px;gap:12px;height:370px; }
+  .web-showcase .web-phone { width:180px;border-width:5px;border-radius:27px; }
+  .web-callouts { width:65px;gap:50px; }
+  .web-callouts span { flex-direction:column;text-align:center;font-size:10px;gap:8px; }
+  .web-callouts svg { width:24px;height:24px; }
+  .web-benefits { grid-template-columns:1fr;gap:55px;padding-block:65px; }
+  .web-benefit-visual { max-width:360px;width:100%;margin:auto; }
+  .web-benefit-visual .web-phone { width:210px; }
+  .web-word { font-size:36px; }
+  .web-screen-gallery { gap:16px;height:310px;margin-top:40px; }
+  .web-screen-gallery .web-phone { width:170px;border-width:5px;border-radius:25px; }
+  .web-together { padding-top:55px; }
+  .web-faq { grid-template-columns:1fr;gap:35px;padding-block:65px; }
+  .web-faq > div > span { display:none; }
+  .foodhub-web .web-faq-trigger { font-size:15px; }
+  .foodhub-web .web-footer { justify-content:center;text-align:center; }
+}
+@media(prefers-reduced-motion:reduce) { .foodhub-web * { scroll-behavior:auto;transition:none; } }
