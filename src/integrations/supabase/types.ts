@@ -202,6 +202,47 @@ export type Database = {
           },
         ]
       }
+      order_live_locations: {
+        Row: {
+          accuracy: number | null
+          courier_id: string
+          heading: number | null
+          latitude: number
+          longitude: number
+          order_id: string
+          speed: number | null
+          updated_at: string
+        }
+        Insert: {
+          accuracy?: number | null
+          courier_id: string
+          heading?: number | null
+          latitude: number
+          longitude: number
+          order_id: string
+          speed?: number | null
+          updated_at?: string
+        }
+        Update: {
+          accuracy?: number | null
+          courier_id?: string
+          heading?: number | null
+          latitude?: number
+          longitude?: number
+          order_id?: string
+          speed?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_live_locations_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
           address: string
@@ -209,11 +250,15 @@ export type Database = {
           created_at: string
           customer_id: string
           delivery_fee: number
+          delivery_latitude: number | null
+          delivery_longitude: number | null
           delivery_neighborhood: string | null
           id: string
           notes: string | null
           phone: string
           pickup_address: string | null
+          pickup_latitude: number | null
+          pickup_longitude: number | null
           restaurant_id: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -226,11 +271,15 @@ export type Database = {
           created_at?: string
           customer_id: string
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           delivery_neighborhood?: string | null
           id?: string
           notes?: string | null
           phone: string
           pickup_address?: string | null
+          pickup_latitude?: number | null
+          pickup_longitude?: number | null
           restaurant_id: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -243,11 +292,15 @@ export type Database = {
           created_at?: string
           customer_id?: string
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
           delivery_neighborhood?: string | null
           id?: string
           notes?: string | null
           phone?: string
           pickup_address?: string | null
+          pickup_latitude?: number | null
+          pickup_longitude?: number | null
           restaurant_id?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -387,6 +440,17 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      publish_courier_location: {
+        Args: {
+          p_accuracy?: number
+          p_heading?: number
+          p_latitude: number
+          p_longitude: number
+          p_order_id: string
+          p_speed?: number
+        }
+        Returns: undefined
       }
       review_courier_break: {
         Args: { p_approve: boolean; p_shift_id: string }
