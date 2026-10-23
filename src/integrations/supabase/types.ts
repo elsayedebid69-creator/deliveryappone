@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      courier_shifts: {
+        Row: {
+          adjacent_confirmed: boolean
+          break_ends_at: string | null
+          break_started_at: string | null
+          break_status: string
+          courier_id: string
+          created_at: string
+          created_by: string
+          ended_at: string | null
+          id: string
+          neighborhoods: string[]
+          salary_day_eligible: boolean
+          scheduled_start: string
+          started_at: string | null
+          status: string
+          worked_seconds: number
+        }
+        Insert: {
+          adjacent_confirmed?: boolean
+          break_ends_at?: string | null
+          break_started_at?: string | null
+          break_status?: string
+          courier_id: string
+          created_at?: string
+          created_by: string
+          ended_at?: string | null
+          id?: string
+          neighborhoods: string[]
+          salary_day_eligible?: boolean
+          scheduled_start: string
+          started_at?: string | null
+          status?: string
+          worked_seconds?: number
+        }
+        Update: {
+          adjacent_confirmed?: boolean
+          break_ends_at?: string | null
+          break_started_at?: string | null
+          break_status?: string
+          courier_id?: string
+          created_at?: string
+          created_by?: string
+          ended_at?: string | null
+          id?: string
+          neighborhoods?: string[]
+          salary_day_eligible?: boolean
+          scheduled_start?: string
+          started_at?: string | null
+          status?: string
+          worked_seconds?: number
+        }
+        Relationships: []
+      }
       join_requests: {
         Row: {
           created_at: string
@@ -149,9 +203,11 @@ export type Database = {
           created_at: string
           customer_id: string
           delivery_fee: number
+          delivery_neighborhood: string | null
           id: string
           notes: string | null
           phone: string
+          pickup_address: string | null
           restaurant_id: string
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
@@ -164,9 +220,11 @@ export type Database = {
           created_at?: string
           customer_id: string
           delivery_fee?: number
+          delivery_neighborhood?: string | null
           id?: string
           notes?: string | null
           phone: string
+          pickup_address?: string | null
           restaurant_id: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -179,9 +237,11 @@ export type Database = {
           created_at?: string
           customer_id?: string
           delivery_fee?: number
+          delivery_neighborhood?: string | null
           id?: string
           notes?: string | null
           phone?: string
+          pickup_address?: string | null
           restaurant_id?: string
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
@@ -290,12 +350,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      courier_shift_action: {
+        Args: { p_action: string; p_order_id?: string; p_shift_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      review_courier_break: {
+        Args: { p_approve: boolean; p_shift_id: string }
+        Returns: undefined
+      }
+      shift_work_seconds: {
+        Args: {
+          at_time?: string
+          s: Database["public"]["Tables"]["courier_shifts"]["Row"]
+        }
+        Returns: number
       }
     }
     Enums: {
