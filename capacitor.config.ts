@@ -1,12 +1,14 @@
 import type { CapacitorConfig } from "@capacitor/cli";
+import { getMobileApp } from "./scripts/mobile-apps";
+
+const app = getMobileApp(process.env.FOODHUB_APP);
 
 const config: CapacitorConfig = {
-  appId: "foodhub.app",
-  appName: "FoodHub",
-  webDir: ".output/public",
-  bundledWebRuntime: false,
+  appId: app.id,
+  appName: app.name,
+  webDir: "dist/mobile",
   server: {
-    url: "https://foodhub.delivery",
+    url: app.url,
     cleartext: false,
     allowNavigation: ["foodhub.delivery", "*.foodhub.delivery", "*.supabase.co"],
   },

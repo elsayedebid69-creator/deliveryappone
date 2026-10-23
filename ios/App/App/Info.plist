@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>FoodHub</string>
+        <string>$(FOODHUB_DISPLAY_NAME)</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -24,6 +24,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>يستخدم FoodHub موقعك لتحديد عنوان التوصيل وإظهار موقع المندوب أثناء الطلب.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>يستخدم FoodHub موقع المندوب لتحديث متابعة التوصيل أثناء الطلب.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

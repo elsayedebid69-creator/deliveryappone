@@ -352,6 +352,7 @@ export function CourierMobileApp() {
       { source: "customer", name: "العميلة: أريج السبيعي (العليا)", details: "تعامل راقٍ ووصول سريع مع رمز الاستلام", speedMinutes: 11 },
     ];
     const picked = randomSources[Math.floor(Math.random() * randomSources.length)];
+    if (!picked) return;
     const orderNum = `#${Math.floor(4930 + Math.random() * 50)}`;
 
     setRatingBonusHistory(prev => [
