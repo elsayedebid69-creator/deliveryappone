@@ -1,4 +1,6 @@
 # Mobile app completion
+- [ ] Speed up first opening of all four apps; load only the requested app.
+- [ ] Replace simulated tracking with shared authenticated live locations and real order updates across all four apps; Google Maps setup required.
 - [x] Enforce single break request, no manual offline/finish, timestamp-derived automatic unavailability/completion, and one rejection per shift. Authenticated UI verified break approval, blocked repeat/finish, successful rejection with repeat blocked, and automatic paid completion at 36000 seconds. Twelve tests passed; temporary test rows removed.
 - [x] Simplify courier app; admin assigns three areas and start time. Authenticated UI verified: create courier/shift, start, request+approve break, early finish unpaid. Database clock boundaries verified: 35999/32400/36000 seconds. Nine tests passed.
 - [ ] Verify dispatch, pickup and delivery with real restaurant/customer orders; blocked: no live orders or configured pickup/delivery-area data yet. Publish courier/admin screen changes before phone use.
