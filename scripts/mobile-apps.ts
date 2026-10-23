@@ -9,5 +9,5 @@ export function getMobileApp(role = "customer") {
   if (role !== "customer" && role !== "captain" && role !== "kitchen" && role !== "admin") {
     throw new Error(`Unknown mobile app: ${role}`);
   }
-  return { ...mobileApps[role], role, url: `https://foodhub.delivery/?app=${role}` };
+  return { ...mobileApps[role], role, url: role === "admin" ? "https://foodhub.delivery/admin-app?app=admin" : `https://foodhub.delivery/?app=${role}` };
 }

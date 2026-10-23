@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AdminAppRouteImport } from './routes/admin-app'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CaptainRouteImport } from './routes/captain'
 import { Route as CartRouteImport } from './routes/cart'
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminAppRoute = AdminAppRouteImport.update({
+  id: '/admin-app',
+  path: '/admin-app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -156,6 +162,7 @@ const RestaurantIdRoute = RestaurantIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-app': typeof AdminAppRoute
   '/auth': typeof AuthRoute
   '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
@@ -181,6 +188,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-app': typeof AdminAppRoute
   '/auth': typeof AuthRoute
   '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/admin-app': typeof AdminAppRoute
   '/auth': typeof AuthRoute
   '/captain': typeof CaptainRoute
   '/cart': typeof CartRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-app'
     | '/auth'
     | '/captain'
     | '/cart'
@@ -260,6 +270,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-app'
     | '/auth'
     | '/captain'
     | '/cart'
@@ -286,6 +297,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/admin-app'
     | '/auth'
     | '/captain'
     | '/cart'
@@ -313,6 +325,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AdminAppRoute: typeof AdminAppRoute
   AuthRoute: typeof AuthRoute
   CaptainRoute: typeof CaptainRoute
   CartRoute: typeof CartRoute
@@ -347,6 +360,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-app': {
+      id: '/admin-app'
+      path: '/admin-app'
+      fullPath: '/admin-app'
+      preLoaderRoute: typeof AdminAppRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -526,6 +546,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AdminAppRoute: AdminAppRoute,
   AuthRoute: AuthRoute,
   CaptainRoute: CaptainRoute,
   CartRoute: CartRoute,

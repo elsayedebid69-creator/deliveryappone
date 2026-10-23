@@ -42,7 +42,7 @@ function HomePage() {
 
       if (appParam === "admin") {
         localStorage.setItem("foodhub_native_app", "admin");
-        window.location.replace("/admin");
+        window.location.replace("/admin-app");
         return;
       }
       if (appParam === "captain" || appParam === "courier") {
