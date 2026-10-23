@@ -11,7 +11,6 @@ const OrderMapCanvas = lazy(() => import("./order-map-canvas").then(m => ({ defa
 export function LiveOrderMap({orderId}:{orderId:string}) {
   const qc = useQueryClient();
   const [visible,setVisible] = useState(false);
-  const [error,setError] = useState<string | null>(null);
   const [now,setNow] = useState(Date.now());
   const location = useQuery({queryKey:["live-location",orderId],queryFn:async()=>{
     const {data,error} = await supabase.from("order_live_locations").select("*").eq("order_id",orderId).maybeSingle();
