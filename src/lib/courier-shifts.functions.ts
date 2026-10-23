@@ -18,7 +18,7 @@ export const courierShiftAction = createServerFn({method:"POST"})
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => z.object({shift_id:z.string().uuid(), action:z.enum(["start","sync","request_break","finish","pickup","deliver"]), order_id:z.string().uuid().optional()}).parse(d))
   .handler(async ({data, context}) => {
-    const {data: result, error} = await context.supabase.rpc("courier_shift_action", {p_shift_id:data.shift_id,p_action:data.action,p_order_id:data.order_id});
+    const {data: result, error} = await context.supabase.rpc("courier_shift_action", {p_shift_id:data.shift_id,p_action:data.action,...(data.order_id ? {p_order_id:data.order_id} : {})});
     if(error) throw new Error(error.message);
     return result;
   });

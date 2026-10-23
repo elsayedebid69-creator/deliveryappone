@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { BREAK_SECONDS, WORK_SECONDS, workedSeconds, salaryDayEligible, shiftAssignmentSchema } from "./courier-shift-rules";
+import { BREAK_SECONDS, WORK_SECONDS, workedSeconds, salaryDayEligible, shiftAssignmentSchema } from "../src/lib/courier-shift-rules";
 
 describe("courier employment", () => {
   test("a salary day requires all ten hours", () => {
