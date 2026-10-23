@@ -16,3 +16,4 @@
 - Derive courier availability from server timestamps rather than scheduled polling; RPC synchronization materializes completed shifts and never dispatches after work completion.
 - Load native role experiences separately; shared order_live_locations uses courier-authenticated RPC writes, RLS reads and Realtime, with Google Maps loaded on demand.
 - Coverage uses an exact delivery-neighborhood label and an admin-confirmed adjacency set; only orders with a real pickup address are dispatched to avoid invented locations.
+- Keep the public browser presentation in its own storefront module and scope its CSS to .foodhub-web so native role experiences and shared pages retain their designs.

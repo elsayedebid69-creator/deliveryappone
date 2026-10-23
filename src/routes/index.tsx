@@ -3,9 +3,8 @@ import { lazy, Suspense, useEffect } from "react";
 const CustomerMobileApp = lazy(() => import("@/components/apps/customer-mobile-app").then(m=>({default:m.CustomerMobileApp})));
 const SimpleCourierApp = lazy(() => import("@/components/apps/simple-courier-app").then(m=>({default:m.SimpleCourierApp})));
 const KitchenMobileApp = lazy(() => import("@/components/apps/kitchen-work").then(m=>({default:m.KitchenWork})));
-const CustomerApp = lazy(() => import("@/components/storefront/customer-app").then(m=>({default:m.CustomerApp})));
-const AppHeader = lazy(() => import("@/components/app-header").then(m=>({default:m.AppHeader})));
-const AppFooter = lazy(() => import("@/components/app-header").then(m=>({default:m.AppFooter})));
+const PublicWebsite = lazy(() => import("@/components/storefront/public-website").then(m=>({default:m.PublicWebsite})));
+import websitePoster from "@/assets/foodhub-rider-final-dot-top-poster.jpg.asset.json";
 import { safeJsonLd } from "@/lib/jsonld";
 
 export const Route = createFileRoute("/")({
@@ -22,11 +21,11 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "الموقع الرسمي لمنصة FOODHUB لعرض المنصة للجمهور وبوابة الإدارة المركزية.",
       },
-      { property: "og:image", content: "https://foodhub.delivery/icons/icon-512.png" },
+      { property: "og:image", content: websitePoster.url },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://foodhub.delivery/" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "https://foodhub.delivery/icons/icon-512.png" },
+      { name: "twitter:image", content: websitePoster.url },
     ],
     links: [{ rel: "canonical", href: "https://foodhub.delivery/" }],
   }),
@@ -120,11 +119,7 @@ function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: safeJsonLd(websiteSchema) }}
       />
-      <AppHeader />
-      <main className="flex-1">
-        <CustomerApp isEmbedded={false} />
-      </main>
-      <AppFooter />
+      <PublicWebsite />
     </div>
   );
 }
