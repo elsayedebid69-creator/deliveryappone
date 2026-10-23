@@ -1,4 +1,5 @@
 # Mobile app completion
+- [ ] Replace shared order maps in all four apps with lazy-loaded MapLibre/OpenFreeMap; retain Realtime GPS and show real pickup/delivery coordinates, then verify rendering and updates.
 - [x] Restyle public browser homepage inspired by qeu.app with centered app showcase, spacious benefits and FAQ, preserving original top video, current colors and logo; native apps unchanged. Desktop/mobile verified video playback/pause, FAQ, customer entry and no overflow; build OK.
 - [x] Speed up first opening with role-specific lazy loading, synchronous app selection, deduplicated session role reads and admin tab-gated queries. Four signed-out entries and authenticated admin passed browser checks; build OK and 14 tests passed.
 - [ ] Shared authenticated GPS storage, RLS reads, Realtime order/maps and simulated-tracking removal implemented. End-to-end live tracking blocked by absent live orders, device GPS validation and user-owned Google Maps browser key authorized for foodhub.delivery; Maps sandbox testing intentionally skipped. Published phone experience requires publishing these changes.
