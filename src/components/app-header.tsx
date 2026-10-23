@@ -1,3 +1,4 @@
+import { useIsAdminApp } from "@/lib/native-app";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useState, useRef } from "react";
 import { toast } from "sonner";
@@ -29,6 +30,12 @@ import { ThemeToggleDropdown } from "@/components/theme-toggle-dropdown";
 import { LanguageDropdown } from "@/components/language-dropdown";
 
 export function AppHeader() {
+  const isAdminApp = useIsAdminApp();
+  if (isAdminApp) return null;
+  return <SiteHeader />;
+}
+
+function SiteHeader() {
   const { t, lang, setLang } = useI18n();
   const { count } = useCart();
   const { user, role } = useSession();
