@@ -7,6 +7,7 @@ import { AppHeader } from "@/components/app-header";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LiveOrderRadar } from "@/components/customer/live-order-radar";
+import { useRealtime } from "@/lib/realtime";
 import { Clock, Store, CheckCircle2, ArrowRight, Package, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/orders")({
@@ -16,9 +17,8 @@ export const Route = createFileRoute("/_authenticated/orders")({
       { name: "description", content: "تابع حالة طلباتك الحالية عبر الرادار الفضائي المباشر على منصة FOODHUB." },
       { property: "og:title", content: "تتبع طلباتي | FOODHUB" },
       { property: "og:description", content: "رادار تتبع مباشر لحالة تحضير وتوصيل وجباتك خطوة بخطوة." },
-      { property: "og:image", content: "/icons/icon-512.png" },
+      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -26,6 +26,7 @@ export const Route = createFileRoute("/_authenticated/orders")({
 });
 
 function OrdersPage() {
+  useRealtime(["orders","order_items"],["my-orders"],"customer-orders");
   const { t, tStatus, tf, tn } = useI18n();
   const { user } = useSession();
 
@@ -71,10 +72,10 @@ function OrdersPage() {
           </div>
 
           <LiveOrderRadar
-            orderId={latestOrder ? latestOrder.id.slice(0, 8).toUpperCase() : "FH-89241"}
-            restaurantName={latestOrder?.restaurants ? tf(latestOrder.restaurants, "name") : "FoodHub Prime Kitchen"}
-            deliveryAddress={latestOrder?.address || "حي النرجس، شارع عثمان بن عفان، الرياض"}
-            status={latestOrder?.status || "on_the_way"}
+            orderId={latestOrder?.id}
+            restaurantName={latestOrder?.restaurants ? tf(latestOrder.restaurants, "name") : undefined}
+            deliveryAddress={latestOrder?.address}
+            status={latestOrder?.status}
           />
         </div>
 

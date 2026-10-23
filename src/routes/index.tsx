@@ -2,7 +2,7 @@ import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { lazy, Suspense, useEffect } from "react";
 const CustomerMobileApp = lazy(() => import("@/components/apps/customer-mobile-app").then(m=>({default:m.CustomerMobileApp})));
 const SimpleCourierApp = lazy(() => import("@/components/apps/simple-courier-app").then(m=>({default:m.SimpleCourierApp})));
-const KitchenMobileApp = lazy(() => import("@/components/apps/kitchen-mobile-app").then(m=>({default:m.KitchenMobileApp})));
+const KitchenMobileApp = lazy(() => import("@/components/apps/kitchen-work").then(m=>({default:m.KitchenWork})));
 const CustomerApp = lazy(() => import("@/components/storefront/customer-app").then(m=>({default:m.CustomerApp})));
 const AppHeader = lazy(() => import("@/components/app-header").then(m=>({default:m.AppHeader})));
 const AppFooter = lazy(() => import("@/components/app-header").then(m=>({default:m.AppFooter})));
