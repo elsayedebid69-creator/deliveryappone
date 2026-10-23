@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "leaflet/dist/leaflet.css";
+@import "maplibre-gl/dist/maplibre-gl.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -485,6 +486,12 @@ html:not(.dark) .shadow-2xl {
 .leaflet-bottom {
   z-index: 3 !important;
 }
+
+.order-map-canvas .maplibregl-ctrl-attrib { max-width: calc(100% - 12px); }
+.order-map-marker { border: 2px solid var(--background); border-radius: 8px; padding: 5px 10px; font-family: var(--font-sans); font-size: 12px; font-weight: 700; direction: rtl; white-space: nowrap; box-shadow: var(--shadow-card); }
+.order-map-marker--pickup { background: var(--success); color: var(--success-foreground); }
+.order-map-marker--delivery { background: var(--foreground); color: var(--background); }
+.order-map-marker--courier { background: var(--primary); color: var(--primary-foreground); }
 
 /* Public website only: FoodHub branding, spacious editorial app presentation. */
 .foodhub-web {
