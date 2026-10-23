@@ -11,6 +11,8 @@ import { Input } from "@/components/ui/input";
 import { useServerFn } from "@tanstack/react-start";
 import { AdminCourierShifts, AdminOrderRouting, ShiftFields, emptyShift, shiftPayload } from "@/components/courier/admin-shifts";
 import { assignCourierShift } from "@/lib/courier-shifts.functions";
+import { useRealtime } from "@/lib/realtime";
+import { LiveOrderMap } from "@/components/apps/live-order-map";
 
 export const Route = createFileRoute("/admin-app")({
   ssr: false,
@@ -93,9 +95,10 @@ function Login() {
 }
 
 function Panel() {
+  useRealtime(["orders","restaurants","courier_shifts"],["admin-app-orders","admin-app-restaurants","admin-app-shifts"],"admin-app");
   const [tab, setTab] = useState<Tab>("orders");
   const qc = useQueryClient();
-  const accounts = useQuery({ queryKey: ["admin-app-accounts"], queryFn: () => listAccounts() });
+  const accounts = useQuery({ queryKey: ["admin-app-accounts"], enabled:tab!=="orders", queryFn: () => listAccounts() });
   const orders = useQuery({
     queryKey: ["admin-app-orders"],
     queryFn: async () => {
@@ -104,6 +107,7 @@ function Panel() {
     },
   });
   const restaurants = useQuery({
+    enabled:tab==="restaurant",
     queryKey: ["admin-app-restaurants"],
     queryFn: async () => {
       const { data } = await supabase.from("restaurants").select("id,name_ar,is_active,owner_id").order("created_at", { ascending: false });
@@ -147,6 +151,7 @@ function Panel() {
               </div>
               <p className="mt-1 truncate text-xs text-muted-foreground">{o.address}</p>
               <p className="mt-1 text-sm">{Number(o.total).toFixed(2)} ر.س</p>
+              {["ready","on_the_way"].includes(o.status)&&<LiveOrderMap orderId={o.id}/>}
               {["pending","accepted","preparing","ready"].includes(o.status) && <AdminOrderRouting orderId={o.id} pickup={o.pickup_address} neighborhood={o.delivery_neighborhood} onDone={refresh} />}
             </div>
           ))

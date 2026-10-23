@@ -9,6 +9,9 @@ import { courierShiftAction } from "@/lib/courier-shifts.functions";
 import { WORK_SECONDS, workedSeconds, canRequestBreak, canRejectOrder, courierAvailable } from "@/lib/courier-shift-rules";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRealtime } from "@/lib/realtime";
+import { useCourierLocation } from "@/lib/live-location";
+import { LiveOrderMap } from "./live-order-map";
 
 const duration = (seconds: number) => `${Math.floor(seconds/3600).toString().padStart(2,"0")}:${Math.floor(seconds%3600/60).toString().padStart(2,"0")}:${Math.floor(seconds%60).toString().padStart(2,"0")}`;
 
@@ -37,6 +40,7 @@ export function SimpleCourierApp() {
 }
 
 function CourierWork({userId}:{userId:string}) {
+  useRealtime(["orders","courier_shifts"],["courier-work-shifts","courier-work-orders"],"courier-work");
   const qc = useQueryClient();
   const actionFn = useServerFn(courierShiftAction);
   const [now,setNow] = useState(Date.now());
@@ -69,12 +73,14 @@ function CourierWork({userId}:{userId:string}) {
   const work=shift?.started_at?workedSeconds(Date.parse(shift.started_at),now,shift.break_started_at?Date.parse(shift.break_started_at):undefined,shift.break_ends_at?Date.parse(shift.break_ends_at):undefined):0;
   const onBreak=!!shift?.break_ends_at && now<Date.parse(shift.break_ends_at);
   const available=!!shift && courierAvailable(shift.status,work,onBreak);
+  const gpsError=useCourierLocation(orders.data?.[0]?.id,!!shift&&shift.status==="active"&&!onBreak);
   return <div dir="rtl" className="min-h-screen bg-background pb-8 text-foreground">
     <header className="flex items-center justify-between border-b bg-card px-4 py-4 pt-[max(1rem,env(safe-area-inset-top))]">
       <div className="flex items-center gap-2"><img src="/app-logo.png" alt="" className="size-9 object-contain"/><h1 className="text-lg font-bold tracking-normal">FoodHub المندوب</h1></div>
       <div className="flex gap-1"><Button size="icon" variant="ghost" aria-label="تحديث" onClick={refresh}><RefreshCw className="size-4"/></Button><Button size="icon" variant="ghost" aria-label="خروج" onClick={()=>void supabase.auth.signOut()}><LogOut className="size-4"/></Button></div>
     </header>
     <main className="mx-auto max-w-lg space-y-6 p-4">
+      {gpsError&&<p role="alert" className="text-sm text-destructive">{gpsError}</p>}
       {(shifts.isError||orders.isError)&&<p role="alert" className="text-destructive">تعذر تحميل البيانات. حاول التحديث.</p>}
       {!shift?<section className="py-12 text-center"><Clock className="mx-auto mb-3 size-10 text-muted-foreground"/><h2 className="font-bold tracking-normal">غير متاح</h2><p className="mt-3 text-muted-foreground">{shifts.data?.[0]?.status==="completed"?"اكتمل الشيفت؛ يمكنك العودة إلى المنزل":"لا يوجد شيفت محدد"}</p></section>:<>
         <section className="space-y-3 border-b pb-5">
@@ -93,6 +99,7 @@ function CourierWork({userId}:{userId:string}) {
             <p className="font-bold">طلب #{o.id.slice(0,8)}</p>
             <Location title={`الاستلام · ${o.restaurants?.name_ar??"المطعم"}`} address={o.pickup_address??"لم تحدد الإدارة موقع الاستلام"}/>
             <Location title="التسليم" address={o.address}/>
+            <LiveOrderMap orderId={o.id}/>
             <Button className="w-full" disabled={busy||onBreak||(o.status==="ready"&&work>=WORK_SECONDS)} onClick={()=>void act(o.status==="ready"?"pickup":"deliver",o.id)}>{o.status==="ready"?"تم استلام الطلب":"تم تسليم الطلب"}</Button>
             {o.status==="ready"&&<Button className="w-full" variant="outline" disabled={busy||onBreak||!canRejectOrder(shift.rejected_order_id,o.status,work)} onClick={()=>void act("reject",o.id)}>رفض الطلب</Button>}
           </article>)}

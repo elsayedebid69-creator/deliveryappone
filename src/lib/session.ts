@@ -11,30 +11,33 @@ export function useSession() {
 
   useEffect(() => {
     let active = true;
+    let generation = 0;
+    let currentId: string | null | undefined;
 
     const loadRole = async (u: User | null) => {
+      if (currentId === (u?.id ?? null)) return;
+      currentId = u?.id ?? null;
+      const version = ++generation;
+      if (active) { setUser(u); setRole(null); setLoading(true); }
       if (!u) {
-        if (active) setRole(null);
+        if (active) setLoading(false);
         return;
       }
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.id);
-      if (!active) return;
+      if (!active || version !== generation) return;
       const roles = (data ?? []).map((r) => r.role as AppRole);
       const priority: AppRole[] = ["admin", "restaurant", "courier", "customer"];
       setRole(priority.find((p) => roles.includes(p)) ?? "customer");
+      setLoading(false);
     };
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      void loadRole(session?.user ?? null);
-      setLoading(false);
+      queueMicrotask(() => { if(active) void loadRole(session?.user ?? null); });
     });
 
     void supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
-      setUser(data.session?.user ?? null);
       void loadRole(data.session?.user ?? null);
-      setLoading(false);
     });
 
     return () => {
