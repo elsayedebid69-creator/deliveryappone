@@ -36,19 +36,29 @@ jobs:
         run: bun scripts/prepare-mobile.ts
       - name: Sync the selected Android app
         run: bunx cap sync android
-      - name: Build test APK
+      - name: Build signed release APK
         working-directory: android
         shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Missing Android signing secrets"; exit 1; }
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          export ANDROID_KEYSTORE_PATH="$RUNNER_TEMP/release.jks"
           chmod +x gradlew
           variant="${FOODHUB_APP^}"
-          ./gradlew "assemble${variant}Debug" --no-daemon
+          ./gradlew "assemble${variant}Release" --no-daemon
+          bt="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)"
+          "$bt/apksigner" verify --print-certs "app/build/outputs/apk/${FOODHUB_APP}/release/app-${FOODHUB_APP}-release.apk"
       - uses: actions/upload-artifact@v4
         with:
-          name: FoodHub-${{ matrix.app }}-Android-Test-APK
-          path: android/app/build/outputs/apk/${{ matrix.app }}/debug/app-${{ matrix.app }}-debug.apk
+          name: FoodHub-${{ matrix.app }}-Android-Release-APK
+          path: android/app/build/outputs/apk/${{ matrix.app }}/release/app-${{ matrix.app }}-release.apk
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 30
 
   build-ios:
     name: iOS / ${{ matrix.app }}
