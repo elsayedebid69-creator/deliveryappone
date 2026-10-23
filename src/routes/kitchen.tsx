@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { KitchenMobileApp } from "@/components/apps/kitchen-mobile-app";
+import { KitchenWork } from "@/components/apps/kitchen-work";
 
 export const Route = createFileRoute("/kitchen")({
   ssr: false,
@@ -11,7 +11,9 @@ export const Route = createFileRoute("/kitchen")({
         content: "تطبيق شاشة المطبخ وإدارة المطاعم KDS في منصة فود هب. استقبال التذاكر الفورية ومؤقتات الطهي وإدارة المخزون.",
       },
       { property: "og:title", content: "FOODHUB Kitchen | تطبيق شاشة المطبخ KDS" },
-      { property: "og:image", content: "https://foodhub.delivery/icons/icon-512.png" },
+      { property: "og:description", content: "طلبات المطعم الحقيقية وتحديثات التحضير وتتبع المندوب لحظياً." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: KitchenStandaloneApp,
@@ -21,7 +23,7 @@ function KitchenStandaloneApp() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-emerald-500 selection:text-slate-950">
       <main className="flex-1">
-        <KitchenMobileApp />
+        <KitchenWork />
       </main>
     </div>
   );

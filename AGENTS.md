@@ -14,4 +14,5 @@
 - Label unsigned iOS outputs as compilation bundles, never installable IPAs; device distribution requires archive/export with valid Apple signing.
 - Courier shifts and order actions are persisted through authenticated database RPCs using server time; couriers cannot directly edit attendance or claim arbitrary orders, preventing salary-day and coverage tampering.
 - Derive courier availability from server timestamps rather than scheduled polling; RPC synchronization materializes completed shifts and never dispatches after work completion.
+- Load native role experiences separately; shared order_live_locations uses courier-authenticated RPC writes, RLS reads and Realtime, with Google Maps loaded on demand.
 - Coverage uses an exact delivery-neighborhood label and an admin-confirmed adjacency set; only orders with a real pickup address are dispatched to avoid invented locations.

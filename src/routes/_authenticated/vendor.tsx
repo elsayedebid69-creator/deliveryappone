@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { AiDishCreator } from "@/components/vendor/ai-dish-creator";
+import { LiveOrderMap } from "@/components/apps/live-order-map";
 import { sounds } from "@/lib/sound-effects";
 import {
   Store,
@@ -54,9 +55,8 @@ export const Route = createFileRoute("/_authenticated/vendor")({
       { name: "description", content: "إدارة قائمة الطعام ومتابعة شاشة المطبخ KDS والطلبات الحية لحظياً على FOODHUB." },
       { property: "og:title", content: "شاشة المطبخ KDS | FOODHUB" },
       { property: "og:description", content: "شاشة إدارة المطبخ السحابي والطلبات الحية." },
-      { property: "og:image", content: "/icons/icon-512.png" },
+      { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:image", content: "/icons/icon-512.png" },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -715,6 +715,7 @@ function VendorPage() {
                         </div>
 
                         {/* Order Items */}
+                        <LiveOrderMap orderId={o.id}/>
                         <ul className="space-y-1 text-xs text-slate-200 border-t border-slate-900 pt-2 font-medium">
                           {o.order_items?.map((it: { id: string; quantity: number; name_ar: string; name_en: string }) => (
                             <li key={it.id} className="flex items-center justify-between">

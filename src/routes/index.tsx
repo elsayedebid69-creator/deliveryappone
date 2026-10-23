@@ -1,10 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
-import { CustomerMobileApp } from "@/components/apps/customer-mobile-app";
-import { SimpleCourierApp } from "@/components/apps/simple-courier-app";
-import { KitchenMobileApp } from "@/components/apps/kitchen-mobile-app";
-import { CustomerApp } from "@/components/storefront/customer-app";
-import { AppHeader, AppFooter } from "@/components/app-header";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { lazy, Suspense, useEffect } from "react";
+const CustomerMobileApp = lazy(() => import("@/components/apps/customer-mobile-app").then(m=>({default:m.CustomerMobileApp})));
+const SimpleCourierApp = lazy(() => import("@/components/apps/simple-courier-app").then(m=>({default:m.SimpleCourierApp})));
+const KitchenMobileApp = lazy(() => import("@/components/apps/kitchen-work").then(m=>({default:m.KitchenWork})));
+const CustomerApp = lazy(() => import("@/components/storefront/customer-app").then(m=>({default:m.CustomerApp})));
+const AppHeader = lazy(() => import("@/components/app-header").then(m=>({default:m.AppHeader})));
+const AppFooter = lazy(() => import("@/components/app-header").then(m=>({default:m.AppFooter})));
 import { safeJsonLd } from "@/lib/jsonld";
 
 export const Route = createFileRoute("/")({
@@ -29,36 +30,23 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "https://foodhub.delivery/" }],
   }),
-  component: HomePage,
+  component: () => <Suspense fallback={<div dir="rtl" className="min-h-screen bg-background p-6 text-foreground">FoodHub · جارِ الفتح…</div>}><HomePage /></Suspense>,
 });
 
 function HomePage() {
-  const [appMode, setAppMode] = useState<"website" | "customer" | "captain" | "kitchen">("website");
+  const searchStr = useLocation({select:location=>location.searchStr});
+  const appParam = new URLSearchParams(searchStr).get("app")?.toLowerCase();
+  const appMode = appParam==="courier"?"captain":appParam==="vendor"?"kitchen":appParam??"website";
 
   useEffect(() => {
     try {
-      const params = new URLSearchParams(window.location.search);
-      const appParam = params.get("app")?.toLowerCase();
-
       if (appParam === "admin") {
         localStorage.setItem("foodhub_native_app", "admin");
         window.location.replace("/admin-app");
         return;
       }
-      if (appParam === "captain" || appParam === "courier") {
-        setAppMode("captain");
-      } else if (appParam === "kitchen" || appParam === "vendor") {
-        setAppMode("kitchen");
-      } else if (appParam === "customer") {
-        setAppMode("customer");
-      } else {
-        // Default on web, desktop, and Lovable: Show the official Public Website & Admin Portal!
-        setAppMode("website");
-      }
-    } catch {
-      setAppMode("website");
-    }
-  }, []);
+    } catch { /* storage may be unavailable */ }
+  }, [appParam]);
 
   const websiteSchema = {
     "@context": "https://schema.org",

@@ -10,7 +10,7 @@ export function useRealtime(tables: string[], keys: string[], channelName: strin
   const qc = useQueryClient();
 
   useEffect(() => {
-    const channel = supabase.channel(`rt-${channelName}`);
+    const channel = supabase.channel(`rt-${channelName}-${crypto.randomUUID()}`);
 
     for (const table of tables) {
       channel.on(

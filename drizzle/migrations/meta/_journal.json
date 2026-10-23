@@ -22,6 +22,13 @@
       "when": 1792785831507,
       "tag": "0002_courier_availability_rejection_limits",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792786403648,
+      "tag": "0003_shared_live_order_tracking",
+      "breakpoints": true
     }
   ]
 }
