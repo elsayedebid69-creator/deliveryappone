@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [customer, captain, kitchen]
+        app: [customer, captain, kitchen, admin]
     env:
       FOODHUB_APP: ${{ matrix.app }}
     steps:
@@ -63,6 +63,8 @@ jobs:
             display_name: FoodHub Captain
           - app: kitchen
             display_name: FoodHub Kitchen
+          - app: admin
+            display_name: FoodHub Admin
     env:
       FOODHUB_APP: ${{ matrix.app }}
       FOODHUB_DISPLAY_NAME: ${{ matrix.display_name }}
