@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           adjacent_confirmed: boolean
           break_ends_at: string | null
+          break_request_used: boolean
           break_started_at: string | null
           break_status: string
           courier_id: string
@@ -26,6 +27,7 @@ export type Database = {
           ended_at: string | null
           id: string
           neighborhoods: string[]
+          rejected_order_id: string | null
           salary_day_eligible: boolean
           scheduled_start: string
           started_at: string | null
@@ -35,6 +37,7 @@ export type Database = {
         Insert: {
           adjacent_confirmed?: boolean
           break_ends_at?: string | null
+          break_request_used?: boolean
           break_started_at?: string | null
           break_status?: string
           courier_id: string
@@ -43,6 +46,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           neighborhoods: string[]
+          rejected_order_id?: string | null
           salary_day_eligible?: boolean
           scheduled_start: string
           started_at?: string | null
@@ -52,6 +56,7 @@ export type Database = {
         Update: {
           adjacent_confirmed?: boolean
           break_ends_at?: string | null
+          break_request_used?: boolean
           break_started_at?: string | null
           break_status?: string
           courier_id?: string
@@ -60,6 +65,7 @@ export type Database = {
           ended_at?: string | null
           id?: string
           neighborhoods?: string[]
+          rejected_order_id?: string | null
           salary_day_eligible?: boolean
           scheduled_start?: string
           started_at?: string | null
@@ -347,9 +353,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      courier_shift_availability: {
+        Row: {
+          available: boolean | null
+          courier_id: string | null
+          id: string | null
+          work_complete: boolean | null
+        }
+        Insert: {
+          available?: never
+          courier_id?: string | null
+          id?: string | null
+          work_complete?: never
+        }
+        Update: {
+          available?: never
+          courier_id?: string | null
+          id?: string | null
+          work_complete?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      complete_due_courier_shifts: { Args: never; Returns: undefined }
       courier_shift_action: {
         Args: { p_action: string; p_order_id?: string; p_shift_id: string }
         Returns: Json
